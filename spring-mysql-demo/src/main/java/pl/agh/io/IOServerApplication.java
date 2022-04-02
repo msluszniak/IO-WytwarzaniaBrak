@@ -8,6 +8,4 @@ public class IOServerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(IOServerApplication.class, args);
 	}
-
-
 }
