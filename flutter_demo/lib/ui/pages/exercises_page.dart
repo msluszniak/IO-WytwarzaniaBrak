@@ -5,27 +5,53 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_demo/models/favorites.dart';
-import 'package:flutter_demo/screens/favorites.dart';
+import 'package:flutter_demo/ui/pages/favorites.dart';
 
-class ListPage extends StatelessWidget {
-  static const routeName = '/list';
+class ExercisesPage extends StatelessWidget {
+  static const routeName = '/exercises';
 
-  const ListPage({Key? key}) : super(key: key);
+  const ExercisesPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Testing Sample'),
+        title: const Text('Exercises'),
         actions: [
-          TextButton.icon(
-            style: TextButton.styleFrom(primary: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, FavoritesPage.routeName);
-            },
-            icon: const Icon(Icons.favorite_border),
-            label: const Text('Favorites'),
-          ),
+          Spacer(),
+          Expanded(
+              child: Row(
+            children: [
+              Spacer(),
+              TextButton.icon(
+                style: TextButton.styleFrom(primary: Colors.white),
+                onPressed: () {
+                  Navigator.pushNamed(context, FavoritesPage.routeName);
+                },
+                icon: const Icon(Icons.favorite_border),
+                label: const Text('Favorites'),
+              ),
+              Spacer(),
+              TextButton.icon(
+                style: TextButton.styleFrom(primary: Colors.white),
+                onPressed: () {
+                  // Add route
+                },
+                icon: const Icon(Icons.circle_outlined),
+                label: const Text('Tab2'),
+              ),
+              Spacer(),
+              TextButton.icon(
+                style: TextButton.styleFrom(primary: Colors.white),
+                onPressed: () {
+                  // Add route
+                },
+                icon: const Icon(Icons.circle_outlined),
+                label: const Text('Tab3'),
+              ),
+              Spacer()
+            ],
+          )),
         ],
       ),
       body: ListView.builder(

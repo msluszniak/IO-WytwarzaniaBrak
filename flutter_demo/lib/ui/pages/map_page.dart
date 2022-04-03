@@ -5,7 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapPage extends StatelessWidget {
-  static const routeName = '/map_page';
+  static const routeName = '/map';
 
   const MapPage({Key? key}) : super(key: key);
 

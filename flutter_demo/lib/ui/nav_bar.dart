@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/screens/favorites.dart';
-import 'package:flutter_demo/screens/list.dart';
-import 'package:flutter_demo/screens/map_page.dart';
+import 'package:flutter_demo/ui/pages/gyms_page.dart';
+import 'package:flutter_demo/ui/pages/favorites.dart';
+import 'package:flutter_demo/ui/pages/exercises_page.dart';
+import 'package:flutter_demo/ui/pages/map_page.dart';
 
 class NavBar extends StatelessWidget {
   @override
@@ -40,8 +41,8 @@ class NavBar extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.list),
-            title: Text('List'),
-            onTap: () => Navigator.pushNamed(context, ListPage.routeName),
+            title: Text('Exercises'),
+            onTap: () => Navigator.pushNamed(context, ExercisesPage.routeName),
           ),
           ListTile(
             leading: Icon(Icons.favorite),
@@ -49,45 +50,14 @@ class NavBar extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, FavoritesPage.routeName),
           ),
           ListTile(
-            leading: Icon(Icons.person),
-            title: Text('Friends'),
-            onTap: () => null,
-          ),
-          ListTile(
-            leading: Icon(Icons.share),
-            title: Text('Share'),
-            onTap: () => null,
-          ),
-          ListTile(
-            leading: Icon(Icons.notifications),
-            title: Text('Request'),
-            onTap: () => null,
-            trailing: ClipOval(
-              child: Container(
-                color: Colors.red,
-                width: 20,
-                height: 20,
-                child: Center(
-                  child: Text(
-                    '8',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            leading: Icon(Icons.list),
+            title: Text('Gyms'),
+            onTap: () => Navigator.pushNamed(context, GymPage.routeName),
           ),
           Divider(),
           ListTile(
             leading: Icon(Icons.settings),
             title: Text('Settings'),
-            onTap: () => null,
-          ),
-          ListTile(
-            leading: Icon(Icons.description),
-            title: Text('Policies'),
             onTap: () => null,
           ),
           Divider(),
