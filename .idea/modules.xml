@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/IO-WytwarzaniaBrak.iml" filepath="$PROJECT_DIR$/.idea/IO-WytwarzaniaBrak.iml" />
+      <module fileurl="file://$PROJECT_DIR$/io_wytwarzania_brak.iml" filepath="$PROJECT_DIR$/io_wytwarzania_brak.iml" />
     </modules>
   </component>
 </project>
