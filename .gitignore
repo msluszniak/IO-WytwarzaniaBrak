@@ -9,6 +9,9 @@
 .history
 .svn/
 
+# Local
+local.properties
+
 # IntelliJ related
 *.iml
 *.ipr

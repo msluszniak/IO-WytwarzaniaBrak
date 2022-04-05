@@ -69,11 +69,11 @@ class ShortcutWidget extends StatelessWidget {
   Image _shortcutImage(ShortcutType shortcutType) {
     switch (shortcutType) {
       case ShortcutType.map:
-        return Image.asset('images/map.png');
+        return Image.asset('assets/images/map.png');
       case ShortcutType.gym:
-        return Image.asset('images/dumbbell.png');
+        return Image.asset('assets/images/dumbbell.png');
       case ShortcutType.exercises:
-        return Image.asset('images/exercise.png');
+        return Image.asset('assets/images/exercise.png');
     }
   }
 
