@@ -33,6 +33,7 @@ dependencies:
   latlong2: ^0.8.0
   flutter_map_location_marker: any
   permission_handler: ^8.0.0+2
+  mysql1: ^0.19.2
 
 
 
