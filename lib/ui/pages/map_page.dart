@@ -23,14 +23,14 @@ class MapPage extends StatefulWidget {
 
 class _MapState extends State<MapPage> {
   List gymList = [];
-  late Gym pickedGym;
-  final double startLat = 51.5;
-  final double startLng = -0.08;
+  final double startLat = 50.0686;
+  final double startLng = 19.9043;
   final double diffLat = 0.005;
   final double diffLng = -0.005;
 
   late CenterOnLocationUpdate _centerOnLocationUpdate;
   late StreamController<double?> _centerCurrentLocationStreamController;
+  final MapController controller = new MapController();
   bool hasPermissions = false;
 
   //Populate gym list
@@ -43,7 +43,8 @@ class _MapState extends State<MapPage> {
           startLat + pow(-1, i) * rand.nextDouble() * diffLat,
           startLng + pow(-1, i) * rand.nextDouble() * diffLng,
           "Gym " + i.toString(),
-          "Description of gym " + i.toString()));
+          "Description of gym " + i.toString(),
+          "Address " + i.toString()));
     }
     _centerOnLocationUpdate = CenterOnLocationUpdate.always;
     _centerCurrentLocationStreamController = StreamController<double?>();
@@ -63,6 +64,7 @@ class _MapState extends State<MapPage> {
         title: const Text('Map'),
       ),
       body: FlutterMap(
+        mapController: this.controller,
         options: MapOptions(
           center: LatLng(51.5, -0.09),
           zoom: 13,
@@ -107,11 +109,19 @@ class _MapState extends State<MapPage> {
                     child: IconButton(
                       icon: Icon(Icons.location_on),
                       onPressed: (){
+                        setState(() {
+                          this.controller.move(gymList[index].getLatLng(), this.controller.zoom);
+                        });
                         showModalBottomSheet(
+                            backgroundColor: Colors.transparent,
                             context: context,
-                            builder: (BuildContext context) {
-                              return GymCard(selectedGym: gymList[index]);
-                            });
+                            shape: RoundedRectangleBorder(
+                              borderRadius:  BorderRadius.vertical(
+                                top: Radius.circular(20)
+                              )
+                            ),
+                            builder: (BuildContext context) => GymCard(selectedGym: gymList[index])
+                        );
                       },
                     ),
                   ),

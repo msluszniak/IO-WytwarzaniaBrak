@@ -5,12 +5,14 @@ class Gym {
   double lng = 0;
   String name = "";
   String description = "";
+  String address = "";
 
-  Gym(double lat, double lng, String name, String description) {
+  Gym(double lat, double lng, String name, String description, String address) {
     this.lat = lat;
     this.lng = lng;
     this.name = name;
     this.description = description;
+    this.address = address;
   }
 
   String getName() {
@@ -19,6 +21,10 @@ class Gym {
 
   String getDescription() {
     return description;
+  }
+
+  String getAddress() {
+    return address;
   }
 
   LatLng getLatLng() {
