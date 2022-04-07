@@ -9,8 +9,6 @@ import 'package:flutter_demo/ui/pages/favorites.dart';
 
 import '../../backend/database_connection.dart';
 
-
-
 class ExercisesPage extends StatelessWidget {
   static const routeName = '/exercises';
 
@@ -58,6 +56,7 @@ class ExercisesPage extends StatelessWidget {
           )),
         ],
       ),
+      // this part might be helpful soon, because it implements button with working favourite section. (look database_connection.dart)
       // body: ListView.builder(
       //   itemCount: 100,
       //   cacheExtent: 20.0,
