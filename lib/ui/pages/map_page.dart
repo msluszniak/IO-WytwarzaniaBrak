@@ -46,6 +46,8 @@ class _MapState extends State<MapPage> {
           "Description of gym " + i.toString(),
           "Address " + i.toString()));
     }
+    //debug
+    gymList.add(new Gym(37.428528, -122.087967, "Oakland gym", "Oakland gym description", "Oakland gym address"));
     _centerOnLocationUpdate = CenterOnLocationUpdate.always;
     _centerCurrentLocationStreamController = StreamController<double?>();
     _checkPermission();
