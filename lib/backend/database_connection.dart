@@ -85,7 +85,7 @@ FutureBuilder<List<UserModel>> showFutureDBData() {
 
             title: Text(user.name),
 
-            subtitle: Text(user.equipment + " " + user.bodyPart),
+            subtitle: Text("("+user.bodyPart+")"),
 
             // this part might be helpful soon, because it implements button with working favourite section.
             // trailing: IconButton(
