@@ -16,9 +16,12 @@ public class GymDBAccessController {
 
     @PostMapping(path="/add")
     public @ResponseBody String addNewGym(@RequestParam String name,
-                                           @RequestParam Double latitude, @RequestParam Double longitude) {
+                                          @RequestParam Double latitude,
+                                          @RequestParam Double longitude,
+                                          @RequestParam String description,
+                                          @RequestParam String address) {
         try {
-            gymDAO.addNewGym(name, latitude, longitude);
+            gymDAO.addNewGym(name, latitude, longitude, description, address);
         } catch(IllegalArgumentException e) {
             return e.getMessage();
         }
@@ -36,10 +39,14 @@ public class GymDBAccessController {
     }
 
     @PutMapping(path="/update")
-    public @ResponseBody String updateGym(@RequestParam Integer Id, @RequestParam String name,
-                                          @RequestParam Double latitude, @RequestParam Double longitude) {
+    public @ResponseBody String updateGym(@RequestParam Integer Id,
+                                          @RequestParam String name,
+                                          @RequestParam Double latitude,
+                                          @RequestParam Double longitude,
+                                          @RequestParam String description,
+                                          @RequestParam String address) {
         try {
-            gymDAO.updateGym(Id, name, latitude, longitude);
+            gymDAO.updateGym(Id, name, latitude, longitude, description, address);
         } catch(IllegalArgumentException e) {
             return e.getMessage();
         }

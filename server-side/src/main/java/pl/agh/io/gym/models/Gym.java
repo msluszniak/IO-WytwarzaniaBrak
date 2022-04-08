@@ -14,6 +14,8 @@ public class Gym {
     private String name;
     private Double latitude;
     private Double longitude;
+    private String description;
+    private String address;
 
     public Integer getId() {
         return id;
@@ -45,5 +47,21 @@ public class Gym {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }
