@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/storage/dbmanager.dart';
-import 'package:flutter_demo/storage/storage.dart';
 import 'package:flutter_demo/ui/pages/gyms_page.dart';
 import 'package:flutter_demo/ui/pages/map_page.dart';
 import 'package:provider/provider.dart';
@@ -9,41 +8,29 @@ import 'package:flutter_demo/ui/pages/favorites.dart';
 import 'package:flutter_demo/ui/pages/exercises_page.dart';
 import 'dart:async';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
-class MyApp extends StatefulWidget {
-
-  MyApp();
-
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  var storage;
-
-  Future<Storage> loadDataBases() async {
-    final storage = await $FloorStorage.databaseBuilder('storage.db').build();
-    return storage;
+class MyApp extends StatelessWidget {
+  Future<DBManager> loadDataBase() async {
+    final dbManager = DBManager.loadTestDatabase();
+    return dbManager;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Storage>(
-        future: loadDataBases(),
+    return FutureBuilder<DBManager>(
+        future: loadDataBase(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const CircularProgressIndicator();
-          }
-          else {
-            final Storage storage = snapshot.data!;
+          } else {
+            final DBManager dbManager = snapshot.data!;
 
             return ChangeNotifierProvider<DBManager>(
-              create: (context) => DBManager(storage),
+              create: (context) => dbManager,
               child: MaterialApp(
                 title: 'WytwarzaniaBrakApp',
                 theme: ThemeData(
