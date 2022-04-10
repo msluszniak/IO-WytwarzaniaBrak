@@ -1,6 +1,9 @@
 import 'dart:math';
 import 'dart:async';
 
+import 'package:flutter_demo/models/gym.dart';
+import 'package:flutter_demo/ui/widgets/cards/gym_card.dart';
+
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -16,29 +19,18 @@ class MapPage extends StatefulWidget {
   _MapState createState() => _MapState();
 }
 
-class _Location {
-  double lat = 0;
-  double lng = 0;
 
-  _Location(double lat, double lng) {
-    this.lat = lat;
-    this.lng = lng;
-  }
-
-  LatLng getLatLng() {
-    return new LatLng(this.lat, this.lng);
-  }
-}
 
 class _MapState extends State<MapPage> {
-  List locationsList = [];
-  final double startLat = 51.5;
-  final double startLng = -0.08;
+  List gymList = [];
+  final double startLat = 50.0686;
+  final double startLng = 19.9043;
   final double diffLat = 0.005;
   final double diffLng = -0.005;
 
   late CenterOnLocationUpdate _centerOnLocationUpdate;
   late StreamController<double?> _centerCurrentLocationStreamController;
+  final MapController controller = new MapController();
   bool hasPermissions = false;
 
   //Populate gym list
@@ -47,10 +39,15 @@ class _MapState extends State<MapPage> {
     super.initState();
     Random rand = new Random();
     for (int i = 0; i < 10; i++) {
-      locationsList.add(new _Location(
+      gymList.add(new Gym(
           startLat + pow(-1, i) * rand.nextDouble() * diffLat,
-          startLng + pow(-1, i) * rand.nextDouble() * diffLng));
+          startLng + pow(-1, i) * rand.nextDouble() * diffLng,
+          "Gym " + i.toString(),
+          "Description of gym " + i.toString(),
+          "Address " + i.toString()));
     }
+    //debug
+    gymList.add(new Gym(37.428528, -122.087967, "Oakland gym", "Oakland gym description", "Oakland gym address"));
     _centerOnLocationUpdate = CenterOnLocationUpdate.always;
     _centerCurrentLocationStreamController = StreamController<double?>();
     _checkPermission();
@@ -69,6 +66,7 @@ class _MapState extends State<MapPage> {
         title: const Text('Map'),
       ),
       body: FlutterMap(
+        mapController: this.controller,
         options: MapOptions(
           center: LatLng(51.5, -0.09),
           zoom: 13,
@@ -101,26 +99,40 @@ class _MapState extends State<MapPage> {
                 centerOnLocationUpdate: _centerOnLocationUpdate,
               ),
             ),
-        ],
-        nonRotatedChildren: [
           MarkerLayerWidget(
             options: MarkerLayerOptions(
               markers: List.generate(
-                locationsList.length,
+                gymList.length,
                 (index) => Marker(
                   width: 80.0,
                   height: 80.0,
-                  point: locationsList[index].getLatLng(),
+                  point: gymList[index].getLatLng(),
                   builder: (ctx) => Container(
                     child: IconButton(
                       icon: Icon(Icons.location_on),
-                      onPressed: null,
+                      onPressed: (){
+                        setState(() {
+                          this.controller.move(gymList[index].getLatLng(), this.controller.zoom);
+                        });
+                        showModalBottomSheet(
+                            backgroundColor: Colors.transparent,
+                            context: context,
+                            shape: RoundedRectangleBorder(
+                              borderRadius:  BorderRadius.vertical(
+                                top: Radius.circular(20)
+                              )
+                            ),
+                            builder: (BuildContext context) => GymCard(selectedGym: gymList[index])
+                        );
+                      },
                     ),
                   ),
                 ),
               ),
             ),
           ),
+          ],
+          nonRotatedChildren: <Widget>[
           Positioned(
             right: 20,
             bottom: 20,
