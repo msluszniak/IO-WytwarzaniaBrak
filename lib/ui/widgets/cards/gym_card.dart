@@ -14,7 +14,6 @@ class GymCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
@@ -69,8 +68,8 @@ class GymCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
-                    child: const Text('CHECK DISTANCE'),
-                    onPressed: () {/* ... */},
+                    child: Text('CHECK DISTANCE'),
+                    onPressed: () {/* *** */},
                   ),
                   const SizedBox(width: 8),
                 ],

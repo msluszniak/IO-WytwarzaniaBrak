@@ -10,6 +10,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 
+
 class MapPage extends StatefulWidget {
   static const routeName = '/map';
 
@@ -38,13 +39,18 @@ class _MapState extends State<MapPage> {
   void initState() {
     super.initState();
     Random rand = new Random();
+  
     for (int i = 0; i < 10; i++) {
-      gymList.add(new Gym(
-          startLat + pow(-1, i) * rand.nextDouble() * diffLat,
-          startLng + pow(-1, i) * rand.nextDouble() * diffLng,
+      double lat = startLat + pow(-1, i) * rand.nextDouble() * diffLat;
+      double lng = startLng + pow(-1, i) * rand.nextDouble() * diffLng;
+
+      Gym gym = new Gym(
+          lat, lng,
           "Gym " + i.toString(),
           "Description of gym " + i.toString(),
-          "Address " + i.toString()));
+          "Address " + i.toString());
+
+      gymList.add(gym);
     }
     //debug
     gymList.add(new Gym(37.428528, -122.087967, "Oakland gym", "Oakland gym description", "Oakland gym address"));
@@ -167,6 +173,7 @@ class _MapState extends State<MapPage> {
       hasPermissions = false;
     });
   }
+
 
   FloatingActionButton _buildLocalizationButton() {
     return FloatingActionButton(
