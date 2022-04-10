@@ -44,15 +44,14 @@ class Gym {
       response = await http.get(
         Uri.https('nominatim.openstreetmap.org', '/reverse', params),
       );
-    } catch (e){
+    } catch (e) {
       print(e.toString());
       return "";
     }
 
     final json = jsonDecode(response.body);
 
-    if (json['address'] == null)
-      return 'Adres nieznany';
+    if (json['address'] == null) return 'Adres nieznany';
 
     final street = json['address']['road'];
     final houseNumber = json['address']['house_number'];
@@ -61,8 +60,7 @@ class Gym {
     returnString += '${street != null ? street + " " : ""}';
     returnString += '${houseNumber != null ? houseNumber : ", brak numeru"}';
 
-    if (returnString.isEmpty)
-      return 'Adres nieznany';
+    if (returnString.isEmpty) return 'Adres nieznany';
     return returnString;
   }
 }
