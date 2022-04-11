@@ -144,6 +144,8 @@ packages:
     version: "2.1.4"
   geolocator_windows:
     dependency: transitive
+  http:
+    dependency: "direct main"
     description:
       name: geolocator_windows
       url: "https://pub.dartlang.org"
