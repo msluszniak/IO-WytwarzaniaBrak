@@ -43,6 +43,7 @@ class _MapState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
+
     getGymData().then((result) => gymList = result);
     // for (int i = 0; i < 10; i++) {
     //   gymList.add(new Gym(
@@ -52,6 +53,7 @@ class _MapState extends State<MapPage> {
     //       "Description of gym " + i.toString(),
     //       "Address " + i.toString()));
     // }
+
     //debug
     gymList.add(new Gym(
         lat: 37.428528,
@@ -210,6 +212,7 @@ class _MapState extends State<MapPage> {
       hasPermissions = false;
     });
   }
+
 
   FloatingActionButton _buildLocalizationButton() {
     return FloatingActionButton(

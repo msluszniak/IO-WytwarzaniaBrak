@@ -67,7 +67,7 @@ class GymCard extends StatelessWidget {
             ElevatedButton(
               child: const Text('CHECK DISTANCE'),
               onPressed: () {
-                /* ... */
+                selectedGym.getDistance().then((distance) => print('[DEBUG] Distance to selected gym: ' + distance.toString() + "meters"));
               },
             ),
             const SizedBox(width: 8),
