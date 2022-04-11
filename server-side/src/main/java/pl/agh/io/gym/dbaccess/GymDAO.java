@@ -13,11 +13,13 @@ public class GymDAO {
     @Autowired
     private GymRepository gymRepository;
 
-    public void addNewGym(String name, Double latitude, Double longitude) {
+    public void addNewGym(String name, Double latitude, Double longitude, String description, String address) {
         Gym gym = new Gym();
         gym.setName(name);
         gym.setLatitude(latitude);
         gym.setLongitude(longitude);
+        gym.setDescription(description);
+        gym.setAddress(address);
 
         gymRepository.save(gym);
     }
@@ -26,13 +28,15 @@ public class GymDAO {
         gymRepository.deleteById(Id);
     }
 
-    public void updateGym(Integer Id, String name, Double latitude, Double longitude) {
+    public void updateGym(Integer Id, String name, Double latitude, Double longitude, String description, String address) {
         if(gymRepository.existsById(Id)) {
             Gym gym = new Gym();
             gym.setId(Id);
             gym.setName(name);
             gym.setLatitude(latitude);
             gym.setLongitude(longitude);
+            gym.setDescription(description);
+            gym.setAddress(address);
 
             gymRepository.save(gym);
         } else

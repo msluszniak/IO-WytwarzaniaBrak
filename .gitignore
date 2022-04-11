@@ -69,3 +69,8 @@ gradle-app.setting
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+sdk/flutter/
+web/index.html
+web/index.html
+web/index.html
+*.html
