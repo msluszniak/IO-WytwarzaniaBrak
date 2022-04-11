@@ -33,10 +33,10 @@ dependencies:
   latlong2: ^0.8.0
   flutter_map_location_marker: any
   permission_handler: ^8.0.0+2
+  mysql1: ^0.19.2
   flutter_tags: ^0.4.9+1
   geolocator: 8.2.0
-  http: 0.13.4
-
+  http: any
 
 dev_dependencies:
   flutter_test:

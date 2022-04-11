@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../utils/geolocator.dart';
 
@@ -37,6 +39,7 @@ class Gym {
     return new LatLng(this.lat, this.lng);
   }
 
+
   Future<http.Response> _getJsonWithDistance(String lat1, String lng1, String lat2, String lng2) {
     return http.get(Uri.parse('http://router.project-osrm.org/route/v1/foot/' + lng1 + ',' + lat1 + ';' + lng2 + ',' + lat2));
   }
@@ -57,4 +60,36 @@ class Gym {
     } else
       throw Exception('Failed to calculate distance');
   }
+
+  static Future<String> getAddressFromLatLng(LatLng latLang) async {
+    var params = new Map<String, String>();
+    params['lat'] = latLang.latitude.toString();
+    params['lon'] = latLang.longitude.toString();
+    params['format'] = 'json';
+
+    late final response;
+    try {
+      response = await http.get(
+        Uri.https('nominatim.openstreetmap.org', '/reverse', params),
+      );
+    } catch (e) {
+      print(e.toString());
+      return "";
+    }
+
+    final json = jsonDecode(response.body);
+
+    if (json['address'] == null) return 'Adres nieznany';
+
+    final street = json['address']['road'];
+    final houseNumber = json['address']['house_number'];
+
+    var returnString = "";
+    returnString += '${street != null ? street + " " : ""}';
+    returnString += '${houseNumber != null ? houseNumber : ", brak numeru"}';
+
+    if (returnString.isEmpty) return 'Adres nieznany';
+    return returnString;
+  }
 }
+
