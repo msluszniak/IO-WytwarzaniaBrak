@@ -9,13 +9,12 @@ class Gym {
   String description = "";
   String address = "";
 
-  Gym(double lat, double lng, String name, String description, String address) {
-    this.lat = lat;
-    this.lng = lng;
-    this.name = name;
-    this.description = description;
-    this.address = address;
-  }
+  Gym(
+      {required this.lat,
+      required this.lng,
+      required this.name,
+      required this.description,
+      String address = ""});
 
   String getName() {
     return name;
@@ -26,6 +25,7 @@ class Gym {
   }
 
   String getAddress() {
+    if (address == "") return lat.toString() + ", " + lng.toString();
     return address;
   }
 
