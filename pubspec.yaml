@@ -41,6 +41,7 @@ dependencies:
   flutter_tags: ^0.4.9+1
   geolocator: 8.2.0
   http: any
+  tuple: any
 
 dev_dependencies:
   flutter_test:

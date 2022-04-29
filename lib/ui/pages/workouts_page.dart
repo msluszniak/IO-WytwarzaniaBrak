@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tuple/tuple.dart';
 
+import '../../models/exercise.dart';
 import '../../models/workout.dart';
 
 class WorkoutsPage extends StatefulWidget {
@@ -24,9 +26,9 @@ class _WorkoutsState extends State<WorkoutsPage> {
           id: i.toString(),
           name: "Trening $i",
           exercises: [
-            ["ćwiczenie ${i}1", 5],
-            ["ćwiczenie ${i}2", 10],
-            ["ćwiczenie ${i}3", 15]
+            Tuple2(Exercise(name: "Ćwiczenie ${i}1"), 5),
+            Tuple2(Exercise(name: "Ćwiczenie ${i}2"), 10),
+            Tuple2(Exercise(name: "Ćwiczenie ${i}3"), 15)
           ],
           description: "Opis treningu nr. $i"));
     }
@@ -84,9 +86,11 @@ class _WorkoutTile extends StatelessWidget {
             physics: NeverScrollableScrollPhysics(),
             scrollDirection: Axis.vertical,
             itemCount: workout.exercises.length,
-            itemBuilder: (context, index) =>
-                ListTile(title: Text(workout.exercises[index][0]))
-        )
+            itemBuilder: (context, index) => ListTile(
+                  trailing: Text(
+                      "Powtórzenia: ${workout.exercises[index].item2.toString()}"),
+                  title: Text(workout.exercises[index].item1.name),
+                ))
       ],
     );
   }
