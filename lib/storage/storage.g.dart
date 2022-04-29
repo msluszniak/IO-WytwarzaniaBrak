@@ -81,7 +81,7 @@ class _$Storage extends Storage {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Exercise` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFav` INTEGER NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `Exercise` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `equipment` TEXT NOT NULL, `bodyPart` TEXT NOT NULL, `isFav` INTEGER NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -104,6 +104,8 @@ class _$ExerciseDao extends ExerciseDao {
             (Exercise item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
+                  'equipment': item.equipment,
+                  'bodyPart': item.bodyPart,
                   'isFav': item.isFav ? 1 : 0
                 });
 
@@ -119,8 +121,10 @@ class _$ExerciseDao extends ExerciseDao {
   Future<List<Exercise>> getFavExercises() async {
     return _queryAdapter.queryList('SELECT * FROM Exercise WHERE isFav',
         mapper: (Map<String, Object?> row) => Exercise(
-            id: row['id'] as int?,
+            id: row['id'] as int,
             name: row['name'] as String,
+            equipment: row['equipment'] as String,
+            bodyPart: row['bodyPart'] as String,
             isFav: (row['isFav'] as int) != 0));
   }
 
@@ -128,8 +132,10 @@ class _$ExerciseDao extends ExerciseDao {
   Future<List<Exercise>> getExercises() async {
     return _queryAdapter.queryList('SELECT * FROM Exercise',
         mapper: (Map<String, Object?> row) => Exercise(
-            id: row['id'] as int?,
+            id: row['id'] as int,
             name: row['name'] as String,
+            equipment: row['equipment'] as String,
+            bodyPart: row['bodyPart'] as String,
             isFav: (row['isFav'] as int) != 0));
   }
 

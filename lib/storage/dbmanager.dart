@@ -14,8 +14,10 @@ class DBManager extends ChangeNotifier {
   Future<List<Exercise>> getFavExercises() async =>
       await storage.exerciseDAO.getFavExercises();
 
-  Future<Exercise> addExercise(String name) async {
-    final exercise = Exercise(name: name);
+  Future<Exercise> addExercise(
+      String name, String equipment, String bodyPart) async {
+    final exercise =
+        Exercise(name: name, equipment: equipment, bodyPart: bodyPart);
     await storage.exerciseDAO.addExercise(exercise);
     notifyListeners();
     return exercise;
@@ -47,8 +49,9 @@ class DBManager extends ChangeNotifier {
 
   void generateTestData() async {
     final ids = List<int>.generate(10, (i) => i);
-    final exercises = ids.map((i) => addExercise("Exercise no.$i")
-        .then((exercise) => setFavourite(exercise.id!, i % 3 == 0)));
+    final exercises = ids.map((i) =>
+        addExercise("Exercise no.$i", "Equipment no.$i", "Body part no.$i")
+            .then((exercise) => setFavourite(exercise.id!, i % 3 == 0)));
     await Future.wait(exercises);
   }
 }
