@@ -27,10 +27,10 @@ jobs:
         run: flutter pub get
 
       - name: Analyze project source
-        run: flutter analyze --no-sound-null-safety
+        run: flutter analyze --no-fatal-infos
 
       - name: Run tests
-        run: flutter test --no-sound-null-safety
+        run: flutter test
         
   build_android:
     name: Build Flutter (Android)
@@ -48,9 +48,9 @@ jobs:
         run: flutter pub get
 
       - name: Analyze project source
-        run: flutter analyze --no-sound-null-safety
+        run: flutter analyze --no-fatal-infos
 
       - name: Run tests
-        run: flutter appbundle --no-sound-null-safety
+        run: flutter appbundle
       
     
