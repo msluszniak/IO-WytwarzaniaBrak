@@ -50,7 +50,7 @@ jobs:
       - name: Analyze project source
         run: flutter analyze --no-fatal-infos
 
-      - name: Run tests
-        run: flutter appbundle
+      - name: Build Android app
+        run: flutter build appbundle
       
     
