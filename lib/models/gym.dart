@@ -65,6 +65,8 @@ class Gym {
     params['lon'] = latLang.longitude.toString();
     params['format'] = 'json';
 
+    print(params);
+
     late final response;
     try {
       response = await http.get(
