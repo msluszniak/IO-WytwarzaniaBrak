@@ -33,7 +33,7 @@ Future<List<UserModel>> getmySQLData() async {
     await conn.query(sql).then((results) {
       for (var res in results) {
         final UserModel myuser = UserModel(
-            ID: res['ID'].toString(),
+            id: res['ID'].toString(),
             name: res['name'].toString(),
             equipment: res['equipment'].toString(),
             bodyPart: res['bodyPart'].toString());
@@ -54,7 +54,7 @@ Future<List<UserModel>> getmySQLData() async {
 
 class UserModel {
   UserModel({
-    required this.ID,
+    required this.id,
     required this.name,
     required this.bodyPart,
     required this.equipment,
@@ -62,7 +62,7 @@ class UserModel {
 
   String equipment;
 
-  String ID;
+  String id;
 
   String name;
 
@@ -85,7 +85,7 @@ FutureBuilder<List<UserModel>> showFutureDBData() {
           final user = snapshot.data![index];
 
           return ListTile(
-            leading: Text(user.ID),
+            leading: Text(user.id),
 
             title: Text(user.name),
 

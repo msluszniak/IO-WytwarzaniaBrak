@@ -3,9 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_demo/models/favorites.dart';
-import 'package:flutter_demo/ui/pages/favorites.dart';
 
 class GymPage extends StatelessWidget {
   static const routeName = '/gyms';

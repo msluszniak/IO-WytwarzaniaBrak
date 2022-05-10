@@ -11,7 +11,7 @@ void main() {
   });
 
   test('Find with non-existent numeration', () async {
-    LatLng jordan = new LatLng(50.06225, 19.91484);
+    LatLng jordan = new LatLng(50.0633, 19.9148);
     String address = await Gym.getAddressFromLatLng(jordan);
     expect(address, "Henryka Reymana , brak numeru");
   });
