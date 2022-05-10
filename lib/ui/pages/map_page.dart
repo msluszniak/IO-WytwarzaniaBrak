@@ -107,6 +107,7 @@ class _MapState extends State<MapPage> {
             if (hasPermissions)
               LocationMarkerLayerWidget(
                 plugin: LocationMarkerPlugin(
+                  
                   centerCurrentLocationStream:
                       _centerCurrentLocationStreamController.stream,
                   centerOnLocationUpdate: _centerOnLocationUpdate,
@@ -139,7 +140,26 @@ class _MapState extends State<MapPage> {
                       ),
                     ),
                   ),
-                ),
+                ) + [Marker(
+                  builder: (ctx) => Center(
+                    child: Visibility(
+                      child: Opacity(
+                        opacity: 0.4,
+                        child: FractionallySizedBox(
+                          widthFactor: 0.9,
+                          heightFactor: 0.9,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.blue
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  point: new LatLng(0, 0),
+                )],
               ),
             ),
           ],
@@ -148,6 +168,23 @@ class _MapState extends State<MapPage> {
               child: Visibility(
                   visible: inAddingMode,
                   child: Icon(Icons.location_on, size: 40, color: Colors.red)),
+            ),
+            Center(
+              child: Visibility(
+                child: Opacity(
+                  opacity: 0.4,
+                  child: FractionallySizedBox(
+                    widthFactor: 0.9,
+                    heightFactor: 0.9,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.blue
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
             Positioned(
               right: 20,
