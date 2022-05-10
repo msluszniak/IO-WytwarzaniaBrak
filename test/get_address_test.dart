@@ -4,6 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 
 void main() {
+  test('Check if API works', () async {
+    LatLng wiet = new LatLng(50.06808, 19.91247);
+    String address = await Gym.getAddressFromLatLng(wiet);
+    expect(address != "", true);
+  });
+
   test('Find place with normal address', () async {
     LatLng wiet = new LatLng(50.06808, 19.91247);
     String address = await Gym.getAddressFromLatLng(wiet);
