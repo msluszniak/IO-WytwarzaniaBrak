@@ -65,8 +65,6 @@ class Gym {
     params['lon'] = latLang.longitude.toString();
     params['format'] = 'json';
 
-    print(params);
-
     late final response;
     try {
       response = await http.get(
@@ -78,6 +76,8 @@ class Gym {
     }
 
     final json = jsonDecode(response.body);
+
+    print(json);
 
     if (json['address'] == null) return 'Adres nieznany';
 
