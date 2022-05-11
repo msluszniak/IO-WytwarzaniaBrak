@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_demo/backend/server_connection.dart';
+import 'package:flutter_demo/models/base_model.dart';
 import 'package:flutter_demo/storage/storage.dart';
 
 import '../models/exercise.dart';
@@ -9,36 +10,56 @@ class DBManager extends ChangeNotifier {
 
   DBManager(this.storage);
 
-  Future<List<Exercise>> getFavExercises() async =>
-      await storage.exerciseDAO.getFavExercises();
+  Future<List<BaseModel>> getFavorites<T extends BaseModel>() async {
+    switch(T){
+      case Exercise: return storage.exerciseDAO.getFavorite();
+    }
+    throw Exception("Invalid type provided for the database manager");
+  }
 
-  Future<List<Exercise>> getExercises() async =>
-      await storage.exerciseDAO.getExercises();
+
+  Future<List<BaseModel>> getAll<T extends BaseModel>() async {
+    switch(T){
+      case Exercise: {
+        return storage.exerciseDAO.getAll();
+      }
+    }
+    throw Exception("Invalid type provided for the database manager");
+  }
+
 
   void setFavourite(int id, bool flag) async {
-    await storage.exerciseDAO.setFavourite(id, flag);
+    await storage.exerciseDAO.addFavorite(id, flag);
     notifyListeners();
   }
 
-  void updateExercises() async {
-    List<int> favoriteIds = await getFavExercises()
-        .then((exercises) => exercises.map((e) => e.id!).toList());
+  void updateAll<T extends BaseModel>() async {
+    List<int> favoriteIds = await getFavorites<T>()
+        .then((items) => items.map((e) => e.id!).toList());
 
-    List<Exercise> exercises = await ServerConnection.loadExercises();
+    List<BaseModel> items = await ServerConnection.loadFromDatabase<Exercise>();
 
-    storage.exerciseDAO.updateExercises(exercises);
-    storage.exerciseDAO.updateExerciseFavorites(favoriteIds);
+    switch(T){
+      case Exercise: {
+        List<Exercise> exercises = items.cast<Exercise>();
+        storage.exerciseDAO.updateAll(exercises);
+        storage.exerciseDAO.updateFavorites(favoriteIds);
+        return;
+      }
+
+    }
+    throw Exception("Invalid type provided for the database manager");
   }
 
   void updateAllData() async {
-    updateExercises();
+    updateAll<Exercise>();
   }
 
   static Future<DBManager> loadDatabase() async {
     final storage = await $FloorStorage.databaseBuilder('storage.db').build();
     final dbManager = DBManager(storage);
 
-    dbManager.updateExercises();
+    dbManager.updateAllData();
 
     return dbManager;
   }

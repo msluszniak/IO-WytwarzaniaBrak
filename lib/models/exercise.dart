@@ -1,7 +1,9 @@
 import 'package:floor/floor.dart';
+import 'package:flutter_demo/models/base_model.dart';
+import 'package:flutter_demo/storage/dao/exercise_dao.dart';
 
 @entity
-class Exercise {
+class Exercise extends BaseModel {
   @PrimaryKey(autoGenerate: true)
   final int? id;
   final String name;

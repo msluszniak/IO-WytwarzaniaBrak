@@ -63,7 +63,7 @@ class NavBar extends StatelessWidget {
             leading: Icon(Icons.refresh),
             title: Text('Reload data'),
             onTap: () async {
-              dbManager.updateExercises();
+              dbManager.updateAllData();
               Fluttertoast.showToast(
                 msg: "Reloaded data successfully",
               );

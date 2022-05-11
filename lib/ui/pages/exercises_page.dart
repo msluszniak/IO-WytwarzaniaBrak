@@ -3,6 +3,8 @@ import 'package:flutter_demo/models/exercise.dart';
 import 'package:flutter_demo/storage/dbmanager.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/base_model.dart';
+
 class ExercisesPage extends StatefulWidget {
   const ExercisesPage({Key? key}) : super(key: key);
   static const routeName = '/exercises';
@@ -62,15 +64,16 @@ class _ExercisesPageState extends State<ExercisesPage> {
 
     return Scaffold(
         appBar: appBar,
-        body: FutureBuilder<List<Exercise>>(
+        body: FutureBuilder<List<BaseModel>>(
             future: isFavouriteEnabled
-                ? dbManager.getFavExercises()
-                : dbManager.getExercises(),
+                ? dbManager.getFavorites<Exercise>()
+                : dbManager.getAll<Exercise>(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return CircularProgressIndicator();
               } else {
-                final List<Exercise> favouritesList = snapshot.data!;
+                final List<Exercise> favouritesList =
+                    snapshot.data!.cast<Exercise>();
 
                 return ListView.builder(
                     itemCount: favouritesList.length,
@@ -79,17 +82,21 @@ class _ExercisesPageState extends State<ExercisesPage> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     itemBuilder: (context, index) {
                       final item = favouritesList[index];
-                      return ItemTile(item, onPressed: isFavouriteEnabled ? (){} : () {
-                        dbManager.setFavourite(item.id!, !item.isFavorite);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(item.isFavorite
-                                ? 'Added to favorites.'
-                                : 'Removed from favorites.'),
-                            duration: const Duration(seconds: 1),
-                          ),
-                        );
-                      });
+                      return ItemTile(item,
+                          onPressed: isFavouriteEnabled
+                              ? () {}
+                              : () {
+                                  dbManager.setFavourite(
+                                      item.id!, !item.isFavorite);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(item.isFavorite
+                                          ? 'Added to favorites.'
+                                          : 'Removed from favorites.'),
+                                      duration: const Duration(seconds: 1),
+                                    ),
+                                  );
+                                });
                     });
               }
             }));
