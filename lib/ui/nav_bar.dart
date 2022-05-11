@@ -3,13 +3,17 @@ import 'package:flutter_demo/ui/pages/gyms_page.dart';
 import 'package:flutter_demo/ui/pages/favorites.dart';
 import 'package:flutter_demo/ui/pages/exercises_page.dart';
 import 'package:flutter_demo/ui/pages/map_page.dart';
+import 'package:provider/provider.dart';
+import '../storage/dbmanager.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class NavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final dbManager = context.watch<DBManager>();
+
     return Drawer(
       child: ListView(
-        // Remove padding
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
@@ -55,6 +59,16 @@ class NavBar extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, GymPage.routeName),
           ),
           Divider(),
+          ListTile(
+            leading: Icon(Icons.refresh),
+            title: Text('Reload data'),
+            onTap: () async {
+              dbManager.updateExercises();
+              Fluttertoast.showToast(
+                msg: "Reloaded data successfully",
+              );
+            },
+          ),
           ListTile(
             leading: Icon(Icons.settings),
             title: Text('Settings'),

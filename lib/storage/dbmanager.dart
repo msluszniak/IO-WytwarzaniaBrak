@@ -26,10 +26,12 @@ class DBManager extends ChangeNotifier {
 
     List<Exercise> exercises = await ServerConnection.loadExercises();
 
-    print(favoriteIds);
-
     storage.exerciseDAO.updateExercises(exercises);
     storage.exerciseDAO.updateExerciseFavorites(favoriteIds);
+  }
+
+  void updateAllData() async {
+    updateExercises();
   }
 
   static Future<DBManager> loadDatabase() async {
@@ -38,11 +40,6 @@ class DBManager extends ChangeNotifier {
 
     dbManager.updateExercises();
 
-    return dbManager;
-  }
-
-  static Future<DBManager> loadTestDatabase() async {
-    final dbManager = await loadDatabase();
     return dbManager;
   }
 }
