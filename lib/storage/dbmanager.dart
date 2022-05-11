@@ -51,5 +51,9 @@ class DBManager extends ChangeNotifier {
         .then((exercise) => setFavourite(exercise.id!, i % 3 == 0)));
     await Future.wait(exercises);
   }
+
+  void updateLocalData() async {
+
+  }
 }
 // manager.getStorage().
