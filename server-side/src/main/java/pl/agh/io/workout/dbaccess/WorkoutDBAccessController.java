@@ -27,12 +27,8 @@ public class WorkoutDBAccessController {
     }
 
     @GetMapping(path="/all")
-    public @ResponseBody List<Workout> getAllWorkouts(@RequestParam("favorite_ids") Integer [] favouriteIds) {
+    public @ResponseBody List<Workout> getAllWorkouts() {
         Map<Integer, Workout> workouts = workoutDAO.getAllWorkouts().stream().collect(Collectors.toMap(Workout::getId, item -> item));
-
-        for(Integer favId: favouriteIds)
-            if(workouts.containsKey(favId))
-                workouts.get(favId).setFavorite(true);
 
         return new ArrayList<>(workouts.values());
     }

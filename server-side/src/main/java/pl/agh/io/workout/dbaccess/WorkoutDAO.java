@@ -33,7 +33,6 @@ public class WorkoutDAO {
         Map<Integer, Set<Exercise>> workoutExercises = new HashMap<>();
         for (Workout workout : workouts){
             workoutExercises.put(workout.getId(), workout.getExercises());
-            System.out.println(workout.getExercises());
         }
         return workoutExercises;
     }

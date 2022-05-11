@@ -13,9 +13,6 @@ public class Workout {
     private Integer id;
     private String name;
 
-    @Transient
-    private boolean isFavorite = false;
-
     @ManyToMany(
             fetch = FetchType.EAGER,
             cascade = {CascadeType.MERGE, CascadeType.PERSIST}
@@ -41,14 +38,6 @@ public class Workout {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public boolean isFavorite() {
-        return isFavorite;
-    }
-
-    public void setFavorite(boolean favorite) {
-        isFavorite = favorite;
     }
 
     public Set<Exercise> getExercises(){

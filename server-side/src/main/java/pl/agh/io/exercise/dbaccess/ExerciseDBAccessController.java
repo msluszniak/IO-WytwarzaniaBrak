@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping(path="/exercise")
+@RequestMapping(path = "/exercise")
 public class ExerciseDBAccessController {
     private final ExerciseDAO exerciseDAO;
 
@@ -21,14 +21,10 @@ public class ExerciseDBAccessController {
         this.exerciseDAO = exerciseDAO;
     }
 
-    @GetMapping(path="/all")
-    public @ResponseBody List<Exercise> getAllExercises(@RequestParam("favorite_ids") Integer [] favouriteIds) {
+    @GetMapping(path = "/all")
+    public @ResponseBody
+    List<Exercise> getAllExercises() {
         Map<Integer, Exercise> exercises = exerciseDAO.getAllExercises().stream().collect(Collectors.toMap(Exercise::getId, item -> item));
-
-        for(Integer favId: favouriteIds)
-            if(exercises.containsKey(favId))
-                exercises.get(favId).setFavorite(true);
-
         return new ArrayList<>(exercises.values());
     }
 }

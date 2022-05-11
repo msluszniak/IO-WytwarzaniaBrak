@@ -12,13 +12,11 @@ public class Exercise {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Integer id;
     private String name;
+    @Column(name="body_part")
     private String bodyPart;
     @Column(name="equipment_id")
     private Integer equipmentId;
     private String description;
-
-    @Transient
-    private boolean isFavorite = false;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "exercises")
     private Set<Workout> workouts = new HashSet<>();
@@ -61,13 +59,5 @@ public class Exercise {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public boolean isFavorite() {
-        return isFavorite;
-    }
-
-    public void setFavorite(boolean favorite) {
-        isFavorite = favorite;
     }
 }

@@ -84,10 +84,10 @@ class _ExercisesPageState extends State<ExercisesPage> {
                     itemBuilder: (context, index) {
                       final item = favouritesList[index];
                       return ItemTile(item, onPressed: isFavouriteEnabled ? (){} : () {
-                        dbManager.setFavourite(item.id!, !item.isFav);
+                        dbManager.setFavourite(item.id!, !item.isFavorite);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(item.isFav
+                            content: Text(item.isFavorite
                                 ? 'Added to favorites.'
                                 : 'Removed from favorites.'),
                             duration: const Duration(seconds: 1),
@@ -116,12 +116,12 @@ class ItemTile extends StatelessWidget {
           backgroundColor: Colors.primaries[item.id! % Colors.primaries.length],
         ),
         title: Text(
-          'Item ${item.id}',
-          key: Key('text_${item.id!}'),
+          item.name,
+          key: Key(item.id.toString()),
         ),
         trailing: IconButton(
           key: Key('icon_${item.id!}'),
-          icon: item.isFav
+          icon: item.isFavorite
               ? const Icon(Icons.favorite)
               : const Icon(Icons.favorite_border),
           onPressed: this.onPressed,
