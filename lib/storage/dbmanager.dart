@@ -9,8 +9,16 @@ import '../models/gym.dart';
 
 class DBManager extends ChangeNotifier {
   final Storage storage;
-
   DBManager(this.storage);
+
+  Future<int> addToDatabase<T extends BaseModel>(T item) async{
+    try {
+      await ServerConnection.submitToDatabase<T>(item);
+    } on ServerException catch (e) {
+      return e.responseCode;
+    }
+    return 200;
+  }
 
   Future<List<BaseModel>> getFavorites<T extends BaseModel>() async {
     switch (T) {
@@ -43,7 +51,6 @@ class DBManager extends ChangeNotifier {
         notifyListeners();
         return;
     }
-    throw Exception("Invalid type provided for the database manager");
   }
 
   Future<void> updateAll<T extends BaseModel>() async {
@@ -73,7 +80,6 @@ class DBManager extends ChangeNotifier {
           return;
         }
     }
-    throw Exception("Invalid type provided for the database manager");
   }
 
   Future<int> updateAllData() async {
