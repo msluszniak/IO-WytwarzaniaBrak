@@ -65,7 +65,6 @@ class NavBar extends StatelessWidget {
             onTap: () async {
               _showLoaderDialog(context);
               int result = await dbManager.updateAllData();
-              print(result);
               Navigator.pop(context);
 
               Fluttertoast.showToast(

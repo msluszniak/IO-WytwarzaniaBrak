@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/models/gym.dart';
-import 'package:flutter_demo/backend/database_connection.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_tags/flutter_tags.dart';
 
@@ -172,6 +171,8 @@ class _NewGymState extends State<NewGymCard> {
                       widget.cancelCallback();
                     }),
                 const SizedBox(width: 8),
+                //TODO: Add gym
+                /*
                 ElevatedButton(
                   child: const Text('Submit'),
                   onPressed: () {
@@ -182,7 +183,7 @@ class _NewGymState extends State<NewGymCard> {
                         name: nameController.text,
                         description: descController.text));
                   },
-                ),
+                ),*/
                 const SizedBox(width: 8),
               ],
             ),
