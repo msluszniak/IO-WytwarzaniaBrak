@@ -62,6 +62,8 @@ class _$Storage extends Storage {
 
   ExerciseDao? _exerciseDAOInstance;
 
+  GymDao? _gymDAOInstance;
+
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
@@ -81,7 +83,6 @@ class _$Storage extends Storage {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Exercise` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `equipment` TEXT NOT NULL, `bodyPart` TEXT NOT NULL, `isFav` INTEGER NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -92,6 +93,11 @@ class _$Storage extends Storage {
   @override
   ExerciseDao get exerciseDAO {
     return _exerciseDAOInstance ??= _$ExerciseDao(database, changeListener);
+  }
+
+  @override
+  GymDao get gymDAO {
+    return _gymDAOInstance ??= _$GymDao(database, changeListener);
   }
 }
 
@@ -104,9 +110,6 @@ class _$ExerciseDao extends ExerciseDao {
             (Exercise item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'equipment': item.equipment,
-                  'bodyPart': item.bodyPart,
-                  'isFav': item.isFav ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -118,36 +121,130 @@ class _$ExerciseDao extends ExerciseDao {
   final InsertionAdapter<Exercise> _exerciseInsertionAdapter;
 
   @override
-  Future<List<Exercise>> getFavExercises() async {
-    return _queryAdapter.queryList('SELECT * FROM Exercise WHERE isFav',
-        mapper: (Map<String, Object?> row) => Exercise(
-            id: row['id'] as int,
-            name: row['name'] as String,
-            equipment: row['equipment'] as String,
-            bodyPart: row['bodyPart'] as String,
-            isFav: (row['isFav'] as int) != 0));
+  Future<void> addFavorite(int id, bool isFavorite) async {
+    await _queryAdapter.queryNoReturn(
+        'UPDATE Exercise SET isFavorite=?2 WHERE id=?1',
+        arguments: [id, isFavorite ? 1 : 0]);
   }
 
   @override
-  Future<List<Exercise>> getExercises() async {
+  Future<List<Exercise>> getAll() async {
     return _queryAdapter.queryList('SELECT * FROM Exercise',
         mapper: (Map<String, Object?> row) => Exercise(
             id: row['id'] as int,
             name: row['name'] as String,
-            equipment: row['equipment'] as String,
-            bodyPart: row['bodyPart'] as String,
-            isFav: (row['isFav'] as int) != 0));
   }
 
   @override
-  Future<void> setFavourite(int id, bool isFav) async {
+  Future<List<Exercise>> getFavorite() async {
+    return _queryAdapter.queryList('SELECT * FROM Exercise WHERE isFavorite',
+        mapper: (Map<String, Object?> row) => Exercise(
+            id: row['id'] as int,
+            name: row['name'] as String,
+  }
+
+  @override
+  Future<void> updateFavorites(List<int> favoriteIds) async {
+    const offset = 1;
+    final _sqliteVariablesForFavoriteIds =
+        Iterable<String>.generate(favoriteIds.length, (i) => '?${i + offset}')
+            .join(',');
     await _queryAdapter.queryNoReturn(
-        'UPDATE Exercise SET isFav=?2 WHERE id=?1',
-        arguments: [id, isFav ? 1 : 0]);
+        'UPDATE Exercise SET isFavorite=1 WHERE id in (' +
+            _sqliteVariablesForFavoriteIds +
+            ')',
+        arguments: [...favoriteIds]);
   }
 
   @override
-  Future<void> addExercise(Exercise exercise) async {
+  Future<void> add(Exercise exercise) async {
     await _exerciseInsertionAdapter.insert(exercise, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateAll(List<Exercise> person) async {
+    await _exerciseInsertionAdapter.insertList(
+        person, OnConflictStrategy.replace);
+  }
+}
+
+class _$GymDao extends GymDao {
+  _$GymDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database),
+        _gymInsertionAdapter = InsertionAdapter(
+            database,
+            'Gym',
+            (Gym item) => <String, Object?>{
+                  'id': item.id,
+                  'lat': item.lat,
+                  'lng': item.lng,
+                  'name': item.name,
+                  'description': item.description,
+                  'address': item.address,
+                  'isFavorite': item.isFavorite ? 1 : 0
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Gym> _gymInsertionAdapter;
+
+  @override
+  Future<void> addFavorite(int id, bool isFavorite) async {
+    await _queryAdapter.queryNoReturn(
+        'UPDATE Gym SET isFavorite=?2 WHERE id=?1',
+        arguments: [id, isFavorite ? 1 : 0]);
+  }
+
+  @override
+  Future<List<Gym>> getAll() async {
+    return _queryAdapter.queryList('SELECT * FROM Gym',
+        mapper: (Map<String, Object?> row) => Gym(
+            id: row['id'] as int?,
+            lat: row['lat'] as double,
+            lng: row['lng'] as double,
+            name: row['name'] as String,
+            description: row['description'] as String?,
+            address: row['address'] as String?,
+            isFavorite: (row['isFavorite'] as int) != 0));
+  }
+
+  @override
+  Future<List<Gym>> getFavorite() async {
+    return _queryAdapter.queryList('SELECT * FROM Gym WHERE isFavorite',
+        mapper: (Map<String, Object?> row) => Gym(
+            id: row['id'] as int?,
+            lat: row['lat'] as double,
+            lng: row['lng'] as double,
+            name: row['name'] as String,
+            description: row['description'] as String?,
+            address: row['address'] as String?,
+            isFavorite: (row['isFavorite'] as int) != 0));
+  }
+
+  @override
+  Future<void> updateFavorites(List<int> favoriteIds) async {
+    const offset = 1;
+    final _sqliteVariablesForFavoriteIds =
+        Iterable<String>.generate(favoriteIds.length, (i) => '?${i + offset}')
+            .join(',');
+    await _queryAdapter.queryNoReturn(
+        'UPDATE Gym SET isFavorite=1 WHERE id in (' +
+            _sqliteVariablesForFavoriteIds +
+            ')',
+        arguments: [...favoriteIds]);
+  }
+
+  @override
+  Future<void> add(Gym gym) async {
+    await _gymInsertionAdapter.insert(gym, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateAll(List<Gym> person) async {
+    await _gymInsertionAdapter.insertList(person, OnConflictStrategy.replace);
   }
 }

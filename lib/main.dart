@@ -16,7 +16,7 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   Future<DBManager> loadDataBase() async {
-    final dbManager = DBManager.loadTestDatabase();
+    final dbManager = DBManager.loadDatabase();
     return dbManager;
   }
 

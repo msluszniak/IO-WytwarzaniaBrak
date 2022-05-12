@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/ui/nav_bar.dart';
-import 'package:flutter_demo/ui/pages/favorites.dart';
-import 'package:flutter_demo/ui/pages/exercises_page.dart';
-import 'package:flutter_demo/ui/pages/map_page.dart';
 import 'package:flutter_demo/ui/widgets/shortcut_widget.dart';
 import 'package:flutter_demo/ui/widgets/shortcuts_widget.dart';
 

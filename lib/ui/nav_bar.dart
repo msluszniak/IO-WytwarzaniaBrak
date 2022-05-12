@@ -3,13 +3,17 @@ import 'package:flutter_demo/ui/pages/workouts_page.dart';
 import 'package:flutter_demo/ui/pages/favorites.dart';
 import 'package:flutter_demo/ui/pages/exercises_page.dart';
 import 'package:flutter_demo/ui/pages/map_page.dart';
+import 'package:provider/provider.dart';
+import '../storage/dbmanager.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class NavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final dbManager = context.watch<DBManager>();
+
     return Drawer(
       child: ListView(
-        // Remove padding
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
@@ -56,6 +60,21 @@ class NavBar extends StatelessWidget {
           ),
           Divider(),
           ListTile(
+            leading: Icon(Icons.refresh),
+            title: Text('Reload data'),
+            onTap: () async {
+              _showLoaderDialog(context);
+              int result = await dbManager.updateAllData();
+              Navigator.pop(context);
+
+              Fluttertoast.showToast(
+                msg: result == 200
+                    ? "Reloaded data successfully"
+                    : "Couldn't load server data; Error code: $result",
+              );
+            },
+          ),
+          ListTile(
             leading: Icon(Icons.settings),
             title: Text('Settings'),
             onTap: () => null,
@@ -68,6 +87,25 @@ class NavBar extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  _showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(
+              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }

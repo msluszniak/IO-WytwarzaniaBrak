@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/models/gym.dart';
-import 'package:flutter_demo/backend/database_connection.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_tags/flutter_tags.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+
+import '../../../storage/dbmanager.dart';
 
 class NewGymCard extends StatefulWidget {
   const NewGymCard(
@@ -38,6 +42,7 @@ class _NewGymState extends State<NewGymCard> {
 
   @override
   void initState() {
+    super.initState();
     _items = [];
   }
 
@@ -56,6 +61,14 @@ class _NewGymState extends State<NewGymCard> {
     //         bottom: Radius.circular(20)
     //     )
     // ),
+    final dbManager = context.watch<DBManager>();
+
+    final latLng = LatLng(widget.mapController.center.latitude,
+        widget.mapController.center.longitude);
+    Future<String> address = Gym.getAddressFromLatLng(latLng);
+
+    String? addressStr;
+
     return ColoredBox(
       color: Colors.white,
       child: Padding(
@@ -134,12 +147,6 @@ class _NewGymState extends State<NewGymCard> {
                 );
               },
             ),
-            Divider(
-                height: 20,
-                thickness: 1,
-                indent: 5,
-                endIndent: 5,
-                color: Colors.grey),
             // Expanded(
             //   child: ListView(
             //     padding: const EdgeInsets.all(8),
@@ -148,19 +155,48 @@ class _NewGymState extends State<NewGymCard> {
             //     ],
             //   ),
             // ),
+            Divider(
+                height: 20,
+                thickness: 1,
+                indent: 5,
+                endIndent: 5,
+                color: Colors.grey),
+            TextField(
+              controller: descController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Description',
+              ),
+              maxLines: null,
+            ),
+            Divider(
+                height: 20,
+                thickness: 1,
+                indent: 5,
+                endIndent: 5,
+                color: Colors.grey),
             Expanded(
-              child: Container(
-                //constraints: BoxConstraints(maxHeight: 600, minHeight: 300),
-                child: SingleChildScrollView(
-                  child: TextField(
-                    controller: descController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Description',
-                    ),
-                    maxLines: null,
-                  ),
-                ),
+              child: ListTile(
+                leading: const Icon(Icons.location_on),
+                title: FutureBuilder<String>(
+                    future: address,
+                    builder: (builder, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Row(
+                          children: [
+                            Center(
+                              heightFactor: 1,
+                              widthFactor: 1,
+                              child: const SizedBox.square(
+                                  child: CircularProgressIndicator()),
+                            ),
+                          ],
+                        );
+                      } else {
+                        addressStr = snapshot.data!;
+                      }
+                      return Text(addressStr!);
+                    }),
               ),
             ),
             Row(
@@ -174,13 +210,30 @@ class _NewGymState extends State<NewGymCard> {
                 const SizedBox(width: 8),
                 ElevatedButton(
                   child: const Text('Submit'),
-                  onPressed: () {
-                    widget.submitCallback();
-                    addGymData(Gym(
+                  onPressed: () async {
+                    _showLoaderDialog(context);
+
+                    if (addressStr == null) {
+                      addressStr = await address;
+                    }
+
+                    final newGym = Gym(
                         lat: widget.mapController.center.latitude,
                         lng: widget.mapController.center.longitude,
                         name: nameController.text,
-                        description: descController.text));
+                        description: descController.text,
+                        address: addressStr);
+
+                    int result = await dbManager.addToDatabase(newGym);
+
+                    Navigator.pop(context);
+
+                    Fluttertoast.showToast(
+                      msg: result == 200
+                          ? "Added item succesfully"
+                          : "Couldn't add item to database; Error code: $result",
+                    );
+                    widget.submitCallback();
                   },
                 ),
                 const SizedBox(width: 8),
@@ -200,4 +253,23 @@ class _NewGymState extends State<NewGymCard> {
 //     if (lst != null)
 //       lst.where((a) => a.active == true).forEach((a) => print(a.title));
 //   }
+
+  _showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(
+              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
 }
