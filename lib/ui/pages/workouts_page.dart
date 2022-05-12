@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:tuple/tuple.dart';
+import 'package:provider/provider.dart';
 
+import '../../models/base_model.dart';
 import '../../models/exercise.dart';
 import '../../models/workout.dart';
+import '../../storage/dbmanager.dart';
 
 class WorkoutsPage extends StatefulWidget {
   static const routeName = '/workouts';
@@ -25,33 +27,32 @@ class _WorkoutsState extends State<WorkoutsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final dbManager = context.watch<DBManager>();
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Workouts'),
-      ),
-      body: Stack(children: [
-        ListView.builder(
-          itemCount: workoutList.length,
-          cacheExtent: 20.0,
-          controller: ScrollController(),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          itemBuilder: (context, index) => _WorkoutTile(
-            workout: workoutList[index],
-          ),
+        appBar: AppBar(
+          title: const Text('Workouts'),
         ),
-        Positioned(
-          right: 20,
-          bottom: 20,
-          child: FloatingActionButton(
-            onPressed: _addWorkout,
-            child: const Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-          ),
-        )
-      ]),
-    );
+        body: FutureBuilder<List<BaseModel>>(
+            future: dbManager.getAll<Workout>(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return CircularProgressIndicator();
+              } else {
+                final List<Workout> workoutList =
+                    snapshot.data!.cast<Workout>();
+
+                return ListView.builder(
+                    itemCount: workoutList.length,
+                    cacheExtent: 20.0,
+                    controller: ScrollController(),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    itemBuilder: (context, index) {
+                      final item = workoutList[index];
+                      return _WorkoutTile(workout: item);
+                    });
+              }
+            }));
   }
 
   void _addWorkout() {
@@ -68,8 +69,8 @@ class _WorkoutTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExpansionTile(
       title: Text(workout.name),
-      subtitle: Text(workout.description),
       children: <Widget>[
+        /*
         ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
@@ -79,7 +80,7 @@ class _WorkoutTile extends StatelessWidget {
                   trailing: Text(
                       "Powtórzenia: ${workout.exercises[index].item2.toString()}"),
                   title: Text(workout.exercises[index].item1.name),
-                ))
+                ))*/
       ],
     );
   }

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import '../models/base_model.dart';
 import '../models/exercise.dart';
 import '../models/gym.dart';
+import '../models/workout.dart';
 
 class ServerConnection {
   static String serverAddress = "192.168.1.20:8080";
@@ -31,6 +32,8 @@ class ServerConnection {
           return parsed.map<T>((json) => Exercise.fromJson(json)).toList();
         case Gym:
           return parsed.map<T>((json) => Gym.fromJson(json)).toList();
+        case Workout:
+          return parsed.map<T>((json) => Workout.fromJson(json)).toList();
       }
     }
     throw ServerException(responseCode: response.statusCode);

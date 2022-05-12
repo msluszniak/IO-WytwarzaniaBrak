@@ -6,6 +6,7 @@ import 'package:flutter_demo/storage/storage.dart';
 
 import '../models/exercise.dart';
 import '../models/gym.dart';
+import '../models/workout.dart';
 
 class DBManager extends ChangeNotifier {
   final Storage storage;
@@ -26,6 +27,8 @@ class DBManager extends ChangeNotifier {
         return storage.exerciseDAO.getFavorite();
       case Gym:
         return storage.gymDAO.getFavorite();
+      case Workout:
+        return storage.workoutDAO.getFavorite();
     }
     throw Exception("Invalid type provided for the database manager");
   }
@@ -36,6 +39,8 @@ class DBManager extends ChangeNotifier {
         return storage.exerciseDAO.getAll();
       case Gym:
         return storage.gymDAO.getAll();
+      case Workout:
+        return storage.workoutDAO.getAll();
     }
     throw Exception("Invalid type provided for the database manager");
   }
@@ -48,6 +53,10 @@ class DBManager extends ChangeNotifier {
         return;
       case Gym:
         await storage.gymDAO.addFavorite(id, flag);
+        notifyListeners();
+        return;
+      case Workout:
+        await storage.workoutDAO.addFavorite(id, flag);
         notifyListeners();
         return;
     }
@@ -79,6 +88,13 @@ class DBManager extends ChangeNotifier {
           storage.gymDAO.updateFavorites(favoriteIds);
           return;
         }
+      case Workout:
+        {
+          List<Workout> workouts = items.cast<Workout>();
+          storage.workoutDAO.updateAll(workouts);
+          storage.workoutDAO.updateFavorites(favoriteIds);
+          return;
+        }
     }
   }
 
@@ -86,6 +102,7 @@ class DBManager extends ChangeNotifier {
     try {
       await updateAll<Exercise>();
       await updateAll<Gym>();
+      await updateAll<Workout>();
 
       return 200;
     } on ServerException catch (e) {

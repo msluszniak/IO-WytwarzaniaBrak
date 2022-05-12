@@ -1,16 +1,17 @@
-import 'package:tuple/tuple.dart';
+import 'package:floor/floor.dart';
+import 'package:flutter_demo/models/base_model.dart';
 
-import 'exercise.dart';
-
-class Workout {
-  final String id;
+@entity
+class Workout extends BaseModel {
+  @PrimaryKey(autoGenerate: true)
+  final int? id;
   final String name;
-  final List<Tuple2<Exercise, int>> exercises;
-  final String description;
+  final bool isFavorite;
 
-  Workout(
-      {required this.id,
-      required this.name,
-      required this.exercises,
-      required this.description});
+  Workout({this.id, required this.name, this.isFavorite = false});
+
+  Workout.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        name = json['name'],
+        isFavorite = false;
 }
