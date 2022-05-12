@@ -63,9 +63,15 @@ class NavBar extends StatelessWidget {
             leading: Icon(Icons.refresh),
             title: Text('Reload data'),
             onTap: () async {
-              dbManager.updateAllData();
+              _showLoaderDialog(context);
+              int result = await dbManager.updateAllData();
+              print(result);
+              Navigator.pop(context);
+
               Fluttertoast.showToast(
-                msg: "Reloaded data successfully",
+                msg: result == 200
+                    ? "Reloaded data successfully"
+                    : "Couldn't load server data; Error code: $result",
               );
             },
           ),
@@ -82,6 +88,25 @@ class NavBar extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  _showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(
+              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }

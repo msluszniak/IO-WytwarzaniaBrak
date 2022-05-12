@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:flutter_demo/backend/server_exception.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/base_model.dart';
@@ -8,7 +10,15 @@ class ServerConnection {
   static String serverAddress = "http://192.168.1.20:8080";
 
   static Future<List<BaseModel>> loadFromDatabase<T extends BaseModel>() async {
-    final response = await http.get(Uri.parse(serverAddress + "/exercise/all"));
+    late final response;
+
+    try {
+      response = await http
+          .get(Uri.parse(serverAddress + "/exercise/all"))
+          .timeout(const Duration(seconds: 5));
+    } on TimeoutException catch (_) {
+      throw ServerException(responseCode: 408); // Timed out
+    }
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body).cast<Map<String, dynamic>>();
@@ -18,7 +28,6 @@ class ServerConnection {
           return parsed.map<T>((json) => Exercise.fromJson(json)).toList();
       }
     }
-
-    throw Exception('Failed to load exercises from database');
+    throw ServerException(responseCode: response.statusCode);
   }
 }

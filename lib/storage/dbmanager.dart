@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_demo/backend/server_connection.dart';
+import 'package:flutter_demo/backend/server_exception.dart';
 import 'package:flutter_demo/models/base_model.dart';
 import 'package:flutter_demo/storage/storage.dart';
 
@@ -33,26 +34,36 @@ class DBManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateAll<T extends BaseModel>() async {
+  Future<void> updateAll<T extends BaseModel>() async {
     List<int> favoriteIds = await getFavorites<T>()
         .then((items) => items.map((e) => e.id!).toList());
 
-    List<BaseModel> items = await ServerConnection.loadFromDatabase<Exercise>();
+    late final List<BaseModel> items;
+    try {
+      items = await ServerConnection.loadFromDatabase<Exercise>();
+    } on ServerException catch (e){
+      throw e;
+    }
 
     switch(T){
       case Exercise: {
         List<Exercise> exercises = items.cast<Exercise>();
         storage.exerciseDAO.updateAll(exercises);
         storage.exerciseDAO.updateFavorites(favoriteIds);
-        return;
+        break;
       }
-
     }
-    throw Exception("Invalid type provided for the database manager");
+
   }
 
-  void updateAllData() async {
-    updateAll<Exercise>();
+  Future<int> updateAllData() async {
+    try {
+      await updateAll<Exercise>();
+
+      return 200;
+    } on ServerException catch (e){
+      return e.responseCode;
+    }
   }
 
   static Future<DBManager> loadDatabase() async {
