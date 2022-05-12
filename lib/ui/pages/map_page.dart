@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_demo/models/gym.dart';
 import 'package:flutter_demo/ui/widgets/cards/gym_card.dart';
-import 'package:flutter_demo/backend/database_connection.dart';
+import 'package:provider/provider.dart';
 
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +10,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 
+import '../../storage/dbmanager.dart';
 import '../widgets/cards/new_gym_card.dart';
 
 class MapPage extends StatefulWidget {
@@ -35,16 +36,11 @@ class _MapState extends State<MapPage> {
   bool inAddingMode = false;
   bool inCreatingMode = false;
 
-  Future<List<Gym>> setupMarkers() async {
-    return getGymData();
-  }
-
   //Populate gym list
   @override
   void initState() {
     super.initState();
 
-    getGymData().then((result) => gymList = result);
     // for (int i = 0; i < 10; i++) {
     //   gymList.add(new Gym(
     //       startLat + pow(-1, i) * rand.nextDouble() * diffLat,
@@ -55,12 +51,14 @@ class _MapState extends State<MapPage> {
     // }
 
     //debug
+    /*
     gymList.add(new Gym(
         lat: 37.428528,
         lng: -122.087967,
         name: "Oakland gym",
         description: "Oakland gym description",
-        address: "Oakland gym address"));
+        address: "Oakland gym address"));*/
+
     _centerOnLocationUpdate = CenterOnLocationUpdate.always;
     _centerCurrentLocationStreamController = StreamController<double?>();
     _checkPermission();
@@ -74,6 +72,9 @@ class _MapState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
+    final dbManager = context.watch<DBManager>();
+    dbManager.getAll<Gym>().then((result) => gymList = result.cast<Gym>());
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Map'),
@@ -253,6 +254,7 @@ class _MapState extends State<MapPage> {
 
   FloatingActionButton _buildLocalizationButton() {
     return FloatingActionButton(
+      heroTag: "center",
       onPressed: () async {
         if (!hasPermissions) {
           await _checkPermission();
@@ -276,6 +278,7 @@ class _MapState extends State<MapPage> {
 
   FloatingActionButton _buildCancelButton() {
     return FloatingActionButton(
+      heroTag: "cancel",
       onPressed: () {
         setState(() {
           this.inAddingMode = false;
@@ -290,6 +293,7 @@ class _MapState extends State<MapPage> {
 
   FloatingActionButton _buildAddButton() {
     return FloatingActionButton(
+      heroTag: "confirm",
       onPressed: () {
         setState(() {
           if (this.inAddingMode) {
