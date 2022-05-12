@@ -38,6 +38,12 @@ class Gym extends BaseModel {
         address = json['address'],
         isFavorite = false;
 
+  String getAddress() {
+    if (address == null)
+      return lat.toString() + ", " + lng.toString();
+    return address!;
+  }
+
   Future<http.Response> _getJsonWithDistance(
       String lat1, String lng1, String lat2, String lng2) {
     return http.get(Uri.parse('http://router.project-osrm.org/route/v1/foot/' +
