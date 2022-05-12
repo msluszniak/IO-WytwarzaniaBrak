@@ -42,6 +42,7 @@ class _NewGymState extends State<NewGymCard> {
 
   @override
   void initState() {
+    super.initState();
     _items = [];
   }
 
