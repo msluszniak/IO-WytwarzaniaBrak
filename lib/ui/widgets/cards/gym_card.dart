@@ -24,8 +24,8 @@ class GymCard extends StatelessWidget {
       children: <Widget>[
         ListTile(
           leading: Icon(Icons.fitness_center),
-          title: Text(selectedGym.getName()),
-          subtitle: Text(selectedGym.getAddress()),
+          title: Text(selectedGym.name),
+          subtitle: selectedGym.address == null ? null : Text(selectedGym.address!),
         ),
         Divider(
             height: 20,
@@ -49,8 +49,8 @@ class GymCard extends StatelessWidget {
         Expanded(
           child: ListView(
             padding: const EdgeInsets.all(8),
-            children: <Widget>[
-              Text(selectedGym.getDescription()),
+            children: selectedGym.description == null ? [] : [
+              Text(selectedGym.description!),
             ],
           ),
         ),
@@ -67,7 +67,10 @@ class GymCard extends StatelessWidget {
             ElevatedButton(
               child: const Text('CHECK DISTANCE'),
               onPressed: () {
-                selectedGym.getDistance().then((distance) => print('[DEBUG] Distance to selected gym: ' + distance.toString() + "meters"));
+                selectedGym.getDistance().then((distance) => print(
+                    '[DEBUG] Distance to selected gym: ' +
+                        distance.toString() +
+                        "meters"));
               },
             ),
             const SizedBox(width: 8),
@@ -103,8 +106,10 @@ class GymCardDraggable extends StatelessWidget {
           children: <Widget>[
             ListTile(
               leading: Icon(Icons.sports_gymnastics),
-              title: Text(selectedGym.getName()),
-              subtitle: Text(selectedGym.getDescription()),
+              title: Text(selectedGym.name),
+              subtitle: selectedGym.description == null
+                  ? null
+                  : Text(selectedGym.description!),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
