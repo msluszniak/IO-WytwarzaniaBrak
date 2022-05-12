@@ -86,7 +86,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
                           onPressed: isFavouriteEnabled
                               ? () {}
                               : () {
-                                  dbManager.setFavourite(
+                                  dbManager.setFavourite<Exercise>(
                                       item.id!, !item.isFavorite);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
