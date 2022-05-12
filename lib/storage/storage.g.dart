@@ -83,6 +83,9 @@ class _$Storage extends Storage {
       },
       onCreate: (database, version) async {
         await database.execute(
+            'CREATE TABLE IF NOT EXISTS `Exercise` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `equipmentId` INTEGER NOT NULL, `bodyPart` TEXT, `description` TEXT, `isFavorite` INTEGER NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `Gym` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `lat` REAL NOT NULL, `lng` REAL NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `address` TEXT, `isFavorite` INTEGER NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -110,6 +113,10 @@ class _$ExerciseDao extends ExerciseDao {
             (Exercise item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
+                  'equipmentId': item.equipmentId,
+                  'bodyPart': item.bodyPart,
+                  'description': item.description,
+                  'isFavorite': item.isFavorite ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -131,16 +138,24 @@ class _$ExerciseDao extends ExerciseDao {
   Future<List<Exercise>> getAll() async {
     return _queryAdapter.queryList('SELECT * FROM Exercise',
         mapper: (Map<String, Object?> row) => Exercise(
-            id: row['id'] as int,
+            id: row['id'] as int?,
             name: row['name'] as String,
+            equipmentId: row['equipmentId'] as int,
+            bodyPart: row['bodyPart'] as String?,
+            description: row['description'] as String?,
+            isFavorite: (row['isFavorite'] as int) != 0));
   }
 
   @override
   Future<List<Exercise>> getFavorite() async {
     return _queryAdapter.queryList('SELECT * FROM Exercise WHERE isFavorite',
         mapper: (Map<String, Object?> row) => Exercise(
-            id: row['id'] as int,
+            id: row['id'] as int?,
             name: row['name'] as String,
+            equipmentId: row['equipmentId'] as int,
+            bodyPart: row['bodyPart'] as String?,
+            description: row['description'] as String?,
+            isFavorite: (row['isFavorite'] as int) != 0));
   }
 
   @override

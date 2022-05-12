@@ -21,32 +21,6 @@ class _WorkoutsState extends State<WorkoutsPage> {
     super.initState();
 
     // TODO : ładowanie z local storage
-    for (int i = 0; i < 10; i++) {
-      workoutList.add(new Workout(
-          id: i.toString(),
-          name: "Trening $i",
-          exercises: [
-            Tuple2(
-                Exercise(
-                    name: "Ćwiczenie ${i}1",
-                    equipment: "ignore",
-                    bodyPart: "ignore"),
-                5),
-            Tuple2(
-                Exercise(
-                    name: "Ćwiczenie ${i}2",
-                    equipment: "ignore",
-                    bodyPart: "ignore"),
-                10),
-            Tuple2(
-                Exercise(
-                    name: "Ćwiczenie ${i}3",
-                    equipment: "ignore",
-                    bodyPart: "ignore"),
-                15)
-          ],
-          description: "Opis treningu nr. $i"));
-    }
   }
 
   @override
