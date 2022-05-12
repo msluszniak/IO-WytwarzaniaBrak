@@ -9,11 +9,7 @@ import 'package:provider/provider.dart';
 import '../../../storage/dbmanager.dart';
 
 class NewGymCard extends StatefulWidget {
-  const NewGymCard(
-      {Key? key,
-      required this.mapController,
-      required this.cancelCallback,
-      required this.submitCallback})
+  const NewGymCard({Key? key, required this.mapController, required this.cancelCallback, required this.submitCallback})
       : super(key: key);
 
   final VoidCallback cancelCallback;
@@ -83,12 +79,7 @@ class _NewGymState extends State<NewGymCard> {
                 labelText: 'Gym name',
               ),
             ),
-            Divider(
-                height: 20,
-                thickness: 1,
-                indent: 5,
-                endIndent: 5,
-                color: Colors.grey),
+            Divider(height: 20, thickness: 1, indent: 5, endIndent: 5, color: Colors.grey),
             Tags(
               key: _tagStateKey,
               //symmetry: true,
@@ -169,12 +160,7 @@ class _NewGymState extends State<NewGymCard> {
               ),
               maxLines: null,
             ),
-            Divider(
-                height: 20,
-                thickness: 1,
-                indent: 5,
-                endIndent: 5,
-                color: Colors.grey),
+            Divider(height: 20, thickness: 1, indent: 5, endIndent: 5, color: Colors.grey),
             Expanded(
               child: ListTile(
                 leading: const Icon(Icons.location_on),

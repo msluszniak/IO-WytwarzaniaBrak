@@ -8,7 +8,7 @@ import '../models/exercise.dart';
 import '../models/gym.dart';
 
 class ServerConnection {
-  static String serverAddress = "192.168.1.20:8080";
+  static String serverAddress = "192.168.216.167:8080";
 
   static Future<List<BaseModel>> loadFromDatabase<T extends BaseModel>() async {
     late final response;

@@ -3,9 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_demo/models/favorites.dart';
-import 'package:flutter_demo/ui/pages/favorites.dart';
 
 class GymPage extends StatelessWidget {
   static const routeName = '/gyms';
@@ -16,7 +13,7 @@ class GymPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Gyms'),
+        title: const Text('Gyms'),
       ),
       body: ListView.builder(
         itemCount: 100,
@@ -49,7 +46,7 @@ class ItemTile extends StatelessWidget {
         trailing: IconButton(
           key: Key('icon_$itemNo'),
           icon: Icon(Icons.circle),
-          onPressed: () {   },
+          onPressed: () {},
         ),
       ),
     );

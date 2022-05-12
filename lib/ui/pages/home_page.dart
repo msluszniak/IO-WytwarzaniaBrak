@@ -15,7 +15,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,10 +25,7 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Spacer(),
-            _buildShortcutsWidget()
-          ],
+          children: <Widget>[Spacer(), _buildShortcutsWidget()],
         ),
       ),
     );
@@ -37,12 +33,8 @@ class _HomePageState extends State<HomePage> {
 }
 
 Widget _buildShortcutsWidget() => Padding(
-  padding: EdgeInsets.only(bottom: 16),
-  child: ShortcutsWidget(
-    types: [
-      ShortcutType.map,
-      ShortcutType.gym,
-      ShortcutType.exercises
-    ],
-  ),
-);
+      padding: EdgeInsets.only(bottom: 16),
+      child: ShortcutsWidget(
+        types: [ShortcutType.map, ShortcutType.gym, ShortcutType.exercises],
+      ),
+    );
