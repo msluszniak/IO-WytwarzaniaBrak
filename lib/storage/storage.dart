@@ -6,12 +6,15 @@ import '../models/exercise.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
 import '../models/gym.dart';
+import '../models/equipment.dart';
+import 'dao/equipment_dao.dart';
 import 'dao/gym_dao.dart';
 
 part 'storage.g.dart'; // the generated code will be there
 
-@Database(version: 1, entities: [Exercise, Gym])
+@Database(version: 1, entities: [Exercise, Gym, Equipment])
 abstract class Storage extends FloorDatabase {
   ExerciseDao get exerciseDAO;
   GymDao get gymDAO;
+  EquipmentDao get equipmentDAO;
 }

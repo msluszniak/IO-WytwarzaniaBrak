@@ -6,6 +6,8 @@ import 'package:flutter_demo/storage/storage.dart';
 
 import '../models/exercise.dart';
 import '../models/gym.dart';
+import '../models/equipment.dart';
+
 
 class DBManager extends ChangeNotifier {
   final Storage storage;
@@ -36,6 +38,8 @@ class DBManager extends ChangeNotifier {
         return storage.exerciseDAO.getAll();
       case Gym:
         return storage.gymDAO.getAll();
+      case Equipment:
+        return storage.equipmentDAO.getAll();
     }
     throw Exception("Invalid type provided for the database manager");
   }

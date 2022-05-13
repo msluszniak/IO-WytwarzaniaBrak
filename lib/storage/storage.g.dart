@@ -102,6 +102,7 @@ class _$Storage extends Storage {
   GymDao get gymDAO {
     return _gymDAOInstance ??= _$GymDao(database, changeListener);
   }
+
 }
 
 class _$ExerciseDao extends ExerciseDao {

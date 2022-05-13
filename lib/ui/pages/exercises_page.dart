@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/models/equipment.dart';
 import 'package:flutter_demo/models/exercise.dart';
 import 'package:flutter_demo/storage/dbmanager.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +26,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
   @override
   Widget build(BuildContext context) {
     final dbManager = context.watch<DBManager>();
+    final equipmentsList = dbManager.getAll<Equipment>();
 
     final appBar = AppBar(
       title: const Text('Exercises'),
