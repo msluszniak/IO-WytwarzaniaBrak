@@ -40,7 +40,7 @@ class _MapState extends State<MapPage> {
   bool inAddingMode = false;
   bool inCreatingMode = false;
 
-  List<LatLng> routingCords = [];
+  List<LatLng> routingPointsToDraw = [];
 
   //Populate gym list
   @override
@@ -108,7 +108,7 @@ class _MapState extends State<MapPage> {
               polylineCulling: true,
               polylines: [
                 TaggedPolyline(
-                  points: routingCords,
+                  points: routingPointsToDraw,
                   color: Colors.blue,
                   strokeWidth: 3.0, // plot size
                   isDotted: true, // if true id display dotted,
@@ -238,7 +238,7 @@ class _MapState extends State<MapPage> {
 
   void _drawRoute(LatLng startingPoint, LatLng endingPoint, [List<LatLng> middlePoints = const []]) async {
     try {
-      routingCords = await _getRoutePoints(startingPoint, endingPoint, middlePoints).timeout(Duration(seconds: 5));
+      routingPointsToDraw = await _getRoutePoints(startingPoint, endingPoint, middlePoints).timeout(Duration(seconds: 5));
     } on TimeoutException catch(_) {
       Fluttertoast.showToast(msg: "Route obtaining timeout reached");
     } on Exception catch(_) {
@@ -248,7 +248,7 @@ class _MapState extends State<MapPage> {
   }
 
   void _clearRoute() {
-    routingCords = [];
+    routingPointsToDraw = [];
     setState(() {});
   }
 
@@ -304,7 +304,7 @@ class _MapState extends State<MapPage> {
   FloatingActionButton _buildRouteButton() {
     return FloatingActionButton(
       onPressed: () {
-        if(routingCords.isEmpty)
+        if(routingPointsToDraw.isEmpty)
           _drawRoute(LatLng(50.07085, 19.92222), LatLng(50.06041, 19.95807), [LatLng(50.08269,19.95518), LatLng(50.0703, 19.98305)]);
         else
           _clearRoute();
