@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_demo/backend/server_exception.dart';
 import 'package:http/http.dart' as http;
 
-import '../models/base_model.dart';
+import '../models/abstract/base_model.dart';
 import '../models/exercise.dart';
 import '../models/gym.dart';
 import '../models/workout.dart';
@@ -12,14 +12,24 @@ import '../models/workout_exercises.dart';
 class ServerConnection {
   static String serverAddress = "192.168.1.20:8080";
 
-  static Future<List<BaseModel>> loadFromDatabase<T extends BaseModel>() async {
-    late final response;
+  static String _getLoadRequestPath<T extends BaseModel>(){
+    switch(T){
+      case Gym : return "gym/all";
+      case Workout : return "workout/all";
+      case Exercise : return "exercise/all";
+      case WorkoutExercise : return "workout/all_exercises";
+    }
+    return "";
+  }
 
-    String requestPath = T.toString().toLowerCase();
+  static Future<List<BaseModel>> loadFromDatabase<T extends BaseModel>() async {
+    String requestPath = _getLoadRequestPath<T>();
+
+    late final response;
 
     try {
       response = await http
-          .get(Uri.parse("http://$serverAddress/$requestPath/all"))
+          .get(Uri.parse("http://$serverAddress/$requestPath"))
           .timeout(const Duration(seconds: 7));
     } on TimeoutException catch (_) {
       throw ServerException(responseCode: 408); // Timed out
@@ -35,32 +45,12 @@ class ServerConnection {
           return parsed.map<T>((json) => Gym.fromJson(json)).toList();
         case Workout:
           return parsed.map<T>((json) => Workout.fromJson(json)).toList();
+        case WorkoutExercise:
+          return parsed.map<T>((json) => WorkoutExercise.fromJson(json)).toList();
       }
+
+      throw ServerException(responseCode: 400);
     }
-    throw ServerException(responseCode: response.statusCode);
-  }
-
-  static Future<List<WorkoutExercise>> loadWorkoutExercises() async {
-    late final response;
-
-    String requestPath = "http://$serverAddress/workout/all_exercises";
-
-    try {
-      response = await http
-          .get(Uri.parse(requestPath))
-          .timeout(const Duration(seconds: 7));
-    } on TimeoutException catch (_) {
-      throw ServerException(responseCode: 408); // Timed out
-    }
-
-    if (response.statusCode == 200) {
-      final parsed = jsonDecode(response.body).cast<Map<String, dynamic>>();
-
-      return parsed
-          .map<WorkoutExercise>((json) => WorkoutExercise.fromJson(json))
-          .toList();
-    }
-
     throw ServerException(responseCode: response.statusCode);
   }
 

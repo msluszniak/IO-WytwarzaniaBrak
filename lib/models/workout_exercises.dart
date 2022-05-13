@@ -1,6 +1,7 @@
 import 'package:floor/floor.dart';
 import 'package:flutter_demo/models/workout.dart';
 
+import 'abstract/base_join_model.dart';
 import 'exercise.dart';
 
 @Entity(primaryKeys: [
@@ -12,7 +13,7 @@ import 'exercise.dart';
   ForeignKey(
       childColumns: ['exerciseId'], parentColumns: ['id'], entity: Exercise)
 ])
-class WorkoutExercise {
+class WorkoutExercise extends BaseJoinModel {
   final int workoutId;
   final int exerciseId;
 

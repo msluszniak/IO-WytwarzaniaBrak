@@ -1,8 +1,8 @@
 import 'package:floor/floor.dart';
-import 'package:flutter_demo/models/base_model.dart';
+import 'package:flutter_demo/models/abstract/base_id_model.dart';
 
 @entity
-class Workout extends BaseModel {
+class Workout extends BaseIdModel {
   @PrimaryKey(autoGenerate: true)
   final int? id;
   final String name;

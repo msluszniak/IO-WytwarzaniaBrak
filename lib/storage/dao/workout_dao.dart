@@ -36,5 +36,5 @@ abstract class WorkoutDao {
   }
 
   @Query("SELECT * FROM Exercise WHERE id IN (SELECT exerciseId FROM WorkoutExercise WHERE workoutId = :workoutId)")
-  Future<List<Exercise>> getWorkoutExercises(int workoutId);
+  Future<List<Exercise>> getJoinedExercises(int workoutId);
 }

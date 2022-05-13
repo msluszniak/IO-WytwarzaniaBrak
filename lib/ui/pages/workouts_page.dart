@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/models/workout_exercises.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/base_model.dart';
+import '../../models/abstract/base_id_model.dart';
+import '../../models/abstract/base_model.dart';
 import '../../models/exercise.dart';
 import '../../models/workout.dart';
 import '../../storage/dbmanager.dart';
@@ -22,8 +22,6 @@ class _WorkoutsState extends State<WorkoutsPage> {
   @override
   void initState() {
     super.initState();
-
-    // TODO : ładowanie z local storage
   }
 
   @override
@@ -53,9 +51,9 @@ class _WorkoutsState extends State<WorkoutsPage> {
                       return ExpansionTile(
                         title: Text(workout.name),
                         children: <Widget>[
-                          FutureBuilder<List<Exercise>>(
+                          FutureBuilder<List<BaseIdModel>>(
                               future:
-                                  dbManager.getWorkoutExercises(workout.id!),
+                                  dbManager.getJoined<Workout, Exercise>(workout.id!),
                               builder: (context, snapshot) {
                                 if (!snapshot.hasData) {
                                   return CircularProgressIndicator();
