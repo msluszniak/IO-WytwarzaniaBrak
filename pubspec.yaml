@@ -42,6 +42,7 @@ dependencies:
   geolocator: 8.2.0
   http: any
   fluttertoast: ^8.0.9
+  flutter_map_tappable_polyline: any
 
 dev_dependencies:
   flutter_test:
