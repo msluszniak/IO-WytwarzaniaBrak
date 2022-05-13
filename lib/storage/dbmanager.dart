@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_demo/backend/server_connection.dart';
 import 'package:flutter_demo/backend/server_exception.dart';
 import 'package:flutter_demo/models/base_model.dart';
+import 'package:flutter_demo/models/workout_exercises.dart';
 import 'package:flutter_demo/storage/storage.dart';
 
 import '../models/exercise.dart';
@@ -93,6 +94,16 @@ class DBManager extends ChangeNotifier {
           List<Workout> workouts = items.cast<Workout>();
           storage.workoutDAO.updateAll(workouts);
           storage.workoutDAO.updateFavorites(favoriteIds);
+
+          late final List<WorkoutExercise> workoutExercises;
+          try {
+            workoutExercises = await ServerConnection.loadWorkoutExercises();
+          } on ServerException catch (e) {
+            throw e;
+          }
+
+          storage.workoutDAO.updateAllExercises(workoutExercises);
+
           return;
         }
     }
@@ -108,6 +119,10 @@ class DBManager extends ChangeNotifier {
     } on ServerException catch (e) {
       return e.responseCode;
     }
+  }
+
+  Future<List<Exercise>> getWorkoutExercises(int workoutId){
+    return storage.workoutDAO.getWorkoutExercises(workoutId);
   }
 
   static Future<DBManager> loadDatabase() async {

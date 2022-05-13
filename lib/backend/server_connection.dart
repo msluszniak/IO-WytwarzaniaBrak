@@ -7,6 +7,7 @@ import '../models/base_model.dart';
 import '../models/exercise.dart';
 import '../models/gym.dart';
 import '../models/workout.dart';
+import '../models/workout_exercises.dart';
 
 class ServerConnection {
   static String serverAddress = "192.168.1.20:8080";
@@ -36,6 +37,30 @@ class ServerConnection {
           return parsed.map<T>((json) => Workout.fromJson(json)).toList();
       }
     }
+    throw ServerException(responseCode: response.statusCode);
+  }
+
+  static Future<List<WorkoutExercise>> loadWorkoutExercises() async {
+    late final response;
+
+    String requestPath = "http://$serverAddress/workout/all_exercises";
+
+    try {
+      response = await http
+          .get(Uri.parse(requestPath))
+          .timeout(const Duration(seconds: 7));
+    } on TimeoutException catch (_) {
+      throw ServerException(responseCode: 408); // Timed out
+    }
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body).cast<Map<String, dynamic>>();
+
+      return parsed
+          .map<WorkoutExercise>((json) => WorkoutExercise.fromJson(json))
+          .toList();
+    }
+
     throw ServerException(responseCode: response.statusCode);
   }
 

@@ -90,6 +90,8 @@ class _$Storage extends Storage {
             'CREATE TABLE IF NOT EXISTS `Gym` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `lat` REAL NOT NULL, `lng` REAL NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `address` TEXT, `isFavorite` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Workout` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFavorite` INTEGER NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `WorkoutExercise` (`workoutId` INTEGER NOT NULL, `exerciseId` INTEGER NOT NULL, FOREIGN KEY (`workoutId`) REFERENCES `Workout` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`exerciseId`) REFERENCES `Exercise` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`workoutId`, `exerciseId`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -283,6 +285,13 @@ class _$WorkoutDao extends WorkoutDao {
                   'id': item.id,
                   'name': item.name,
                   'isFavorite': item.isFavorite ? 1 : 0
+                }),
+        _workoutExerciseInsertionAdapter = InsertionAdapter(
+            database,
+            'WorkoutExercise',
+            (WorkoutExercise item) => <String, Object?>{
+                  'workoutId': item.workoutId,
+                  'exerciseId': item.exerciseId
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -292,6 +301,8 @@ class _$WorkoutDao extends WorkoutDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<Workout> _workoutInsertionAdapter;
+
+  final InsertionAdapter<WorkoutExercise> _workoutExerciseInsertionAdapter;
 
   @override
   Future<void> addFavorite(int id, bool isFavorite) async {
@@ -332,6 +343,19 @@ class _$WorkoutDao extends WorkoutDao {
   }
 
   @override
+  Future<void> clearAllExercises() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM WorkoutExercise');
+  }
+
+  @override
+  Future<List<Exercise>> getWorkoutExercises(int workoutId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM Exercise WHERE id IN (SELECT exerciseId FROM WorkoutExercise WHERE workoutId = ?1)',
+        mapper: (Map<String, Object?> row) => Exercise(id: row['id'] as int?, name: row['name'] as String, equipmentId: row['equipmentId'] as int, bodyPart: row['bodyPart'] as String?, description: row['description'] as String?, isFavorite: (row['isFavorite'] as int) != 0),
+        arguments: [workoutId]);
+  }
+
+  @override
   Future<void> add(Workout workout) async {
     await _workoutInsertionAdapter.insert(workout, OnConflictStrategy.abort);
   }
@@ -340,5 +364,11 @@ class _$WorkoutDao extends WorkoutDao {
   Future<void> updateAll(List<Workout> person) async {
     await _workoutInsertionAdapter.insertList(
         person, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> addAllExercises(List<WorkoutExercise> workoutExercises) async {
+    await _workoutExerciseInsertionAdapter.insertList(
+        workoutExercises, OnConflictStrategy.abort);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/models/workout_exercises.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/base_model.dart';
@@ -48,8 +49,33 @@ class _WorkoutsState extends State<WorkoutsPage> {
                     controller: ScrollController(),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     itemBuilder: (context, index) {
-                      final item = workoutList[index];
-                      return _WorkoutTile(workout: item);
+                      final workout = workoutList[index];
+                      return ExpansionTile(
+                        title: Text(workout.name),
+                        children: <Widget>[
+                          FutureBuilder<List<Exercise>>(
+                              future:
+                                  dbManager.getWorkoutExercises(workout.id!),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return CircularProgressIndicator();
+                                } else {
+                                  final List<Exercise> exerciseList =
+                                      snapshot.data!.cast<Exercise>();
+
+                                  return ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      scrollDirection: Axis.vertical,
+                                      itemCount: exerciseList.length,
+                                      itemBuilder: (context, index) => ListTile(
+                                            title:
+                                                Text(exerciseList[index].name),
+                                          ));
+                                }
+                              }),
+                        ],
+                      );
                     });
               }
             }));
@@ -57,31 +83,5 @@ class _WorkoutsState extends State<WorkoutsPage> {
 
   void _addWorkout() {
     // TODO: Open a form for creating a new workout
-  }
-}
-
-class _WorkoutTile extends StatelessWidget {
-  final Workout workout;
-
-  _WorkoutTile({required this.workout});
-
-  @override
-  Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: Text(workout.name),
-      children: <Widget>[
-        /*
-        ListView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            scrollDirection: Axis.vertical,
-            itemCount: workout.exercises.length,
-            itemBuilder: (context, index) => ListTile(
-                  trailing: Text(
-                      "Powtórzenia: ${workout.exercises[index].item2.toString()}"),
-                  title: Text(workout.exercises[index].item1.name),
-                ))*/
-      ],
-    );
   }
 }

@@ -1,9 +1,11 @@
 import 'package:floor/floor.dart';
+import 'package:flutter_demo/models/workout_exercises.dart';
 
+import '../../models/exercise.dart';
 import '../../models/workout.dart';
 
 @dao
-abstract class WorkoutDao{
+abstract class WorkoutDao {
   @insert
   Future<void> add(Workout workout);
 
@@ -21,4 +23,18 @@ abstract class WorkoutDao{
 
   @Query("UPDATE Workout SET isFavorite=1 WHERE id in (:favoriteIds)")
   Future<void> updateFavorites(List<int> favoriteIds);
+
+  @Query("DELETE FROM WorkoutExercise")
+  Future<void> clearAllExercises();
+
+  @insert
+  Future<void> addAllExercises(List<WorkoutExercise> workoutExercises);
+
+  Future<void> updateAllExercises(List<WorkoutExercise> workoutExercises) async {
+    this.clearAllExercises();
+    this.addAllExercises(workoutExercises);
+  }
+
+  @Query("SELECT * FROM Exercise WHERE id IN (SELECT exerciseId FROM WorkoutExercise WHERE workoutId = :workoutId)")
+  Future<List<Exercise>> getWorkoutExercises(int workoutId);
 }
