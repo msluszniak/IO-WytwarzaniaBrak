@@ -236,9 +236,9 @@ class _MapState extends State<MapPage> {
       throw Exception('Failed to calculate route');
   }
 
-  void _drawRoute(Duration timeout, LatLng startingPoint, LatLng endingPoint, [List<LatLng> middlePoints = const []]) async {
+  void _drawRoute(LatLng startingPoint, LatLng endingPoint, [List<LatLng> middlePoints = const []]) async {
     try {
-      routingCords = await _getRoutePoints(startingPoint, endingPoint, middlePoints).timeout(timeout);
+      routingCords = await _getRoutePoints(startingPoint, endingPoint, middlePoints).timeout(Duration(seconds: 5));
     } on TimeoutException catch(_) {
       Fluttertoast.showToast(msg: "Route obtaining timeout reached");
     } on Exception catch(_) {
@@ -304,10 +304,13 @@ class _MapState extends State<MapPage> {
   FloatingActionButton _buildRouteButton() {
     return FloatingActionButton(
       onPressed: () {
-        _drawRoute(Duration(seconds: 3), LatLng(50.07085, 19.92222), LatLng(50.06041, 19.95807));
+        if(routingCords.isEmpty)
+          _drawRoute(LatLng(50.07085, 19.92222), LatLng(50.06041, 19.95807), [LatLng(50.08269,19.95518), LatLng(50.0703, 19.98305)]);
+        else
+          _clearRoute();
       },
       child: const Icon(
-        Icons.ac_unit,
+        Icons.alt_route,
         color: Colors.blue,
       ),
     );
