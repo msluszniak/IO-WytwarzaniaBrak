@@ -32,8 +32,8 @@ class _ExercisesPageState extends State<ExercisesPage> {
         Spacer(),
         Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Spacer(),
             TextButton.icon(
               style: TextButton.styleFrom(primary: Colors.white),
               onPressed: toggleFavourite,
@@ -42,21 +42,6 @@ class _ExercisesPageState extends State<ExercisesPage> {
                   : const Icon(Icons.favorite_border),
               label: const Text('Favorites'),
             ),
-            Spacer(),
-            TextButton.icon(
-              style: TextButton.styleFrom(primary: Colors.white),
-              onPressed: () {},
-              icon: const Icon(Icons.circle_outlined),
-              label: const Text('Tab2'),
-            ),
-            Spacer(),
-            TextButton.icon(
-              style: TextButton.styleFrom(primary: Colors.white),
-              onPressed: () {},
-              icon: const Icon(Icons.circle_outlined),
-              label: const Text('Tab3'),
-            ),
-            Spacer()
           ],
         )),
       ],
@@ -90,7 +75,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
                                       item.id!, !item.isFavorite);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(item.isFavorite
+                                      content: Text(!item.isFavorite
                                           ? 'Added to favorites.'
                                           : 'Removed from favorites.'),
                                       duration: const Duration(seconds: 1),
