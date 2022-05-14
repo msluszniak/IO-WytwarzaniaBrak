@@ -55,6 +55,14 @@ class _NewWorkoutState extends State<NewWorkoutCard> {
                   .where(
                       (element) => _filterBodyParts.contains(element.bodyPart))
                   .toList();
+            for (int i = 0; i < _pickedExercises.length; i++) {
+              if (_exercisesToShow
+                  .map((e) => e.name)
+                  .toList()
+                  .contains(_pickedExercises[i].name))
+                _exercisesToShow.removeWhere(
+                    (element) => element.name == _pickedExercises[i].name);
+            }
             _bodyParts = _exercises.map((e) => e.bodyPart!).toSet().toList();
 
             return ColoredBox(
@@ -148,16 +156,19 @@ class _NewWorkoutState extends State<NewWorkoutCard> {
                             );
                           }),
                     )),
+                    SizedBox(height: 10),
                     Expanded(
-                        child: Wrap(
+                        child: SingleChildScrollView(
+                            child: Wrap(
                       spacing: 6.0,
                       runSpacing: 6.0,
                       children: _pickedExercises
                           .map((e) => _buildChip(e.name, Colors.white10))
                           .toList(),
-                    )),
-                    Expanded(
-                        child: Row(
+                    ))),
+                    //Expanded(
+                       // child:
+                        Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
                         ElevatedButton(
@@ -186,7 +197,7 @@ class _NewWorkoutState extends State<NewWorkoutCard> {
                         ),
                         const SizedBox(width: 8),
                       ],
-                    )),
+                    ),
                   ],
                 ),
               ),
