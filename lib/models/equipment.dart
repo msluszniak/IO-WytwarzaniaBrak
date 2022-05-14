@@ -1,8 +1,8 @@
 import 'package:floor/floor.dart';
-import 'package:flutter_demo/models/abstract/base_model.dart';
+import 'abstract/base_id_model.dart';
 
 @entity
-class Equipment extends BaseModel {
+class Equipment extends BaseIdModel {
   @PrimaryKey(autoGenerate: true)
   final int? id;
   final String name;

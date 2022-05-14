@@ -82,7 +82,7 @@ class DBManager extends ChangeNotifier {
       return storage.exerciseDAO.getJoinedWorkouts(id);
     }
     else if (L == Exercise && R == Equipment){
-      return storage.exerciseDAO.getJoinedWorkouts(id);
+      return storage.exerciseDAO.getJoinedEquipments(id);
     }
     else if (R == Exercise && L == Equipment){
       return storage.equipmentDAO.getJoinedExercises(id);
