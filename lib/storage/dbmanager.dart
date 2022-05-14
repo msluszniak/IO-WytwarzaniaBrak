@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_demo/backend/server_connection.dart';
 import 'package:flutter_demo/backend/server_exception.dart';
 import 'package:flutter_demo/models/abstract/base_id_model.dart';
+import 'package:flutter_demo/models/user_workout_exercises.dart';
 import 'package:flutter_demo/models/workout_exercises.dart';
 import 'package:flutter_demo/storage/storage.dart';
 
@@ -9,6 +10,7 @@ import '../models/abstract/base_join_model.dart';
 import '../models/abstract/base_model.dart';
 import '../models/exercise.dart';
 import '../models/gym.dart';
+import '../models/user_workout.dart';
 import '../models/workout.dart';
 
 class DBManager extends ChangeNotifier {
@@ -25,6 +27,16 @@ class DBManager extends ChangeNotifier {
     return 200;
   }
 
+  Future<List<int>> addToLocal<T extends BaseModel>(List<BaseModel> item) async {
+    switch (T) {
+      case UserWorkout:
+        return storage.userWorkoutDAO.add(item.cast<UserWorkout>());
+      case UserWorkoutExercise:
+        return storage.userWorkoutExerciseDAO.add(item.cast<UserWorkoutExercise>());
+    }
+    throw Exception("Invalid type provided for the database manager");
+  }
+
   Future<List<BaseModel>> getAll<T extends BaseModel>() async {
     switch (T) {
       case Exercise:
@@ -33,10 +45,22 @@ class DBManager extends ChangeNotifier {
         return storage.gymDAO.getAll();
       case Workout:
         return storage.workoutDAO.getAll();
+      case UserWorkout:
+        return storage.userWorkoutDAO.getAll();
       case WorkoutExercise:
         return storage.workoutExerciseDAO.getAll();
+      case UserWorkoutExercise:
+        return storage.userWorkoutExerciseDAO.getAll();
     }
     throw Exception("Invalid type provided for the database manager");
+  }
+
+  Future<List<Workout>> getAllUserAndPredefined() async {
+    List<Workout> predefinedWorkouts = await storage.workoutDAO.getAll();
+    List<UserWorkout> userWorkouts = await storage.userWorkoutDAO.getAll();
+    userWorkouts.forEach((element) {print("ID: " + element.id.toString());});
+    predefinedWorkouts.addAll(userWorkouts.map((e) => Workout(id: e.id, name: e.name, isFavorite: e.isFavorite)).toList());
+    return predefinedWorkouts;
   }
 
   /// Methods only for entities with id
@@ -48,6 +72,8 @@ class DBManager extends ChangeNotifier {
         return storage.gymDAO.getFavorite();
       case Workout:
         return storage.workoutDAO.getFavorite();
+      case UserWorkout:
+        return storage.userWorkoutDAO.getFavorite();
     }
     throw Exception("Invalid type provided for the database manager");
   }
@@ -64,6 +90,10 @@ class DBManager extends ChangeNotifier {
         return;
       case Workout:
         await storage.workoutDAO.addFavorite(id, flag);
+        notifyListeners();
+        return;
+      case UserWorkout:
+        await storage.userWorkoutDAO.addFavorite(id, flag);
         notifyListeners();
         return;
     }
