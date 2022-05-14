@@ -7,7 +7,7 @@ abstract class EquipmentDao{
   @insert
   Future<void> add(Equipment equipment);
 
-  @Query("SELECT * FROM Equipments")
+  @Query("SELECT * FROM Equipment")
   Future<List<Equipment>> getAll();
 
   @Insert(onConflict: OnConflictStrategy.replace)

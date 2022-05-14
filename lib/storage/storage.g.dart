@@ -327,7 +327,7 @@ class _$EquipmentDao extends EquipmentDao {
 
   @override
   Future<List<Equipment>> getAll() async {
-    return _queryAdapter.queryList('SELECT * FROM Equipments',
+    return _queryAdapter.queryList('SELECT * FROM Equipment',
         mapper: (Map<String, Object?> row) =>
             Equipment(id: row['id'] as int?, name: row['name'] as String));
   }

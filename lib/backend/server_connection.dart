@@ -18,6 +18,7 @@ class ServerConnection {
       case Gym : return "gym/all";
       case Workout : return "workout/all";
       case Exercise : return "exercise/all";
+      case Equipment : return "equipment/all";
       case WorkoutExercise : return "workout/all_exercises";
     }
     return "";
