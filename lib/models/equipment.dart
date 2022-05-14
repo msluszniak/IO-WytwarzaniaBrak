@@ -7,10 +7,10 @@ class Equipment extends BaseModel {
   final int? id;
   final String name;
 
-  Equipment(
-      {this.id,
-        required this.name,
-        });
+  Equipment({
+    this.id,
+    required this.name,
+  });
 
   Equipment.fromJson(Map<String, dynamic> json)
       : id = json['id'],

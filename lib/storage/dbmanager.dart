@@ -81,6 +81,12 @@ class DBManager extends ChangeNotifier {
     else if (R == Workout && L == Exercise){
       return storage.exerciseDAO.getJoinedWorkouts(id);
     }
+    else if (L == Exercise && R == Equipment){
+      return storage.exerciseDAO.getJoinedWorkouts(id);
+    }
+    else if (R == Exercise && L == Equipment){
+      return storage.equipmentDAO.getJoinedExercises(id);
+    }
     throw Exception("Invalid types provided for the database manager");
   }
 
@@ -96,7 +102,7 @@ class DBManager extends ChangeNotifier {
     return items;
   }
 
-  Future<void> updateIdEntity<T extends BaseIdModel>() async {
+  Future<void> updateEntityWithFavorite<T extends BaseIdModel>() async {
     late final List<BaseIdModel> items;
     try {
       items = (await _loadFromDatabase<T>()).cast<BaseIdModel>();
@@ -133,10 +139,10 @@ class DBManager extends ChangeNotifier {
     throw Exception("Invalid type provided for the database manager");
   }
 
-  Future<void> updateJoinEntity<T extends BaseJoinModel>() async {
-    late final List<BaseJoinModel> items;
+  Future<void> updateEntityWithoutFavorite<T extends BaseModel>() async {
+    late final List<BaseModel> items;
     try {
-      items = (await _loadFromDatabase<T>()).cast<BaseJoinModel>();
+      items = (await _loadFromDatabase<T>()).cast<BaseModel>();
     } on ServerException catch (e) {
       throw e;
     }
@@ -148,17 +154,24 @@ class DBManager extends ChangeNotifier {
           storage.workoutExerciseDAO.updateAll(workoutExercises);
           return;
         }
+      case Equipment:
+        {
+          List<Equipment> equipments = items.cast<Equipment>();
+          storage.equipmentDAO.updateAll(equipments);
+          return;
+        }
     }
     throw Exception("Invalid type provided for the database manager");
   }
 
   Future<int> updateAllData() async {
     try {
-      await updateIdEntity<Exercise>();
-      await updateIdEntity<Gym>();
-      await updateIdEntity<Workout>();
+      await updateEntityWithFavorite<Exercise>();
+      await updateEntityWithFavorite<Gym>();
+      await updateEntityWithFavorite<Workout>();
 
-      await updateJoinEntity<WorkoutExercise>();
+      await updateEntityWithoutFavorite<WorkoutExercise>();
+      await updateEntityWithoutFavorite<Equipment>();
 
       return 200;
     } on ServerException catch (e) {

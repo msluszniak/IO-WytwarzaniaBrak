@@ -16,12 +16,17 @@ import 'dao/workout_dao.dart';
 
 part 'storage.g.dart'; // the generated code will be there
 
-@Database(version: 1, entities: [Exercise, Equipment, Gym, Workout, WorkoutExercise])
+@Database(
+    version: 1,
+    entities: [Exercise, Equipment, Gym, Workout, WorkoutExercise])
 abstract class Storage extends FloorDatabase {
   //entities
   ExerciseDao get exerciseDAO;
+
   GymDao get gymDAO;
+
   EquipmentDao get equipmentDAO;
+
   WorkoutDao get workoutDAO;
 
   //join entities

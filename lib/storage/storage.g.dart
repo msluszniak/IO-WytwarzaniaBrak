@@ -208,6 +208,14 @@ class _$ExerciseDao extends ExerciseDao {
   }
 
   @override
+  Future<List<Equipment>> getJoinedEquipments(int exerciseId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM Equipment WHERE id IN (SELECT equipmentId FROM Exercise WHERE id = ?1)',
+        mapper: (Map<String, Object?> row) => Equipment(id: row['id'] as int?, name: row['name'] as String),
+        arguments: [exerciseId]);
+  }
+
+  @override
   Future<void> add(Exercise exercise) async {
     await _exerciseInsertionAdapter.insert(exercise, OnConflictStrategy.abort);
   }
@@ -325,9 +333,29 @@ class _$EquipmentDao extends EquipmentDao {
   }
 
   @override
+  Future<List<Exercise>> getJoinedExercises(int equipmentId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM Exercise WHERE equipmentId = ?1',
+        mapper: (Map<String, Object?> row) => Exercise(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            equipmentId: row['equipmentId'] as int,
+            bodyPart: row['bodyPart'] as String?,
+            description: row['description'] as String?,
+            isFavorite: (row['isFavorite'] as int) != 0),
+        arguments: [equipmentId]);
+  }
+
+  @override
   Future<void> add(Equipment equipment) async {
     await _equipmentInsertionAdapter.insert(
         equipment, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateAll(List<Equipment> equipments) async {
+    await _equipmentInsertionAdapter.insertList(
+        equipments, OnConflictStrategy.replace);
   }
 }
 
