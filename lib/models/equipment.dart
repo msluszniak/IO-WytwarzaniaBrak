@@ -1,6 +1,5 @@
 import 'package:floor/floor.dart';
-import 'package:flutter_demo/models/base_model.dart';
-import 'package:flutter_demo/storage/dao/equipment_dao.dart';
+import 'package:flutter_demo/models/abstract/base_model.dart';
 
 @entity
 class Equipment extends BaseModel {

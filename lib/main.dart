@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'package:flutter_demo/ui/pages/workouts_page.dart';
 import 'package:flutter_demo/storage/dbmanager.dart';
-import 'package:flutter_demo/ui/pages/gyms_page.dart';
 import 'package:flutter_demo/ui/pages/map_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_demo/ui/pages/home_page.dart';
@@ -42,7 +43,7 @@ class MyApp extends StatelessWidget {
                   FavoritesPage.routeName: (context) => const FavoritesPage(),
                   ExercisesPage.routeName: (context) => const ExercisesPage(),
                   MapPage.routeName: (context) => const MapPage(),
-                  GymPage.routeName: (context) => const GymPage()
+                  WorkoutsPage.routeName: (context) => const WorkoutsPage()
                 },
                 initialRoute: HomePage.routeName,
               ),

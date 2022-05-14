@@ -2,11 +2,8 @@ package pl.agh.io.workout.dbaccess;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestParam;
-import pl.agh.io.exercise.dbaccess.ExerciseRepository;
-import pl.agh.io.exercise.models.Exercise;
-import pl.agh.io.gym.models.Gym;
 import pl.agh.io.workout.models.Workout;
+import pl.agh.io.workout.models.WorkoutExercise;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,13 +23,14 @@ public class WorkoutDAO {
         return workouts;
     }
 
-    public Map<Integer, Set<Exercise>> getAllWorkoutExercises(){
+    public List<WorkoutExercise> getAllWorkoutExercises() {
         List<Workout> workouts = new ArrayList<>();
         workoutRepository.findAll().forEach(workouts::add);
 
-        Map<Integer, Set<Exercise>> workoutExercises = new HashMap<>();
-        for (Workout workout : workouts){
-            workoutExercises.put(workout.getId(), workout.getExercises());
+        List<WorkoutExercise> workoutExercises = new ArrayList<>();
+        for (Workout workout : workouts) {
+            workoutExercises.addAll(workout.getExercises().stream()
+                    .map(e -> new WorkoutExercise(workout.getId(), e.getId())).collect(Collectors.toList()));
         }
         return workoutExercises;
     }
