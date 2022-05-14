@@ -97,8 +97,6 @@ class _MapState extends State<MapPage> {
       body: FutureBuilder(
         future: _initializeUIElements(),
         builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
               return new FlutterMap(
                 mapController: this.controller,
                 options: MapOptions(
@@ -223,9 +221,6 @@ class _MapState extends State<MapPage> {
                   ),
                 ],
               );
-            default:
-              return Center(child: new CircularProgressIndicator(),);
-          }
         }
       ),
     );
