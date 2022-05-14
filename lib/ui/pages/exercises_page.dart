@@ -83,13 +83,17 @@ class _ExercisesPageState extends State<ExercisesPage> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     itemBuilder: (context, index) {
                       final item = favouritesList[index];
-                      return ItemTile(item, onTap: () async {
-                        final Equipment equipment = (await dbManager
-                                .getJoined<Exercise, Equipment>(item.id!))
-                            .cast<Equipment>().first;
+                      return ItemTile(item,
 
-                        print(equipment.name);
-                      },
+                          ///this version of onTap servers purely testing purposes, when tapped tile prints name of proper equipment
+                          onTap: () async {
+                            final Equipment equipment = (await dbManager
+                                    .getJoined<Exercise, Equipment>(item.id!))
+                                .cast<Equipment>()
+                                .first;
+
+                            print(equipment.name);
+                          },
                           onFavoritePressed: isFavouriteEnabled
                               ? () {}
                               : () {
