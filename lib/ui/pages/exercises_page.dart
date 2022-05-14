@@ -3,7 +3,7 @@ import 'package:flutter_demo/models/exercise.dart';
 import 'package:flutter_demo/storage/dbmanager.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/base_model.dart';
+import '../../models/abstract/base_model.dart';
 
 class ExercisesPage extends StatefulWidget {
   const ExercisesPage({Key? key}) : super(key: key);

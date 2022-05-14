@@ -224,7 +224,7 @@ class _NewGymState extends State<NewGymCard> {
                         description: descController.text,
                         address: addressStr);
 
-                    int result = await dbManager.addToDatabase(newGym);
+                    int result = await dbManager.submitToDatabase(newGym);
 
                     Navigator.pop(context);
 
