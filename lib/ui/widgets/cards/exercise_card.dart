@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/models/equipment.dart';
 import 'package:flutter_demo/models/exercise.dart';
+import 'package:flutter_demo/storage/dbmanager.dart';
 import 'package:flutter_tags/flutter_tags.dart';
+import 'package:provider/provider.dart';
 
 class ExerciseCard extends StatelessWidget {
   final Exercise selectedExercise;
+
 
   final List tags = const [
     "Pull-up bar",
@@ -18,8 +22,12 @@ class ExerciseCard extends StatelessWidget {
   const ExerciseCard({Key? key, required this.selectedExercise})
       : super(key: key);
 
+
   @override
   Widget build(BuildContext context) {
+    final dbManager = context.watch<DBManager>();
+    Future<List<Equipment>> equipment = dbManager.getJoined<Exercise, Equipment>(selectedExercise.id!);
+
     return new Scaffold(
       body: Center(
       child: new Column(
@@ -32,7 +40,16 @@ class ExerciseCard extends StatelessWidget {
             subtitle: Row(
               children: [
                 Text(selectedExercise.description!),
-                Text('    ${selectedExercise.equipmentId}')
+                FutureBuilder<List<Equipment>>(
+                    future: equipment,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return CircularProgressIndicator();
+                      } else {
+                        final List<Equipment> equipmentList = snapshot.data!;
+                        return Text(" " + equipmentList.first.name);
+                      }
+                    })
               ],
             ),
           ),

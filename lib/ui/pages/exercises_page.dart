@@ -135,7 +135,6 @@ class ItemTile extends StatelessWidget {
               : const Icon(Icons.favorite_border),
           onPressed: this.onFavoritePressed,
         ),
-        onTap: onTap,
       ),
     );
   }
