@@ -11,7 +11,7 @@ import '../models/workout.dart';
 import '../models/workout_exercises.dart';
 
 class ServerConnection {
-  static String serverAddress = "192.168.1.20:8080";
+  static String serverAddress = "192.168.18.17:8080";
 
   static String _getLoadRequestPath<T extends BaseModel>(){
     switch(T){

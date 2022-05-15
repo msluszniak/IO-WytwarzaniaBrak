@@ -1,3 +1,4 @@
+/*
 package pl.agh.io;
 
 import java.util.ArrayList;
@@ -30,3 +31,5 @@ public class PathFinder {
         return result;
     }
 }
+*/
+ 

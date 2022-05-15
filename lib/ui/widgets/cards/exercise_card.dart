@@ -39,7 +39,6 @@ class ExerciseCard extends StatelessWidget {
             title: Text(selectedExercise.name),
             subtitle: Row(
               children: [
-                Text(selectedExercise.description!),
                 FutureBuilder<List<Equipment>>(
                     future: equipment,
                     builder: (context, snapshot) {
@@ -47,9 +46,13 @@ class ExerciseCard extends StatelessWidget {
                         return CircularProgressIndicator();
                       } else {
                         final List<Equipment> equipmentList = snapshot.data!;
-                        return Text(" " + equipmentList.first.name);
+                        return Text( " " + equipmentList.first.name + "\n",
+                          style: TextStyle(fontWeight: FontWeight.bold),);
                       }
-                    })
+                    }),
+                Text(selectedExercise.description!,
+                    textAlign: TextAlign.start,
+                    style: TextStyle(fontStyle: FontStyle.italic)),
               ],
             ),
           ),
