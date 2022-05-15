@@ -41,13 +41,13 @@ class _NewWorkoutState extends State<NewWorkoutCard> {
   Widget build(BuildContext context) {
     final dbManager = context.watch<DBManager>();
 
-    return FutureBuilder<List<BaseModel>>(
+    return FutureBuilder<List<Exercise>>(
         future: dbManager.getAll<Exercise>(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return CircularProgressIndicator();
           } else {
-            _exercises = snapshot.data!.cast<Exercise>();
+            _exercises = snapshot.data!;
             if (_filterBodyParts.isEmpty)
               _exercisesToShow = _exercises;
             else

@@ -20,15 +20,6 @@ class DBManager extends ChangeNotifier {
 
   DBManager(this.storage);
 
-  Future<int> submitToDatabase<T extends BaseModel>(T item) async {
-    try {
-      await ServerConnection.submitToDatabase<T>(item);
-    } on ServerException catch (e) {
-      return e.responseCode;
-    }
-    return 200;
-  }
-
   Future<List<int>> addToLocal<T extends BaseModel>(List<BaseModel> item) async {
     switch (T) {
       case UserWorkout:
@@ -39,22 +30,22 @@ class DBManager extends ChangeNotifier {
     throw Exception("Invalid type provided for the database manager");
   }
 
-  Future<List<BaseModel>> getAll<T extends BaseModel>() async {
+  Future<List<T>> getAll<T extends BaseModel>() async {
     switch (T) {
       case Exercise:
-        return storage.exerciseDAO.getAll();
+        return storage.exerciseDAO.getAll().then((values) => values.cast<T>());
       case Gym:
-        return storage.gymDAO.getAll();
+        return storage.gymDAO.getAll().then((values) => values.cast<T>());
       case Equipment:
-        return storage.equipmentDAO.getAll();
+        return storage.equipmentDAO.getAll().then((values) => values.cast<T>());
       case Workout:
-        return storage.workoutDAO.getAll();
+        return storage.workoutDAO.getAll().then((values) => values.cast<T>());
       case UserWorkout:
-        return storage.userWorkoutDAO.getAll();
+        return storage.userWorkoutDAO.getAll().then((values) => values.cast<T>());
       case WorkoutExercise:
-        return storage.workoutExerciseDAO.getAll();
+        return storage.workoutExerciseDAO.getAll().then((values) => values.cast<T>());
       case UserWorkoutExercise:
-        return storage.userWorkoutExerciseDAO.getAll();
+        return storage.userWorkoutExerciseDAO.getAll().then((values) => values.cast<T>());
     }
     throw Exception("Invalid type provided for the database manager");
   }
@@ -68,21 +59,21 @@ class DBManager extends ChangeNotifier {
   }
 
   /// Methods only for entities with id
-  Future<List<BaseIdModel>> getFavorites<T extends BaseIdModel>() async {
+  Future<List<T>> getFavorites<T extends BaseIdModel>() async {
     switch (T) {
       case Exercise:
-        return storage.exerciseDAO.getFavorite();
+        return storage.exerciseDAO.getFavorite().then((values) => values.cast<T>());
       case Gym:
-        return storage.gymDAO.getFavorite();
+        return storage.gymDAO.getFavorite().then((values) => values.cast<T>());
       case Workout:
-        return storage.workoutDAO.getFavorite();
+        return storage.workoutDAO.getFavorite().then((values) => values.cast<T>());
       case UserWorkout:
-        return storage.userWorkoutDAO.getFavorite();
+        return storage.userWorkoutDAO.getFavorite().then((values) => values.cast<T>());
     }
     throw Exception("Invalid type provided for the database manager");
   }
 
-  void setFavourite<T extends BaseIdModel>(int id, bool flag) async {
+  Future<void> setFavourite<T extends BaseIdModel>(int id, bool flag) async {
     switch (T) {
       case Exercise:
         await storage.exerciseDAO.addFavorite(id, flag);
@@ -104,32 +95,32 @@ class DBManager extends ChangeNotifier {
     throw Exception("Invalid type provided for the database manager");
   }
 
-  Future<List<BaseIdModel>> getJoined<L extends BaseIdModel, R extends BaseIdModel>(int id){
+  Future<List<R>> getJoined<L extends BaseIdModel, R extends BaseIdModel>(int id){
     if (L == Workout && R == Exercise){
-      return storage.workoutDAO.getJoinedExercises(id);
+      return storage.workoutDAO.getJoinedExercises(id).then((values) => values.cast<R>());
     }
     else if (R == Workout && L == Exercise){
-      return storage.exerciseDAO.getJoinedWorkouts(id);
+      return storage.exerciseDAO.getJoinedWorkouts(id).then((values) => values.cast<R>());
     }
     else if (L == Exercise && R == Equipment){
-      return storage.exerciseDAO.getJoinedEquipments(id);
+      return storage.exerciseDAO.getJoinedEquipments(id).then((values) => values.cast<R>());
     }
     else if (R == Exercise && L == Equipment){
-      return storage.equipmentDAO.getJoinedExercises(id);
+      return storage.equipmentDAO.getJoinedExercises(id).then((values) => values.cast<R>());
     }
     throw Exception("Invalid types provided for the database manager");
   }
 
 
-  /// Update methods
-  Future<List<BaseModel>> _loadFromDatabase<T extends BaseModel>() {
+  /// Update methods from database
+  Future<List<T>> _loadFromDatabase<T extends BaseModel>() {
     late final Future<List<BaseModel>> items;
     try {
       items = ServerConnection.loadFromDatabase<T>();
     } on ServerException catch (e) {
       throw e;
     }
-    return items;
+    return items.then((values) => values.cast<T>());
   }
 
   Future<void> updateEntityWithFavorite<T extends BaseIdModel>() async {
@@ -207,6 +198,16 @@ class DBManager extends ChangeNotifier {
     } on ServerException catch (e) {
       return e.responseCode;
     }
+  }
+
+  /// Add data to database
+  Future<int> submitToDatabase<T extends BaseModel>(T item) async {
+    try {
+      await ServerConnection.submitToDatabase<T>(item);
+    } on ServerException catch (e) {
+      return e.responseCode;
+    }
+    return 200;
   }
 
 

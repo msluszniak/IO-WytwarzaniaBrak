@@ -3,7 +3,6 @@ import 'package:flutter_demo/models/exercise.dart';
 import 'package:flutter_demo/storage/dbmanager.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/abstract/base_model.dart';
 import '../../models/equipment.dart';
 
 class ExercisesPage extends StatefulWidget {
@@ -50,7 +49,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
 
     return Scaffold(
         appBar: appBar,
-        body: FutureBuilder<List<BaseModel>>(
+        body: FutureBuilder<List<Exercise>>(
             future: isFavouriteEnabled
                 ? dbManager.getFavorites<Exercise>()
                 : dbManager.getAll<Exercise>(),
@@ -59,7 +58,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
                 return CircularProgressIndicator();
               } else {
                 final List<Exercise> favouritesList =
-                    snapshot.data!.cast<Exercise>();
+                    snapshot.data!;
 
                 return ListView.builder(
                     itemCount: favouritesList.length,
@@ -73,9 +72,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
                           ///this version of onTap servers purely testing purposes, when tapped tile prints name of proper equipment
                           onTap: () async {
                             final Equipment equipment = (await dbManager
-                                    .getJoined<Exercise, Equipment>(item.id!))
-                                .cast<Equipment>()
-                                .first;
+                                    .getJoined<Exercise, Equipment>(item.id!)).first;
 
                             print(equipment.name);
                           },
