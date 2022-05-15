@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/ui/pages/gyms_page.dart';
+import 'package:flutter_demo/ui/pages/workouts_page.dart';
 import 'package:flutter_demo/ui/pages/favorites.dart';
 import 'package:flutter_demo/ui/pages/exercises_page.dart';
 import 'package:flutter_demo/ui/pages/map_page.dart';
@@ -56,7 +56,7 @@ class NavBar extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.list),
             title: Text('Gyms'),
-            onTap: () => Navigator.pushNamed(context, GymPage.routeName),
+            onTap: () => Navigator.pushNamed(context, WorkoutsPage.routeName),
           ),
           Divider(),
           ListTile(
