@@ -562,6 +562,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1+1"
+  searchfield:
+    dependency: "direct main"
+    description:
+      name: searchfield
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.4"
   shelf:
     dependency: transitive
     description:
@@ -694,7 +701,7 @@ packages:
     source: hosted
     version: "2.0.0"
   tuple:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: tuple
       url: "https://pub.dartlang.org"
