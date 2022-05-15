@@ -64,6 +64,8 @@ class _$Storage extends Storage {
 
   GymDao? _gymDAOInstance;
 
+  EquipmentDao? _equipmentDAOInstance;
+
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
@@ -86,6 +88,8 @@ class _$Storage extends Storage {
             'CREATE TABLE IF NOT EXISTS `Exercise` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `equipmentId` INTEGER NOT NULL, `bodyPart` TEXT, `description` TEXT, `isFavorite` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Gym` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `lat` REAL NOT NULL, `lng` REAL NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `address` TEXT, `isFavorite` INTEGER NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `Equipment` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -103,6 +107,10 @@ class _$Storage extends Storage {
     return _gymDAOInstance ??= _$GymDao(database, changeListener);
   }
 
+  @override
+  EquipmentDao get equipmentDAO {
+    return _equipmentDAOInstance ??= _$EquipmentDao(database, changeListener);
+  }
 }
 
 class _$ExerciseDao extends ExerciseDao {
@@ -262,5 +270,36 @@ class _$GymDao extends GymDao {
   @override
   Future<void> updateAll(List<Gym> person) async {
     await _gymInsertionAdapter.insertList(person, OnConflictStrategy.replace);
+  }
+}
+
+class _$EquipmentDao extends EquipmentDao {
+  _$EquipmentDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database),
+        _equipmentInsertionAdapter = InsertionAdapter(
+            database,
+            'Equipment',
+            (Equipment item) =>
+                <String, Object?>{'id': item.id, 'name': item.name});
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Equipment> _equipmentInsertionAdapter;
+
+  @override
+  Future<List<Equipment>> getAll() async {
+    return _queryAdapter.queryList('SELECT * FROM Equipments',
+        mapper: (Map<String, Object?> row) =>
+            Equipment(id: row['id'] as int?, name: row['name'] as String));
+  }
+
+  @override
+  Future<void> add(Equipment equipment) async {
+    await _equipmentInsertionAdapter.insert(
+        equipment, OnConflictStrategy.abort);
   }
 }
