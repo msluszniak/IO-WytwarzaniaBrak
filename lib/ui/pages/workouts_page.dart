@@ -27,6 +27,26 @@ class _WorkoutsState extends State<WorkoutsPage> {
     super.initState();
   }
 
+
+  Future<List<String>> getWorkoutTags (Workout workout, DBManager dbManager) async {
+      final bodyParts = await dbManager
+        .getJoined<Workout, Exercise>(workout.id!)
+        .then((value) => value.cast<Exercise>()
+        .map((e) => e.bodyPart));
+
+
+      Map<String, int> counter = Map();
+
+      for(var bodyPart in bodyParts) {
+        counter.putIfAbsent(bodyPart!, () => 0);
+        counter[bodyPart] = counter[bodyPart]! + 1;
+      }
+
+      final int minimalTagPresence = (0.4 * bodyParts.length).round();
+      counter.removeWhere((bodyPart, presence) => presence < minimalTagPresence);
+      return counter.keys.toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final dbManager = context.watch<DBManager>();
@@ -45,6 +65,12 @@ class _WorkoutsState extends State<WorkoutsPage> {
                 } else {
                   final List<Workout> workoutList =
                       snapshot.data!.cast<Workout>();
+
+
+
+                  final List<Future<List<String>>> workoutsBodyParts = workoutList
+                      .map((e) => getWorkoutTags(e, dbManager))
+                      .toList();
 
                   return ListView.builder(
                       itemCount: workoutList.length,
