@@ -1,6 +1,8 @@
 import 'package:floor/floor.dart';
 import 'package:flutter_demo/models/exercise.dart';
 
+import '../../models/workout.dart';
+
 
 @dao
 abstract class ExerciseDao{
@@ -21,4 +23,7 @@ abstract class ExerciseDao{
 
   @Query("UPDATE Exercise SET isFavorite=1 WHERE id in (:favoriteIds)")
   Future<void> updateFavorites(List<int> favoriteIds);
+
+  @Query("SELECT * FROM Workout WHERE id IN (SELECT workoutId FROM WorkoutExercise WHERE exerciseId = :exerciseId)")
+  Future<List<Workout>> getJoinedWorkouts(int exerciseId);
 }
