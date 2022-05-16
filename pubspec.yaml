@@ -43,6 +43,8 @@ dependencies:
   http: any
   tuple: any
   fluttertoast: ^8.0.9
+  flutter_map_tappable_polyline: any
+  searchfield: ^0.6.4
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter_demo/models/gym.dart';
 import 'package:flutter_demo/ui/widgets/cards/gym_card.dart';
@@ -10,6 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:flutter_map_tappable_polyline/flutter_map_tappable_polyline.dart';
+import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../storage/dbmanager.dart';
 import '../widgets/cards/new_gym_card.dart';
@@ -51,6 +55,8 @@ class _MapState extends State<MapPage> {
     print('Position found: $position');
     return LatLng(position.latitude, position.longitude);
   }
+
+  List<LatLng> routingPointsToDraw = [];
 
   //Populate gym list
   @override
@@ -107,6 +113,18 @@ class _MapState extends State<MapPage> {
                 layers: [
                   MarkerLayerOptions(
                     markers: [],
+                  ),
+
+                  TappablePolylineLayerOptions(
+                    polylineCulling: true,
+                    polylines: [
+                      TaggedPolyline(
+                        points: routingPointsToDraw,
+                        color: Colors.blue,
+                        strokeWidth: 3.0, // plot size
+                        isDotted: true, // if true id display dotted,
+                      ),
+                    ],
                   ),
                 ],
                 children: <Widget>[
@@ -189,6 +207,11 @@ class _MapState extends State<MapPage> {
                     child: _buildAddButton(),
                   ),
                   Positioned(
+                    right: 20,
+                    bottom: 100,
+                    child: _buildRouteButton(),
+                  ),
+                  Positioned(
                       left: 20,
                       bottom: 100,
                       child: Visibility(
@@ -218,6 +241,44 @@ class _MapState extends State<MapPage> {
               ),
     );
 
+  }
+
+  Future<List<LatLng>> _getRoutePoints(LatLng startingPoint, LatLng endingPoint, List<LatLng> middlePoints) async {
+    StringBuffer cords = new StringBuffer("");
+    cords.write(startingPoint.longitude.toString() + "," + startingPoint.latitude.toString() + ";");
+    middlePoints.forEach((element) {cords.write(element.longitude.toString() + "," + element.latitude.toString() + ";");});
+    cords.write(endingPoint.longitude.toString() + "," + endingPoint.latitude.toString());
+
+    http.Response response = await http.get(Uri.parse('http://router.project-osrm.org/route/v1/foot/' + cords.toString() + "?steps=true&geometries=geojson"));
+
+    if(response.statusCode == 200) {
+      final List cords = jsonDecode(response.body)['routes'][0]['geometry']['coordinates'];
+
+      List<LatLng> routingPoints = [];
+
+      cords.forEach((element) {
+        routingPoints.add(LatLng(element[1], element[0]));
+      });
+
+      return routingPoints;
+    } else
+      throw Exception('Failed to calculate route');
+  }
+
+  void _drawRoute(LatLng startingPoint, LatLng endingPoint, [List<LatLng> middlePoints = const []]) async {
+    try {
+      routingPointsToDraw = await _getRoutePoints(startingPoint, endingPoint, middlePoints).timeout(Duration(seconds: 5));
+    } on TimeoutException catch(_) {
+      Fluttertoast.showToast(msg: "Route obtaining timeout reached");
+    } on Exception catch(_) {
+      Fluttertoast.showToast(msg: "Error occured - route cannot be drawn");
+    }
+    setState(() {});
+  }
+
+  void _clearRoute() {
+    routingPointsToDraw = [];
+    setState(() {});
   }
 
   // Also prints debug info
@@ -291,6 +352,21 @@ class _MapState extends State<MapPage> {
       child: const Icon(
         Icons.my_location,
         color: Colors.white,
+      ),
+    );
+  }
+
+  FloatingActionButton _buildRouteButton() {
+    return FloatingActionButton(
+      onPressed: () {
+        if(routingPointsToDraw.isEmpty)
+          _drawRoute(LatLng(50.07085, 19.92222), LatLng(50.06041, 19.95807), [LatLng(50.08269,19.95518), LatLng(50.0703, 19.98305)]);
+        else
+          _clearRoute();
+      },
+      child: const Icon(
+        Icons.alt_route,
+        color: Colors.blue,
       ),
     );
   }
