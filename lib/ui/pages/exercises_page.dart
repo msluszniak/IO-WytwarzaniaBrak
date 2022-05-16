@@ -119,6 +119,11 @@ class ItemTile extends StatelessWidget {
           item.name,
           key: Key(item.id.toString()),
         ),
+        subtitle: Text(
+          item.bodyPart.toString(),
+          style: TextStyle(color: Colors.black12.withOpacity(0.7)),
+          key: Key(item.id.toString()),
+        ),
         onTap: () => Navigator.push(
             context,
           MaterialPageRoute(
