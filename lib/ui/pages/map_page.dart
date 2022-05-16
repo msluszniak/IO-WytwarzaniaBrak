@@ -70,8 +70,11 @@ class _MapState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
-    if(this.mode == MapMode.NOT_ESTABLISHED)
+
+    var arg = ModalRoute.of(context)!.settings.arguments;
+    if(this.mode == MapMode.NOT_ESTABLISHED && arg != Null)
     this.mode = ModalRoute.of(context)!.settings.arguments as MapMode;
+    else this.mode = MapMode.NONE;
 
     final dbManager = context.watch<DBManager>();
     if(gymList.isEmpty) dbManager.getAll<Gym>().then((value) => gymList = value.cast());
