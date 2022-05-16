@@ -4,6 +4,7 @@ import 'package:flutter_demo/storage/dao/equipment_dao.dart';
 
 @entity
 class Equipment extends BaseModel {
+
   @PrimaryKey(autoGenerate: true)
   final int? id;
   final String name;

@@ -1,6 +1,7 @@
 import 'package:floor/floor.dart';
+import 'package:flutter_demo/models/equipment.dart';
 import 'package:flutter_demo/models/exercise.dart';
-
+import 'package:tuple/tuple.dart';
 import '../../models/workout.dart';
 
 
@@ -26,4 +27,7 @@ abstract class ExerciseDao{
 
   @Query("SELECT * FROM Workout WHERE id IN (SELECT workoutId FROM WorkoutExercise WHERE exerciseId = :exerciseId)")
   Future<List<Workout>> getJoinedWorkouts(int exerciseId);
+
+  @Query("SELECT * FROM Equipment WHERE id IN (SELECT equipmentId FROM Exercise WHERE id = :exerciseId)")
+  Future<List<Equipment>> getJoinedEquipments(int exerciseId);
 }
