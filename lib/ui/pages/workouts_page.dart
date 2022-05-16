@@ -39,14 +39,14 @@ class _WorkoutsState extends State<WorkoutsPage> {
       ),
       body: Stack(
         children: [
-          FutureBuilder<List<BaseModel>>(
+          FutureBuilder<List<Workout>>(
               future: dbManager.getAll<Workout>(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return CircularProgressIndicator();
                 } else {
                   final List<Workout> workoutList =
-                      snapshot.data!.cast<Workout>();
+                      snapshot.data!;
 
                   final List<Future<List<String>>> workoutsBodyParts =
                       workoutList
@@ -70,7 +70,6 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                 final List<Exercise> exerciseList =
                                     snapshot.data!.cast<Exercise>();
                                 final List<String> bodyParts = getWorkoutTags(exerciseList);
-
                                 return ExpansionTile(
                                     title: Text(workout.name),
                                     children: <Widget>[

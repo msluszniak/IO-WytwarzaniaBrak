@@ -3,7 +3,7 @@ import 'package:flutter_demo/models/exercise.dart';
 import 'package:flutter_demo/storage/dbmanager.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/abstract/base_model.dart';
+import '../../models/equipment.dart';
 
 class ExercisesPage extends StatefulWidget {
   const ExercisesPage({Key? key}) : super(key: key);
@@ -49,7 +49,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
 
     return Scaffold(
         appBar: appBar,
-        body: FutureBuilder<List<BaseModel>>(
+        body: FutureBuilder<List<Exercise>>(
             future: isFavouriteEnabled
                 ? dbManager.getFavorites<Exercise>()
                 : dbManager.getAll<Exercise>(),
@@ -58,7 +58,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
                 return CircularProgressIndicator();
               } else {
                 final List<Exercise> favouritesList =
-                    snapshot.data!.cast<Exercise>();
+                    snapshot.data!;
 
                 return ListView.builder(
                     itemCount: favouritesList.length,
@@ -68,7 +68,15 @@ class _ExercisesPageState extends State<ExercisesPage> {
                     itemBuilder: (context, index) {
                       final item = favouritesList[index];
                       return ItemTile(item,
-                          onPressed: isFavouriteEnabled
+
+                          ///this version of onTap servers purely testing purposes, when tapped tile prints name of proper equipment
+                          onTap: () async {
+                            final Equipment equipment = (await dbManager
+                                    .getJoined<Exercise, Equipment>(item.id!)).first;
+
+                            print(equipment.name);
+                          },
+                          onFavoritePressed: isFavouriteEnabled
                               ? () {}
                               : () {
                                   dbManager.setFavourite<Exercise>(
@@ -90,9 +98,12 @@ class _ExercisesPageState extends State<ExercisesPage> {
 
 class ItemTile extends StatelessWidget {
   final Exercise item;
-  final void Function() onPressed;
+  final void Function() onFavoritePressed;
 
-  const ItemTile(this.item, {required this.onPressed, Key? key})
+  final dynamic Function() onTap;
+
+  const ItemTile(this.item,
+      {required this.onFavoritePressed, required this.onTap, Key? key})
       : super(key: key);
 
   @override
@@ -112,8 +123,9 @@ class ItemTile extends StatelessWidget {
           icon: item.isFavorite
               ? const Icon(Icons.favorite)
               : const Icon(Icons.favorite_border),
-          onPressed: this.onPressed,
+          onPressed: this.onFavoritePressed,
         ),
+        onTap: onTap,
       ),
     );
   }
