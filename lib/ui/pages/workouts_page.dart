@@ -27,6 +27,8 @@ class _WorkoutsState extends State<WorkoutsPage> {
     super.initState();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     final dbManager = context.watch<DBManager>();
@@ -46,6 +48,11 @@ class _WorkoutsState extends State<WorkoutsPage> {
                   final List<Workout> workoutList =
                       snapshot.data!;
 
+                  final List<Future<List<String>>> workoutsBodyParts =
+                      workoutList
+                          .map((e) => getWorkoutTagsViaManager(e, dbManager))
+                          .toList();
+
                   return ListView.builder(
                       itemCount: workoutList.length,
                       cacheExtent: 20.0,
@@ -53,32 +60,33 @@ class _WorkoutsState extends State<WorkoutsPage> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       itemBuilder: (context, index) {
                         final workout = workoutList[index];
-                        return ExpansionTile(
-                          title: Text(workout.name),
-                          children: <Widget>[
-                            FutureBuilder<List<Exercise>>(
-                                future: dbManager
-                                    .getJoined<Workout, Exercise>(workout.id!),
-                                builder: (context, snapshot) {
-                                  if (!snapshot.hasData) {
-                                    return CircularProgressIndicator();
-                                  } else {
-                                    final List<Exercise> exerciseList = snapshot.data!;
-
-                                    return ListView.builder(
-                                        shrinkWrap: true,
-                                        physics: NeverScrollableScrollPhysics(),
-                                        scrollDirection: Axis.vertical,
-                                        itemCount: exerciseList.length,
-                                        itemBuilder: (context, index) =>
-                                            ListTile(
-                                              title: Text(
-                                                  exerciseList[index].name),
-                                            ));
-                                  }
-                                })
-                          ],
-                        );
+                        return FutureBuilder<List<BaseIdModel>>(
+                            future: dbManager
+                                .getJoined<Workout, Exercise>(workout.id!),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return CircularProgressIndicator();
+                              } else {
+                                final List<Exercise> exerciseList =
+                                    snapshot.data!.cast<Exercise>();
+                                final List<String> bodyParts = getWorkoutTags(exerciseList);
+                                return ExpansionTile(
+                                    title: Text(workout.name),
+                                    children: <Widget>[
+                                      ListView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          scrollDirection: Axis.vertical,
+                                          itemCount: exerciseList.length,
+                                          itemBuilder: (context, index) =>
+                                              ListTile(
+                                                title: Text(
+                                                    exerciseList[index].name),
+                                              ))
+                                    ]);
+                              }
+                            });
                       });
                 }
               }),
