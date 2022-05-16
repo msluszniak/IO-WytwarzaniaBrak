@@ -113,7 +113,7 @@ class ItemTile extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors.primaries[item.id! % Colors.primaries.length],
+          backgroundColor: Colors.primaries[(item.bodyPart.hashCode + item.bodyPart.toString().length) % Colors.primaries.length],
         ),
         title: Text(
           item.name,
