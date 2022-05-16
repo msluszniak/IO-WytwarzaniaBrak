@@ -71,6 +71,7 @@ class _MapState extends State<MapPage> {
   @override
   void dispose() {
     _centerCurrentLocationStreamController.close();
+    this.mode = MapMode.NOT_ESTABLISHED;
     super.dispose();
   }
 
@@ -78,9 +79,11 @@ class _MapState extends State<MapPage> {
   Widget build(BuildContext context) {
 
     var arg = ModalRoute.of(context)!.settings.arguments;
+    print("Argument $arg");
+    print("Mode before $mode");
     if(this.mode == MapMode.NOT_ESTABLISHED && arg != null)
     this.mode = ModalRoute.of(context)!.settings.arguments as MapMode;
-    else this.mode = MapMode.NONE;
+    print("Mode after $mode");
 
     final dbManager = context.watch<DBManager>();
     if(gymList.isEmpty) dbManager.getAll<Gym>().then((value) => gymList = value.cast());
@@ -358,6 +361,7 @@ class _MapState extends State<MapPage> {
 
   FloatingActionButton _buildRouteButton() {
     return FloatingActionButton(
+      heroTag: "route",
       onPressed: () {
         if(routingPointsToDraw.isEmpty)
           _drawRoute(LatLng(50.07085, 19.92222), LatLng(50.06041, 19.95807), [LatLng(50.08269,19.95518), LatLng(50.0703, 19.98305)]);
@@ -435,10 +439,16 @@ class _MapState extends State<MapPage> {
     return Builder(
         builder: (BuildContext builder) {
           if(this.nearby >= 0){
-            return FloatingActionButton.extended(label: Text('Gyms nearby: $nearby'), onPressed: _endScan,);
+            return FloatingActionButton.extended(
+              heroTag: "nearby",
+              label: Text('Gyms nearby: $nearby'),
+              onPressed: _endScan,);
           }
           else{
-            return FloatingActionButton.extended(label: Text('Scanning area...'), onPressed: () => null,);
+            return FloatingActionButton.extended(
+              heroTag: "nearby",
+              label: Text('Scanning area...'),
+              onPressed: () => null,);
           }
         },
     );
