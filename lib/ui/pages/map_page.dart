@@ -72,7 +72,7 @@ class _MapState extends State<MapPage> {
   Widget build(BuildContext context) {
 
     var arg = ModalRoute.of(context)!.settings.arguments;
-    if(this.mode == MapMode.NOT_ESTABLISHED && arg != Null)
+    if(this.mode == MapMode.NOT_ESTABLISHED && arg != null)
     this.mode = ModalRoute.of(context)!.settings.arguments as MapMode;
     else this.mode = MapMode.NONE;
 
