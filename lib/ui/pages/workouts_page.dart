@@ -44,7 +44,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
                   return CircularProgressIndicator();
                 } else {
                   final List<Workout> workoutList =
-                  snapshot.data!.cast<Workout>();
+                      snapshot.data!.cast<Workout>();
 
                   return ListView.builder(
                       itemCount: workoutList.length,
@@ -65,7 +65,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                     return CircularProgressIndicator();
                                   } else {
                                     final List<Exercise> exerciseList =
-                                    snapshot.data!.cast<Exercise>();
+                                        snapshot.data!.cast<Exercise>();
 
                                     return ListView.builder(
                                         shrinkWrap: true,
@@ -86,20 +86,20 @@ class _WorkoutsState extends State<WorkoutsPage> {
               }),
           Container(
               child: Visibility(
-                child: NewWorkoutCard(
-                  cancelCallback: () {
-                    setState(() {
-                      _formVisible = !_formVisible;
-                    });
-                  },
-                  submitCallback: () {
-                    setState(() {
-                      _formVisible = !_formVisible;
-                    });
-                  },
-                ),
-                visible: this._formVisible,
-              )),
+            child: NewWorkoutCard(
+              cancelCallback: () {
+                setState(() {
+                  _formVisible = !_formVisible;
+                });
+              },
+              submitCallback: () {
+                setState(() {
+                  _formVisible = !_formVisible;
+                });
+              },
+            ),
+            visible: this._formVisible,
+          )),
           Positioned(
             right: 20,
             bottom: 20,
