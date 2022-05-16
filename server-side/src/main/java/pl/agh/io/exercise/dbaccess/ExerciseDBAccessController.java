@@ -4,6 +4,7 @@ package pl.agh.io.exercise.dbaccess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import pl.agh.io.equipment.models.Equipment;
 import pl.agh.io.exercise.models.Exercise;
 
 import java.util.ArrayList;

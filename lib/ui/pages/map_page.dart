@@ -79,7 +79,7 @@ class _MapState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     final dbManager = context.watch<DBManager>();
-    dbManager.getAll<Gym>().then((result) => gymList = result.cast<Gym>());
+    dbManager.getAll<Gym>().then((result) => gymList = result);
 
     return Scaffold(
       appBar: AppBar(

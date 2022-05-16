@@ -37,14 +37,14 @@ class _WorkoutsState extends State<WorkoutsPage> {
       ),
       body: Stack(
         children: [
-          FutureBuilder<List<BaseModel>>(
+          FutureBuilder<List<Workout>>(
               future: dbManager.getAll<Workout>(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return CircularProgressIndicator();
                 } else {
                   final List<Workout> workoutList =
-                      snapshot.data!.cast<Workout>();
+                      snapshot.data!;
 
                   return ListView.builder(
                       itemCount: workoutList.length,
@@ -56,15 +56,14 @@ class _WorkoutsState extends State<WorkoutsPage> {
                         return ExpansionTile(
                           title: Text(workout.name),
                           children: <Widget>[
-                            FutureBuilder<List<BaseIdModel>>(
+                            FutureBuilder<List<Exercise>>(
                                 future: dbManager
                                     .getJoined<Workout, Exercise>(workout.id!),
                                 builder: (context, snapshot) {
                                   if (!snapshot.hasData) {
                                     return CircularProgressIndicator();
                                   } else {
-                                    final List<Exercise> exerciseList =
-                                        snapshot.data!.cast<Exercise>();
+                                    final List<Exercise> exerciseList = snapshot.data!;
 
                                     return ListView.builder(
                                         shrinkWrap: true,
