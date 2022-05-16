@@ -27,7 +27,7 @@ public class EquipmentDBAccessController {
     }
 
     @GetMapping(path ="/all")
-    public List<Equipment> getAll(){
+    public @ResponseBody List<Equipment> getAll(){
         return equipmentDAO.getAllEquipments();
     }
 

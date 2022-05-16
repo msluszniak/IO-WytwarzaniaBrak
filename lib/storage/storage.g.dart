@@ -95,6 +95,8 @@ class _$Storage extends Storage {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Exercise` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `equipmentId` INTEGER NOT NULL, `bodyPart` TEXT, `description` TEXT, `isFavorite` INTEGER NOT NULL)');
         await database.execute(
+            'CREATE TABLE IF NOT EXISTS `Equipment` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL)');
+        await database.execute(
             'CREATE TABLE IF NOT EXISTS `Gym` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `lat` REAL NOT NULL, `lng` REAL NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `address` TEXT, `isFavorite` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Workout` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFavorite` INTEGER NOT NULL)');
@@ -104,8 +106,6 @@ class _$Storage extends Storage {
             'CREATE TABLE IF NOT EXISTS `UserWorkout` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFavorite` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `UserWorkoutExercise` (`workoutId` INTEGER NOT NULL, `exerciseId` INTEGER NOT NULL, FOREIGN KEY (`workoutId`) REFERENCES `UserWorkout` (`id`) ON UPDATE CASCADE ON DELETE CASCADE, FOREIGN KEY (`exerciseId`) REFERENCES `Exercise` (`id`) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (`workoutId`, `exerciseId`))');
-        await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Equipment` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -228,6 +228,14 @@ class _$ExerciseDao extends ExerciseDao {
   }
 
   @override
+  Future<List<Equipment>> getJoinedEquipments(int exerciseId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM Equipment WHERE id IN (SELECT equipmentId FROM Exercise WHERE id = ?1)',
+        mapper: (Map<String, Object?> row) => Equipment(id: row['id'] as int?, name: row['name'] as String),
+        arguments: [exerciseId]);
+  }
+
+  @override
   Future<void> add(Exercise exercise) async {
     await _exerciseInsertionAdapter.insert(exercise, OnConflictStrategy.abort);
   }
@@ -339,15 +347,35 @@ class _$EquipmentDao extends EquipmentDao {
 
   @override
   Future<List<Equipment>> getAll() async {
-    return _queryAdapter.queryList('SELECT * FROM Equipments',
+    return _queryAdapter.queryList('SELECT * FROM Equipment',
         mapper: (Map<String, Object?> row) =>
             Equipment(id: row['id'] as int?, name: row['name'] as String));
+  }
+
+  @override
+  Future<List<Exercise>> getJoinedExercises(int equipmentId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM Exercise WHERE equipmentId = ?1',
+        mapper: (Map<String, Object?> row) => Exercise(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            equipmentId: row['equipmentId'] as int,
+            bodyPart: row['bodyPart'] as String?,
+            description: row['description'] as String?,
+            isFavorite: (row['isFavorite'] as int) != 0),
+        arguments: [equipmentId]);
   }
 
   @override
   Future<void> add(Equipment equipment) async {
     await _equipmentInsertionAdapter.insert(
         equipment, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateAll(List<Equipment> equipments) async {
+    await _equipmentInsertionAdapter.insertList(
+        equipments, OnConflictStrategy.replace);
   }
 }
 
