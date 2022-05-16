@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/models/exercise.dart';
 import 'package:flutter_demo/storage/dbmanager.dart';
+import 'package:flutter_demo/ui/widgets/cards/exercise_card.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/equipment.dart';
@@ -118,6 +119,15 @@ class ItemTile extends StatelessWidget {
           item.name,
           key: Key(item.id.toString()),
         ),
+        onTap: () => Navigator.push(
+            context,
+          MaterialPageRoute(
+              builder: (context) {
+                return new ExerciseCard(selectedExercise: item);
+              },
+              fullscreenDialog: true,
+            ),
+        ),
         trailing: IconButton(
           key: Key('icon_${item.id!}'),
           icon: item.isFavorite
@@ -125,7 +135,6 @@ class ItemTile extends StatelessWidget {
               : const Icon(Icons.favorite_border),
           onPressed: this.onFavoritePressed,
         ),
-        onTap: onTap,
       ),
     );
   }
