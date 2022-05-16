@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/abstract/base_id_model.dart';
-import '../../models/abstract/base_model.dart';
 import '../../models/exercise.dart';
 import '../../models/workout.dart';
 import '../../storage/dbmanager.dart';
