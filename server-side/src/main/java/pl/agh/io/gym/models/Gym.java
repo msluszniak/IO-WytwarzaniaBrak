@@ -17,6 +17,19 @@ public class Gym {
     private String description;
     private String address;
 
+    public Gym(int i, String name1, double v, double v1, String des, String s) {
+        this.name = name1;
+        this.id = i;
+        this.latitude = v;
+        this.longitude = v1;
+        this.description = des;
+        this.address = s;
+    }
+
+    public Gym() {
+
+    }
+
     public Integer getId() {
         return id;
     }
@@ -65,3 +78,4 @@ public class Gym {
         this.address = address;
     }
 }
+
