@@ -25,11 +25,7 @@ public class Gym {
         this.description = des;
         this.address = s;
     }
-
-    public Gym() {
-
-    }
-
+    
     public Integer getId() {
         return id;
     }
