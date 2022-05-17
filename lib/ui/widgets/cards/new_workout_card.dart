@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/models/user_workout.dart';
 import 'package:flutter_demo/models/user_workout_exercises.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/exercise.dart';
@@ -179,19 +180,24 @@ class _NewWorkoutState extends State<NewWorkoutCard> {
                         ElevatedButton(
                           child: const Text('Submit'),
                           onPressed: () async {
-                            List<int> ids = await dbManager
-                                .addToLocal<UserWorkout>(
-                                    [UserWorkout(name: nameController.text)]);
+                            if(nameController.text != "") {
+                              List<int> ids = await dbManager
+                                  .addToLocal<UserWorkout>(
+                                  [UserWorkout(name: nameController.text)]);
 
-                            List<UserWorkoutExercise> connections =
-                                _pickedExercises
-                                    .map((e) => UserWorkoutExercise(
-                                        workoutId: ids[0], exerciseId: e.id!))
-                                    .toList();
-                            await dbManager
-                                .addToLocal<UserWorkoutExercise>(connections);
+                              List<UserWorkoutExercise> connections =
+                              _pickedExercises
+                                  .map((e) =>
+                                  UserWorkoutExercise(
+                                      workoutId: ids[0], exerciseId: e.id!))
+                                  .toList();
+                              await dbManager
+                                  .addToLocal<UserWorkoutExercise>(connections);
 
-                            widget.submitCallback();
+                              Fluttertoast.showToast(msg: "Workout added");
+                              widget.submitCallback();
+                            } else
+                              Fluttertoast.showToast(msg: "Unspecified workout name");
                           },
                         ),
                         const SizedBox(width: 8),

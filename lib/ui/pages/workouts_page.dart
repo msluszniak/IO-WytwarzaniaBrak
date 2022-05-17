@@ -36,7 +36,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
       body: Stack(
         children: [
           FutureBuilder<List<Workout>>(
-              future: dbManager.getAll<Workout>(),
+              future: dbManager.getAllUserAndPredefined<Workout>(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return CircularProgressIndicator();
@@ -55,8 +55,9 @@ class _WorkoutsState extends State<WorkoutsPage> {
                           title: Text(workout.name),
                           children: <Widget>[
                             FutureBuilder<List<Exercise>>(
-                                future: dbManager
-                                    .getJoined<Workout, Exercise>(workout.id!),
+                                future: dbManager.getJoined<Workout, Exercise>(
+                                    workout.id!,
+                                    userDefined: workout.userDefined),
                                 builder: (context, snapshot) {
                                   if (!snapshot.hasData) {
                                     return CircularProgressIndicator();
