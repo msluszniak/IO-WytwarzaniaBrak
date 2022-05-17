@@ -41,7 +41,7 @@ class NavBar extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.map),
             title: Text('Map'),
-            onTap: () => Navigator.pushNamed(context, MapPage.routeName),
+            onTap: () => Navigator.pushNamed(context, MapPage.routeName, arguments: MapMode.NONE),
           ),
           ListTile(
             leading: Icon(Icons.list),
@@ -59,6 +59,11 @@ class NavBar extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, WorkoutsPage.routeName),
           ),
           Divider(),
+          ListTile(
+            leading: Icon(Icons.scanner),
+            title: Text('Scan area'),
+            onTap: () => Navigator.pushNamed(context, MapPage.routeName, arguments: MapMode.SCAN),
+          ),
           ListTile(
             leading: Icon(Icons.refresh),
             title: Text('Reload data'),

@@ -99,11 +99,11 @@ class _$Storage extends Storage {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Gym` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `lat` REAL NOT NULL, `lng` REAL NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `address` TEXT, `isFavorite` INTEGER NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Workout` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFavorite` INTEGER NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `Workout` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFavorite` INTEGER NOT NULL, `userDefined` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `WorkoutExercise` (`workoutId` INTEGER NOT NULL, `exerciseId` INTEGER NOT NULL, FOREIGN KEY (`workoutId`) REFERENCES `Workout` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`exerciseId`) REFERENCES `Exercise` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`workoutId`, `exerciseId`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `UserWorkout` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFavorite` INTEGER NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `UserWorkout` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFavorite` INTEGER NOT NULL, `userDefined` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `UserWorkoutExercise` (`workoutId` INTEGER NOT NULL, `exerciseId` INTEGER NOT NULL, FOREIGN KEY (`workoutId`) REFERENCES `UserWorkout` (`id`) ON UPDATE CASCADE ON DELETE CASCADE, FOREIGN KEY (`exerciseId`) REFERENCES `Exercise` (`id`) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (`workoutId`, `exerciseId`))');
 
@@ -223,7 +223,7 @@ class _$ExerciseDao extends ExerciseDao {
   Future<List<Workout>> getJoinedWorkouts(int exerciseId) async {
     return _queryAdapter.queryList(
         'SELECT * FROM Workout WHERE id IN (SELECT workoutId FROM WorkoutExercise WHERE exerciseId = ?1)',
-        mapper: (Map<String, Object?> row) => Workout(id: row['id'] as int?, name: row['name'] as String, isFavorite: (row['isFavorite'] as int) != 0),
+        mapper: (Map<String, Object?> row) => Workout(id: row['id'] as int?, name: row['name'] as String, isFavorite: (row['isFavorite'] as int) != 0, userDefined: (row['userDefined'] as int) != 0),
         arguments: [exerciseId]);
   }
 
@@ -388,7 +388,8 @@ class _$WorkoutDao extends WorkoutDao {
             (Workout item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'isFavorite': item.isFavorite ? 1 : 0
+                  'isFavorite': item.isFavorite ? 1 : 0,
+                  'userDefined': item.userDefined ? 1 : 0
                 }),
         _workoutExerciseInsertionAdapter = InsertionAdapter(
             database,
@@ -421,7 +422,8 @@ class _$WorkoutDao extends WorkoutDao {
         mapper: (Map<String, Object?> row) => Workout(
             id: row['id'] as int?,
             name: row['name'] as String,
-            isFavorite: (row['isFavorite'] as int) != 0));
+            isFavorite: (row['isFavorite'] as int) != 0,
+            userDefined: (row['userDefined'] as int) != 0));
   }
 
   @override
@@ -430,7 +432,8 @@ class _$WorkoutDao extends WorkoutDao {
         mapper: (Map<String, Object?> row) => Workout(
             id: row['id'] as int?,
             name: row['name'] as String,
-            isFavorite: (row['isFavorite'] as int) != 0));
+            isFavorite: (row['isFavorite'] as int) != 0,
+            userDefined: (row['userDefined'] as int) != 0));
   }
 
   @override
@@ -460,6 +463,17 @@ class _$WorkoutDao extends WorkoutDao {
   }
 
   @override
+  Future<List<Workout>> getAllWithUsers() async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM Workout UNION SELECT * FROM UserWorkout',
+        mapper: (Map<String, Object?> row) => Workout(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            isFavorite: (row['isFavorite'] as int) != 0,
+            userDefined: (row['userDefined'] as int) != 0));
+  }
+
+  @override
   Future<void> add(Workout workout) async {
     await _workoutInsertionAdapter.insert(workout, OnConflictStrategy.abort);
   }
@@ -486,7 +500,8 @@ class _$UserWorkoutDao extends UserWorkoutDao {
             (UserWorkout item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'isFavorite': item.isFavorite ? 1 : 0
+                  'isFavorite': item.isFavorite ? 1 : 0,
+                  'userDefined': item.userDefined ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -510,7 +525,8 @@ class _$UserWorkoutDao extends UserWorkoutDao {
         mapper: (Map<String, Object?> row) => UserWorkout(
             id: row['id'] as int?,
             name: row['name'] as String,
-            isFavorite: (row['isFavorite'] as int) != 0));
+            isFavorite: (row['isFavorite'] as int) != 0,
+            userDefined: (row['userDefined'] as int) != 0));
   }
 
   @override
@@ -519,7 +535,8 @@ class _$UserWorkoutDao extends UserWorkoutDao {
         mapper: (Map<String, Object?> row) => UserWorkout(
             id: row['id'] as int?,
             name: row['name'] as String,
-            isFavorite: (row['isFavorite'] as int) != 0));
+            isFavorite: (row['isFavorite'] as int) != 0,
+            userDefined: (row['userDefined'] as int) != 0));
   }
 
   @override

@@ -38,8 +38,7 @@ class MyApp extends StatelessWidget {
                   primarySwatch: Colors.indigo,
                 ),
                 routes: {
-                  HomePage.routeName: (context) =>
-                      HomePage(title: 'WytwarzaniaBrak'),
+                  HomePage.routeName: (context) => HomePage(title: 'WytwarzaniaBrak'),
                   FavoritesPage.routeName: (context) => const FavoritesPage(),
                   ExercisesPage.routeName: (context) => const ExercisesPage(),
                   MapPage.routeName: (context) => const MapPage(),

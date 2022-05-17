@@ -8,11 +8,17 @@ class UserWorkout extends BaseIdModel {
   final int? id;
   final String name;
   final bool isFavorite;
+  final bool userDefined;
 
-  UserWorkout({this.id, required this.name, this.isFavorite = false});
+  UserWorkout(
+      {this.id,
+        required this.name,
+        this.isFavorite = false,
+        this.userDefined = true});
 
   UserWorkout.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'],
-        isFavorite = false;
+        isFavorite = false,
+        userDefined = true;
 }
