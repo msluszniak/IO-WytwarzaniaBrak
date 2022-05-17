@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/abstract/base_id_model.dart';
+import '../../models/abstract/base_model.dart';
 import '../../models/exercise.dart';
 import '../../models/workout.dart';
 import '../../storage/dbmanager.dart';
@@ -68,8 +70,11 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                 final List<Exercise> exerciseList =
                                     snapshot.data!.cast<Exercise>();
                                 final List<String> bodyParts = getWorkoutTags(exerciseList);
+                                String bodyPartsString = bodyParts.toString().replaceAll("[", "").replaceAll("]", "");
                                 return ExpansionTile(
                                     title: Text(workout.name),
+                                    subtitle: Text(bodyPartsString,
+                                        style: TextStyle(color: Colors.black12.withOpacity(0.7))),
                                     children: <Widget>[
                                       ListView.builder(
                                           shrinkWrap: true,
