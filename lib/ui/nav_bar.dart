@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/ui/pages/gyms_page.dart';
+import 'package:flutter_demo/ui/pages/workouts_page.dart';
 import 'package:flutter_demo/ui/pages/favorites.dart';
 import 'package:flutter_demo/ui/pages/exercises_page.dart';
 import 'package:flutter_demo/ui/pages/map_page.dart';
@@ -41,7 +41,7 @@ class NavBar extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.map),
             title: Text('Map'),
-            onTap: () => Navigator.pushNamed(context, MapPage.routeName),
+            onTap: () => Navigator.pushNamed(context, MapPage.routeName, arguments: MapMode.NONE),
           ),
           ListTile(
             leading: Icon(Icons.list),
@@ -56,9 +56,14 @@ class NavBar extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.list),
             title: Text('Gyms'),
-            onTap: () => Navigator.pushNamed(context, GymPage.routeName),
+            onTap: () => Navigator.pushNamed(context, WorkoutsPage.routeName),
           ),
           Divider(),
+          ListTile(
+            leading: Icon(Icons.scanner),
+            title: Text('Scan area'),
+            onTap: () => Navigator.pushNamed(context, MapPage.routeName, arguments: MapMode.SCAN),
+          ),
           ListTile(
             leading: Icon(Icons.refresh),
             title: Text('Reload data'),

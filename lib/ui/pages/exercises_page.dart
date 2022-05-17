@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/models/equipment.dart';
 import 'package:flutter_demo/models/exercise.dart';
 import 'package:flutter_demo/storage/dbmanager.dart';
+import 'package:flutter_demo/ui/widgets/cards/exercise_card.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/base_model.dart';
+import '../../models/equipment.dart';
 
 class ExercisesPage extends StatefulWidget {
   const ExercisesPage({Key? key}) : super(key: key);
@@ -32,8 +34,8 @@ class _ExercisesPageState extends State<ExercisesPage> {
         Spacer(),
         Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Spacer(),
             TextButton.icon(
               style: TextButton.styleFrom(primary: Colors.white),
               onPressed: toggleFavourite,
@@ -42,21 +44,6 @@ class _ExercisesPageState extends State<ExercisesPage> {
                   : const Icon(Icons.favorite_border),
               label: const Text('Favorites'),
             ),
-            Spacer(),
-            TextButton.icon(
-              style: TextButton.styleFrom(primary: Colors.white),
-              onPressed: () {},
-              icon: const Icon(Icons.circle_outlined),
-              label: const Text('Tab2'),
-            ),
-            Spacer(),
-            TextButton.icon(
-              style: TextButton.styleFrom(primary: Colors.white),
-              onPressed: () {},
-              icon: const Icon(Icons.circle_outlined),
-              label: const Text('Tab3'),
-            ),
-            Spacer()
           ],
         )),
       ],
@@ -64,7 +51,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
 
     return Scaffold(
         appBar: appBar,
-        body: FutureBuilder<List<BaseModel>>(
+        body: FutureBuilder<List<Exercise>>(
             future: isFavouriteEnabled
                 ? dbManager.getFavorites<Exercise>()
                 : dbManager.getAll<Exercise>(),
@@ -73,7 +60,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
                 return CircularProgressIndicator();
               } else {
                 final List<Exercise> favouritesList =
-                    snapshot.data!.cast<Exercise>();
+                    snapshot.data!;
 
                 return ListView.builder(
                     itemCount: favouritesList.length,
@@ -83,14 +70,22 @@ class _ExercisesPageState extends State<ExercisesPage> {
                     itemBuilder: (context, index) {
                       final item = favouritesList[index];
                       return ItemTile(item,
-                          onPressed: isFavouriteEnabled
+
+                          ///this version of onTap servers purely testing purposes, when tapped tile prints name of proper equipment
+                          onTap: () async {
+                            final Equipment equipment = (await dbManager
+                                    .getJoined<Exercise, Equipment>(item.id!)).first;
+
+                            print(equipment.name);
+                          },
+                          onFavoritePressed: isFavouriteEnabled
                               ? () {}
                               : () {
                                   dbManager.setFavourite<Exercise>(
                                       item.id!, !item.isFavorite);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(item.isFavorite
+                                      content: Text(!item.isFavorite
                                           ? 'Added to favorites.'
                                           : 'Removed from favorites.'),
                                       duration: const Duration(seconds: 1),
@@ -105,9 +100,12 @@ class _ExercisesPageState extends State<ExercisesPage> {
 
 class ItemTile extends StatelessWidget {
   final Exercise item;
-  final void Function() onPressed;
+  final void Function() onFavoritePressed;
 
-  const ItemTile(this.item, {required this.onPressed, Key? key})
+  final dynamic Function() onTap;
+
+  const ItemTile(this.item,
+      {required this.onFavoritePressed, required this.onTap, Key? key})
       : super(key: key);
 
   @override
@@ -116,18 +114,32 @@ class ItemTile extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors.primaries[item.id! % Colors.primaries.length],
+          backgroundColor: Colors.primaries[(item.bodyPart.hashCode + item.bodyPart.toString().length) % Colors.primaries.length],
         ),
         title: Text(
           item.name,
           key: Key(item.id.toString()),
+        ),
+        subtitle: Text(
+          item.bodyPart.toString(),
+          style: TextStyle(color: Colors.black12.withOpacity(0.7)),
+          key: Key(item.id.toString()),
+        ),
+        onTap: () => Navigator.push(
+            context,
+          MaterialPageRoute(
+              builder: (context) {
+                return new ExerciseCard(selectedExercise: item);
+              },
+              fullscreenDialog: true,
+            ),
         ),
         trailing: IconButton(
           key: Key('icon_${item.id!}'),
           icon: item.isFavorite
               ? const Icon(Icons.favorite)
               : const Icon(Icons.favorite_border),
-          onPressed: this.onPressed,
+          onPressed: this.onFavoritePressed,
         ),
       ),
     );

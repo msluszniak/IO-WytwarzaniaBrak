@@ -7,10 +7,10 @@ import 'package:latlong2/latlong.dart';
 
 
 import '../utils/geolocator.dart';
-import 'base_model.dart';
+import 'abstract/base_id_model.dart';
 
 @entity
-class Gym extends BaseModel {
+class Gym extends BaseIdModel {
   @PrimaryKey(autoGenerate: true)
   final int? id;
   final double lat;

@@ -41,7 +41,10 @@ dependencies:
   flutter_tags: 1.0.0-nullsafety.1
   geolocator: 8.2.0
   http: any
+  tuple: any
   fluttertoast: ^8.0.9
+  flutter_map_tappable_polyline: any
+  searchfield: ^0.6.4
 
 dev_dependencies:
   flutter_test:

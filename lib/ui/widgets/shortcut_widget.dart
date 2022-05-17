@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/ui/pages/exercises_page.dart';
-import 'package:flutter_demo/ui/pages/gyms_page.dart';
+import 'package:flutter_demo/ui/pages/workouts_page.dart';
 import 'package:flutter_demo/ui/pages/map_page.dart';
 
 abstract class _Constants {
@@ -8,23 +8,21 @@ abstract class _Constants {
   static const int flex = 3;
 }
 
-enum ShortcutType { map, gym, exercises }
+enum ShortcutType { map, workouts, exercises }
 
 class ShortcutWidget extends StatelessWidget {
-  const ShortcutWidget({Key? key, required this.shortcutType})
-      : super(key: key);
+  const ShortcutWidget({Key? key, required this.shortcutType}) : super(key: key);
 
   final ShortcutType shortcutType;
 
   @override
   Widget build(BuildContext context) => Expanded(
         flex: _Constants.flex,
-        child: _buildShortcutContainer(context, _shortcutImage(shortcutType),
-            _shortcutName(shortcutType), _shortcutDestination(shortcutType)),
+        child: _buildShortcutContainer(
+            context, _shortcutImage(shortcutType), _shortcutName(shortcutType), _shortcutDestination(shortcutType)),
       );
 
-  Widget _buildShortcutContainer(BuildContext context, Image activityIcon,
-          String title, String destination) =>
+  Widget _buildShortcutContainer(BuildContext context, Image activityIcon, String title, String destination) =>
       TextButton(
         style: TextButton.styleFrom(
           backgroundColor: Colors.white,
@@ -70,7 +68,7 @@ class ShortcutWidget extends StatelessWidget {
     switch (shortcutType) {
       case ShortcutType.map:
         return Image.asset('assets/images/map.png');
-      case ShortcutType.gym:
+      case ShortcutType.workouts:
         return Image.asset('assets/images/dumbbell.png');
       case ShortcutType.exercises:
         return Image.asset('assets/images/exercise.png');
@@ -81,8 +79,8 @@ class ShortcutWidget extends StatelessWidget {
     switch (shortcutType) {
       case ShortcutType.map:
         return 'Map';
-      case ShortcutType.gym:
-        return 'Gyms';
+      case ShortcutType.workouts:
+        return 'Workouts';
       case ShortcutType.exercises:
         return 'Exercises';
     }
@@ -92,8 +90,8 @@ class ShortcutWidget extends StatelessWidget {
     switch (shortcutType) {
       case ShortcutType.map:
         return MapPage.routeName;
-      case ShortcutType.gym:
-        return GymPage.routeName;
+      case ShortcutType.workouts:
+        return WorkoutsPage.routeName;
       case ShortcutType.exercises:
         return ExercisesPage.routeName;
     }

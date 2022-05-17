@@ -41,7 +41,7 @@ Widget _buildShortcutsWidget() => Padding(
   child: ShortcutsWidget(
     types: [
       ShortcutType.map,
-      ShortcutType.gym,
+      ShortcutType.workouts,
       ShortcutType.exercises
     ],
   ),

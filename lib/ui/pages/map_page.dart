@@ -1,17 +1,24 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter_demo/models/gym.dart';
 import 'package:flutter_demo/ui/widgets/cards/gym_card.dart';
 import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart' as Geo;
 
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:flutter_map_tappable_polyline/flutter_map_tappable_polyline.dart';
+import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../storage/dbmanager.dart';
 import '../widgets/cards/new_gym_card.dart';
+
+enum MapMode { NOT_ESTABLISHED, NONE, SCAN }
 
 class MapPage extends StatefulWidget {
   static const routeName = '/map';
@@ -24,6 +31,8 @@ class MapPage extends StatefulWidget {
 
 class _MapState extends State<MapPage> {
   List gymList = [];
+  List<CircleMarker> circle = [];
+  int nearby = -1;
   final double startLat = 50.0686;
   final double startLng = 19.9043;
   final double diffLat = 0.005;
@@ -31,33 +40,28 @@ class _MapState extends State<MapPage> {
 
   late CenterOnLocationUpdate _centerOnLocationUpdate;
   late StreamController<double?> _centerCurrentLocationStreamController;
-  final MapController controller = new MapController();
+  MapController controller = new MapController();
   bool hasPermissions = false;
   bool inAddingMode = false;
   bool inCreatingMode = false;
+  bool scanned = false;
+
+  MapMode mode = MapMode.NOT_ESTABLISHED;
+
+  Future<LatLng> _getPosition () async {
+    Geo.Position position = await Geo.Geolocator.getCurrentPosition(
+        desiredAccuracy: Geo.LocationAccuracy.high);
+
+    print('Position found: $position');
+    return LatLng(position.latitude, position.longitude);
+  }
+
+  List<LatLng> routingPointsToDraw = [];
 
   //Populate gym list
   @override
   void initState() {
     super.initState();
-
-    // for (int i = 0; i < 10; i++) {
-    //   gymList.add(new Gym(
-    //       startLat + pow(-1, i) * rand.nextDouble() * diffLat,
-    //       startLng + pow(-1, i) * rand.nextDouble() * diffLng,
-    //       "Gym " + i.toString(),
-    //       "Description of gym " + i.toString(),
-    //       "Address " + i.toString()));
-    // }
-
-    //debug
-    /*
-    gymList.add(new Gym(
-        lat: 37.428528,
-        lng: -122.087967,
-        name: "Oakland gym",
-        description: "Oakland gym description",
-        address: "Oakland gym address"));*/
 
     _centerOnLocationUpdate = CenterOnLocationUpdate.always;
     _centerCurrentLocationStreamController = StreamController<double?>();
@@ -67,126 +71,217 @@ class _MapState extends State<MapPage> {
   @override
   void dispose() {
     _centerCurrentLocationStreamController.close();
+    this.mode = MapMode.NOT_ESTABLISHED;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+
+    var arg = ModalRoute.of(context)!.settings.arguments;
+    print("Argument $arg");
+    print("Mode before $mode");
+    if(this.mode == MapMode.NOT_ESTABLISHED && arg != null)
+    this.mode = ModalRoute.of(context)!.settings.arguments as MapMode;
+    print("Mode after $mode");
+
     final dbManager = context.watch<DBManager>();
-    dbManager.getAll<Gym>().then((result) => gymList = result.cast<Gym>());
+    if(gymList.isEmpty) dbManager.getAll<Gym>().then((value) => gymList = value.cast());
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Map'),
       ),
       body: FlutterMap(
-          mapController: this.controller,
-          options: MapOptions(
-            center: LatLng(51.5, -0.09),
-            zoom: 13,
-            maxZoom: 19,
-            onPositionChanged: (MapPosition position, bool hasGesture) {
-              if (hasGesture) {
-                setState(
-                  () => _centerOnLocationUpdate = CenterOnLocationUpdate.never,
-                );
-              }
-            },
-          ),
-          layers: [
-            MarkerLayerOptions(
-              markers: [],
-            ),
-          ],
-          children: <Widget>[
-            TileLayerWidget(
-              options: TileLayerOptions(
-                  urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c']),
-            ),
-            if (hasPermissions)
-              LocationMarkerLayerWidget(
-                plugin: LocationMarkerPlugin(
-                  centerCurrentLocationStream:
-                      _centerCurrentLocationStreamController.stream,
-                  centerOnLocationUpdate: _centerOnLocationUpdate,
+                mapController: this.controller,
+                options: MapOptions(
+                  enableMultiFingerGestureRace: true,
+                  center: LatLng(0,0),
+                  zoom: 12.5,
+                  maxZoom: 19,
+                  onMapCreated: (c) {
+                    this.controller = c;
+                    if (this.mode == MapMode.SCAN && !scanned) {
+                      _startScan();
+                    }
+                  },
+                  onPositionChanged: (MapPosition position, bool hasGesture) {
+                    if (hasGesture) {
+                      setState(
+                            () => _centerOnLocationUpdate = CenterOnLocationUpdate.never,
+                      );
+                    }
+                  },
                 ),
-              ),
-            MarkerLayerWidget(
-              options: MarkerLayerOptions(
-                markers: List.generate(
-                  gymList.length,
-                  (index) => Marker(
-                    width: 80.0,
-                    height: 80.0,
-                    point: gymList[index].getLatLng(),
-                    builder: (ctx) => Container(
-                      child: IconButton(
-                        icon: Icon(Icons.location_on),
-                        onPressed: () {
-                          setState(() {
-                            this.controller.move(gymList[index].getLatLng(),
-                                this.controller.zoom);
-                          });
-                          showModalBottomSheet(
-                              context: context,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(20))),
-                              builder: (BuildContext context) =>
-                                  GymCard(selectedGym: gymList[index]));
-                        },
+                layers: [
+                  MarkerLayerOptions(
+                    markers: [],
+                  ),
+
+                  TappablePolylineLayerOptions(
+                    polylineCulling: true,
+                    polylines: [
+                      TaggedPolyline(
+                        points: routingPointsToDraw,
+                        color: Colors.blue,
+                        strokeWidth: 3.0, // plot size
+                        isDotted: true, // if true id display dotted,
+                      ),
+                    ],
+                  ),
+                ],
+                children: <Widget>[
+                  TileLayerWidget(
+                    options: TileLayerOptions(
+                        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", subdomains: ['a', 'b', 'c']),
+                  ),
+
+                  if (hasPermissions)
+                    LocationMarkerLayerWidget(
+                      plugin: LocationMarkerPlugin(
+                        centerCurrentLocationStream: _centerCurrentLocationStreamController.stream,
+                        centerOnLocationUpdate: _centerOnLocationUpdate,
+                      ),
+                    ),
+
+                  CircleLayerWidget(
+                    options: CircleLayerOptions(
+                      circles: this.circle,
+                    ),
+                  ),
+
+                  MarkerLayerWidget(
+                    options: MarkerLayerOptions(
+                      markers: List.generate(
+                        gymList.length,
+                            (index) => Marker(
+                          rotate: true,
+                          width: 80.0,
+                          height: 80.0,
+                          point: gymList[index].getLatLng(),
+                          builder: (ctx) => Container(
+                            child: IconButton(
+                              icon: Icon(Icons.location_on),
+                              onPressed: () {
+                                setState(() {
+                                  this.controller.move(gymList[index].getLatLng(), this.controller.zoom);
+                                });
+                                showModalBottomSheet(
+                                  context: context,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(20),
+                                    ),
+                                  ),
+                                  builder: (BuildContext context) => GymCard(
+                                    selectedGym: gymList[index],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
+                nonRotatedChildren: <Widget>[
+                  Center(
+                    child: Visibility(visible: inAddingMode, child: Icon(Icons.location_on, size: 40, color: Colors.red),),
+                  ),
+                  Visibility(
+                    visible: this.mode == MapMode.SCAN,
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _buildGymCountButton(),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 20,
+                    bottom: 20,
+                    child: _buildLocalizationButton(),
+                  ),
+                  Positioned(
+                    left: 20,
+                    bottom: 20,
+                    child: _buildAddButton(),
+                  ),
+                  Positioned(
+                    right: 20,
+                    bottom: 100,
+                    child: _buildRouteButton(),
+                  ),
+                  Positioned(
+                      left: 20,
+                      bottom: 100,
+                      child: Visibility(
+                        child: _buildCancelButton(),
+                        visible: this.inAddingMode,
+                      )),
+                  Container(
+                    child: Visibility(
+                      child: NewGymCard(
+                        mapController: this.controller,
+                        cancelCallback: () {
+                          setState(() {
+                            this.inCreatingMode = false;
+                          });
+                        },
+                        submitCallback: () {
+                          setState(() {
+                            this.inCreatingMode = false;
+                            this.inAddingMode = false;
+                          });
+                        },
+                      ),
+                      visible: this.inCreatingMode,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-          nonRotatedChildren: <Widget>[
-            Center(
-              child: Visibility(
-                  visible: inAddingMode,
-                  child: Icon(Icons.location_on, size: 40, color: Colors.red)),
-            ),
-            Positioned(
-              right: 20,
-              bottom: 20,
-              child: _buildLocalizationButton(),
-            ),
-            Positioned(
-              left: 20,
-              bottom: 20,
-              child: _buildAddButton(),
-            ),
-            Positioned(
-                left: 20,
-                bottom: 100,
-                child: Visibility(
-                  child: _buildCancelButton(),
-                  visible: this.inAddingMode,
-                )),
-            Container(
-                child: Visibility(
-              child: NewGymCard(
-                mapController: this.controller,
-                cancelCallback: () {
-                  setState(() {
-                    this.inCreatingMode = false;
-                  });
-                },
-                submitCallback: () {
-                  setState(() {
-                    this.inCreatingMode = false;
-                    this.inAddingMode = false;
-                  });
-                },
-              ),
-              visible: this.inCreatingMode,
-            ))
-          ]),
     );
+
+  }
+
+  Future<List<LatLng>> _getRoutePoints(LatLng startingPoint, LatLng endingPoint, List<LatLng> middlePoints) async {
+    StringBuffer cords = new StringBuffer("");
+    cords.write(startingPoint.longitude.toString() + "," + startingPoint.latitude.toString() + ";");
+    middlePoints.forEach((element) {cords.write(element.longitude.toString() + "," + element.latitude.toString() + ";");});
+    cords.write(endingPoint.longitude.toString() + "," + endingPoint.latitude.toString());
+
+    http.Response response = await http.get(Uri.parse('http://router.project-osrm.org/route/v1/foot/' + cords.toString() + "?steps=true&geometries=geojson"));
+
+    if(response.statusCode == 200) {
+      final List cords = jsonDecode(response.body)['routes'][0]['geometry']['coordinates'];
+
+      List<LatLng> routingPoints = [];
+
+      cords.forEach((element) {
+        routingPoints.add(LatLng(element[1], element[0]));
+      });
+
+      return routingPoints;
+    } else
+      throw Exception('Failed to calculate route');
+  }
+
+  void _drawRoute(LatLng startingPoint, LatLng endingPoint, [List<LatLng> middlePoints = const []]) async {
+    try {
+      routingPointsToDraw = await _getRoutePoints(startingPoint, endingPoint, middlePoints).timeout(Duration(seconds: 5));
+    } on TimeoutException catch(_) {
+      Fluttertoast.showToast(msg: "Route obtaining timeout reached");
+    } on Exception catch(_) {
+      Fluttertoast.showToast(msg: "Error occured - route cannot be drawn");
+    }
+    setState(() {});
+  }
+
+  void _clearRoute() {
+    routingPointsToDraw = [];
+    setState(() {});
   }
 
   // Also prints debug info
@@ -204,8 +299,7 @@ class _MapState extends State<MapPage> {
       });
       return;
     } else if (status == PermissionStatus.denied) {
-      print(
-          'Permission denied. Show a dialog and again ask for the permission');
+      print('Permission denied. Show a dialog and again ask for the permission');
     } else if (status == PermissionStatus.permanentlyDenied) {
       print('Take the user to the settings page.');
     }
@@ -214,27 +308,69 @@ class _MapState extends State<MapPage> {
     });
   }
 
+  void _endScan(){
+    setState(() {
+      this.mode = MapMode.NONE;
+      this.circle.clear();
+    });
+  }
+
+  void _startScan() async {
+    if(!scanned) {
+      scanned = true;
+      LatLng center = await _getPosition();
+      int count = await _countGymsNearby();
+      setState(() {
+        this.nearby = count;
+        this.circle.add(CircleMarker(
+            point: center,
+            color: Colors.blue.withOpacity(0.3),
+            borderColor: Colors.blueAccent,
+            borderStrokeWidth: 5,
+            useRadiusInMeter: true,
+            radius: 2500),);
+      });
+    }
+  }
+
+  Future<void> _findLocalization() async {
+    if (!hasPermissions) {
+      await _checkPermission();
+      if (!hasPermissions) {
+        _showSnackBar();
+      }
+    }
+    if (hasPermissions) {
+      setState(
+            () => _centerOnLocationUpdate = CenterOnLocationUpdate.always,
+      );
+      _centerCurrentLocationStreamController.add(12.5);
+    }
+  }
 
   FloatingActionButton _buildLocalizationButton() {
     return FloatingActionButton(
       heroTag: "center",
-      onPressed: () async {
-        if (!hasPermissions) {
-          await _checkPermission();
-          if (!hasPermissions) {
-            _showSnackBar();
-          }
-        }
-        if (hasPermissions) {
-          setState(
-            () => _centerOnLocationUpdate = CenterOnLocationUpdate.always,
-          );
-          _centerCurrentLocationStreamController.add(18);
-        }
-      },
+      onPressed: _findLocalization,
       child: const Icon(
         Icons.my_location,
         color: Colors.white,
+      ),
+    );
+  }
+
+  FloatingActionButton _buildRouteButton() {
+    return FloatingActionButton(
+      heroTag: "route",
+      onPressed: () {
+        if(routingPointsToDraw.isEmpty)
+          _drawRoute(LatLng(50.07085, 19.92222), LatLng(50.06041, 19.95807), [LatLng(50.08269,19.95518), LatLng(50.0703, 19.98305)]);
+        else
+          _clearRoute();
+      },
+      child: const Icon(
+        Icons.alt_route,
+        color: Colors.blue,
       ),
     );
   }
@@ -283,8 +419,7 @@ class _MapState extends State<MapPage> {
       SnackBar(
         content: Row(children: [
           Expanded(
-            child: Text(
-                'Please turn on localization and grant this app permissions to it.'),
+            child: Text('Please turn on localization and grant this app permissions to it.'),
           ),
           SizedBox(
             width: 20,
@@ -294,9 +429,42 @@ class _MapState extends State<MapPage> {
               onPressed: openAppSettings,
               child: Text('Open settings'),
             ),
-          )
-        ]),
+          ),
+        ],),
       ),
     );
+  }
+
+  Builder _buildGymCountButton() {
+    return Builder(
+        builder: (BuildContext builder) {
+          if(this.nearby >= 0){
+            return FloatingActionButton.extended(
+              heroTag: "nearby",
+              label: Text('Gyms nearby: $nearby'),
+              onPressed: _endScan,);
+          }
+          else{
+            return FloatingActionButton.extended(
+              heroTag: "nearby",
+              label: Text('Scanning area...'),
+              onPressed: () => null,);
+          }
+        },
+    );
+
+  }
+
+  Future<int> _countGymsNearby() async {
+    int count = 0;
+    Distance distance = Distance();
+    LatLng userPos = await _getPosition();
+    for(Gym gym in this.gymList) {
+      LatLng gymPos = gym.getLatLng();
+      double dist = distance(userPos, gymPos);
+      if(dist < 2500.0)
+        count++;
+    }
+    return count;
   }
 }
