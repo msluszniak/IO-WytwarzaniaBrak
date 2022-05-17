@@ -62,49 +62,6 @@ class ExerciseCard extends StatelessWidget {
               indent: 5,
               endIndent: 5,
               color: Colors.grey),
-          // Tags(
-          //   itemCount: tags.length,
-          //   itemBuilder: (int index) {
-          //     final item = tags[index];
-          //     return ItemTags(index: index, title: item);
-          //   },
-          // ),
-          // Divider(
-          //     height: 20,
-          //     thickness: 1,
-          //     indent: 5,
-          //     endIndent: 5,
-          //     color: Colors.grey),
-          // Expanded(
-          //   child: ListView(
-          //     padding: const EdgeInsets.all(8),
-          //     children: selectedGym.description == null ? [] : [
-          //       Text(selectedGym.description!),
-          //     ],
-          //   ),
-          // ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.end,
-          //   children: <Widget>[
-          //     ElevatedButton(
-          //       child: const Text('RATE'),
-          //       onPressed: () {
-          //         /* ... */
-          //       },
-          //     ),
-          //     const SizedBox(width: 8),
-          //     ElevatedButton(
-          //       child: const Text('CHECK DISTANCE'),
-          //       onPressed: () {
-          //         selectedGym.getDistance().then((distance) => print(
-          //             '[DEBUG] Distance to selected gym: ' +
-          //                 distance.toString() +
-          //                 "meters"));
-          //       },
-          //     ),
-          //     const SizedBox(width: 8),
-          //   ],
-          // ),
         ],
       ),
       ),
