@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/abstract/base_id_model.dart';
-import '../../models/abstract/base_model.dart';
 import '../../models/exercise.dart';
 import '../../models/workout.dart';
 import '../../storage/dbmanager.dart';
@@ -44,7 +42,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
                   return CircularProgressIndicator();
                 } else {
                   final List<Workout> workoutList =
-                      snapshot.data!.cast<Workout>();
+                      snapshot.data!;
 
                   return ListView.builder(
                       itemCount: workoutList.length,
@@ -64,8 +62,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                   if (!snapshot.hasData) {
                                     return CircularProgressIndicator();
                                   } else {
-                                    final List<Exercise> exerciseList =
-                                        snapshot.data!.cast<Exercise>();
+                                    final List<Exercise> exerciseList = snapshot.data!;
 
                                     return ListView.builder(
                                         shrinkWrap: true,
