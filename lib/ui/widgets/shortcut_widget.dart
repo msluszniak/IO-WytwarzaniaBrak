@@ -11,20 +11,18 @@ abstract class _Constants {
 enum ShortcutType { map, workouts, exercises }
 
 class ShortcutWidget extends StatelessWidget {
-  const ShortcutWidget({Key? key, required this.shortcutType})
-      : super(key: key);
+  const ShortcutWidget({Key? key, required this.shortcutType}) : super(key: key);
 
   final ShortcutType shortcutType;
 
   @override
   Widget build(BuildContext context) => Expanded(
         flex: _Constants.flex,
-        child: _buildShortcutContainer(context, _shortcutImage(shortcutType),
-            _shortcutName(shortcutType), _shortcutDestination(shortcutType)),
+        child: _buildShortcutContainer(
+            context, _shortcutImage(shortcutType), _shortcutName(shortcutType), _shortcutDestination(shortcutType)),
       );
 
-  Widget _buildShortcutContainer(BuildContext context, Image activityIcon,
-          String title, String destination) =>
+  Widget _buildShortcutContainer(BuildContext context, Image activityIcon, String title, String destination) =>
       TextButton(
         style: TextButton.styleFrom(
           backgroundColor: Colors.white,
