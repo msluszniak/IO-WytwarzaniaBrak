@@ -106,12 +106,12 @@ class DBManager extends ChangeNotifier {
     throw Exception("Invalid type provided for the database manager");
   }
 
-  Future<List<R>> getJoined<L extends BaseIdModel, R extends BaseIdModel>(int id){
+  Future<List<R>> getJoined<L extends BaseIdModel, R extends BaseIdModel>(int id, {bool userDefined = false}){
     if (L == Workout && R == Exercise){
       if (!userDefined)
-        return storage.workoutDAO.getJoinedExercises(id).then((values) => values.cast<R>());;
+        return storage.workoutDAO.getJoinedExercises(id).then((values) => values.cast<R>());
       else
-        return storage.userWorkoutDAO.getJoinedExercises(id).then((values) => values.cast<R>());;
+        return storage.userWorkoutDAO.getJoinedExercises(id).then((values) => values.cast<R>());
     }
     else if (R == Workout && L == Exercise){
       return storage.exerciseDAO.getJoinedWorkouts(id).then((values) => values.cast<R>());
@@ -212,16 +212,6 @@ class DBManager extends ChangeNotifier {
     } on ServerException catch (e) {
       return e.responseCode;
     }
-  }
-
-  /// Add data to database
-  Future<int> submitToDatabase<T extends BaseModel>(T item) async {
-    try {
-      await ServerConnection.submitToDatabase<T>(item);
-    } on ServerException catch (e) {
-      return e.responseCode;
-    }
-    return 200;
   }
 
   static Future<DBManager> loadDatabase() async {

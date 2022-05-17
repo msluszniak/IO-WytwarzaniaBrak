@@ -35,7 +35,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
       ),
       body: Stack(
         children: [
-          FutureBuilder<List<BaseModel>>(
+          FutureBuilder<List<Workout>>(
               future: dbManager.getAllUserAndPredefined<Workout>(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
@@ -54,7 +54,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
                         return ExpansionTile(
                           title: Text(workout.name),
                           children: <Widget>[
-                            FutureBuilder<List<BaseIdModel>>(
+                            FutureBuilder<List<Exercise>>(
                                 future: dbManager.getJoined<Workout, Exercise>(
                                     workout.id!,
                                     userDefined: workout.userDefined),
