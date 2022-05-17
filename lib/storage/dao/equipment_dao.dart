@@ -2,11 +2,12 @@ import 'package:floor/floor.dart';
 import 'package:flutter_demo/models/equipment.dart';
 import 'package:flutter_demo/models/exercise.dart';
 
+
 @dao
 abstract class EquipmentDao{
   @insert
   Future<void> add(Equipment equipment);
-
+  
   @Query("SELECT * FROM Equipment")
   Future<List<Equipment>> getAll();
 

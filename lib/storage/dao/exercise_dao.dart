@@ -1,7 +1,6 @@
 import 'package:floor/floor.dart';
 import 'package:flutter_demo/models/equipment.dart';
 import 'package:flutter_demo/models/exercise.dart';
-import 'package:tuple/tuple.dart';
 import '../../models/workout.dart';
 
 

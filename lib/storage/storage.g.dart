@@ -507,15 +507,19 @@ class _$UserWorkoutDao extends UserWorkoutDao {
   @override
   Future<List<UserWorkout>> getAll() async {
     return _queryAdapter.queryList('SELECT * FROM UserWorkout',
-        mapper: (Map<String, Object?> row) =>
-            UserWorkout(name: row['name'] as String));
+        mapper: (Map<String, Object?> row) => UserWorkout(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            isFavorite: (row['isFavorite'] as int) != 0));
   }
 
   @override
   Future<List<UserWorkout>> getFavorite() async {
     return _queryAdapter.queryList('SELECT * FROM UserWorkout WHERE isFavorite',
-        mapper: (Map<String, Object?> row) =>
-            UserWorkout(name: row['name'] as String));
+        mapper: (Map<String, Object?> row) => UserWorkout(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            isFavorite: (row['isFavorite'] as int) != 0));
   }
 
   @override

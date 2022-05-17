@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/models/equipment.dart';
 import 'package:flutter_demo/models/exercise.dart';
 import 'package:flutter_demo/storage/dbmanager.dart';
 import 'package:flutter_demo/ui/widgets/cards/exercise_card.dart';
