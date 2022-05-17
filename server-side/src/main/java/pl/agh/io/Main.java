@@ -1,2 +1,7 @@
-package pl.agh.io;public class Main {
+public class Main {
+    public static void main(String[] args) {
+        PathFinder pathFinder = new PathFinder(1);
+        List<String> traversal = pathFinder.findGyms();
+        System.out.println(traversal);
+    }
 }
