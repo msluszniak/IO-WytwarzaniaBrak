@@ -30,7 +30,11 @@ public class CombinedDAO {
 
         List<Equipment> equipments = new ArrayList<>();
         for(Integer id : exerciseIds)
-            equipments.add(equipmentDAO.getEquipmentById(exerciseDAO.getExerciseById(id).getEquipmentId()));
+            try {
+                equipments.add(equipmentDAO.getEquipmentById(exerciseDAO.getExerciseById(id).getEquipmentId()));
+            } catch(ObjectNotFoundException e) {
+                System.out.println(e.getLocalizedMessage());
+            }
 
         for(Gym gym : gyms) {
             Set<Integer> gymEquipment = gym.getEquipment().stream().map(Equipment::getId).collect(Collectors.toSet());
