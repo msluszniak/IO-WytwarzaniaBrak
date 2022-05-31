@@ -26,11 +26,11 @@ public class CombinedController {
 
     @GetMapping(path ="/gyms")
     public @ResponseBody Map<Gym, Set<Equipment>> getGyms(@RequestParam List<Integer> ids){
-        return combinedDAO.getGymsWithEquipments(ids);
+        return combinedDAO.getMapGymSetOfEquipment(ids);
     }
 
     @GetMapping(path="/exercises")
     public @ResponseBody Map<Exercise, Equipment> getExercises(@RequestParam List<Integer> ids) {
-        return combinedDAO.getExercisesWithEquipments(ids);
+        return combinedDAO.getMapExerciseEquipment(ids);
     }
 }

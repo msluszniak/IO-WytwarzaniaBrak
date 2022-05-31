@@ -24,7 +24,7 @@ public class CombinedDAO {
     @Autowired
     private EquipmentDAO equipmentDAO;
 
-    public Map<Gym, Set<Equipment>> getGymsWithEquipments(List<Integer> exerciseIds) {
+    public Map<Gym, Set<Equipment>> getMapGymSetOfEquipment(List<Integer> exerciseIds) {
         List<Gym> gyms = gymDAO.getAllGyms();
         Map<Gym, Set<Equipment>> mapGymEqs = new HashMap<>();
 
@@ -37,11 +37,11 @@ public class CombinedDAO {
             }
 
         for(Gym gym : gyms) {
-            Set<Integer> gymEquipment = gym.getEquipment().stream().map(Equipment::getId).collect(Collectors.toSet());
+            Set<Integer> gymEquipmentIds = gym.getEquipment().stream().map(Equipment::getId).collect(Collectors.toSet());
             Set<Equipment> equipmentForSearch = new HashSet<>();
 
             for(Equipment equipment : equipments)
-                if(gymEquipment.contains(equipment.getId()))
+                if(gymEquipmentIds.contains(equipment.getId()))
                     equipmentForSearch.add(equipment);
 
             if(!equipmentForSearch.isEmpty())
@@ -50,11 +50,12 @@ public class CombinedDAO {
         return mapGymEqs;
     }
 
-    public Map<Exercise, Equipment> getExercisesWithEquipments(List<Integer> exerciseIds) {
+    public Map<Exercise, Equipment> getMapExerciseEquipment(List<Integer> exerciseIds) {
         Map<Exercise, Equipment> mapExEq = new HashMap<>();
+        Exercise exercise;
         for(Integer id : exerciseIds) {
             try {
-                Exercise exercise = exerciseDAO.getExerciseById(id);
+                exercise = exerciseDAO.getExerciseById(id);
                 mapExEq.put(exercise, equipmentDAO.getEquipmentById(exercise.getEquipmentId()));
             } catch(ObjectNotFoundException e) {
                 System.out.println(e.getLocalizedMessage());
