@@ -124,8 +124,7 @@ class _MapState extends State<MapPage> {
                       TaggedPolyline(
                         points: routingPointsToDraw,
                         color: Colors.blue,
-                        strokeWidth: 3.0, // plot size
-                        isDotted: true, // if true id display dotted,
+                        strokeWidth: 6.0
                       ),
                     ],
                   ),
