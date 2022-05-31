@@ -1,5 +1,6 @@
 package pl.agh.io.exercise.dbaccess;
 
+import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.agh.io.equipment.models.Equipment;
@@ -22,5 +23,13 @@ public class ExerciseDAO {
         List<Exercise> exercises = new ArrayList<>();
         exerciseRepository.findAll().forEach(exercises::add);
         return exercises;
+    }
+
+    public Exercise getExerciseById(Integer id) {
+        Optional<Exercise> maybeGym = exerciseRepository.findById(id);
+        if(maybeGym.isPresent())
+            return maybeGym.get();
+        else
+            throw new ObjectNotFoundException(id, "Exercise");
     }
 }
