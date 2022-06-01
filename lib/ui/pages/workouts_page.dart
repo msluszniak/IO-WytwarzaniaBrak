@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/abstract/base_id_model.dart';
-import '../../models/abstract/base_model.dart';
 import '../../models/exercise.dart';
 import '../../models/workout.dart';
 import '../../storage/dbmanager.dart';
@@ -40,18 +39,13 @@ class _WorkoutsState extends State<WorkoutsPage> {
       body: Stack(
         children: [
           FutureBuilder<List<Workout>>(
-              future: dbManager.getAll<Workout>(),
+              future: dbManager.getAllUserAndPredefined<Workout>(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return CircularProgressIndicator();
                 } else {
                   final List<Workout> workoutList =
                       snapshot.data!;
-
-                  final List<Future<List<String>>> workoutsBodyParts =
-                      workoutList
-                          .map((e) => getWorkoutTagsViaManager(e, dbManager))
-                          .toList();
 
                   return ListView.builder(
                       itemCount: workoutList.length,
@@ -61,8 +55,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
                       itemBuilder: (context, index) {
                         final workout = workoutList[index];
                         return FutureBuilder<List<BaseIdModel>>(
-                            future: dbManager
-                                .getJoined<Workout, Exercise>(workout.id!),
+                            future: dbManager.getJoined<Workout, Exercise>(workout.id!, userDefined: workout.userDefined),
                             builder: (context, snapshot) {
                               if (!snapshot.hasData) {
                                 return CircularProgressIndicator();
