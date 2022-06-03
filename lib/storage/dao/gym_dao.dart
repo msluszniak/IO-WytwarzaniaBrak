@@ -17,7 +17,16 @@ abstract class GymDao{
   Future<List<Gym>> getFavorite();
 
   @Insert(onConflict: OnConflictStrategy.replace)
-  Future<void> updateAll(List<Gym> person);
+  Future<void> updateAll(List<Gym> gyms);
+
+  @Query("DELETE FROM Gym WHERE id NOT IN (:keptIds)")
+  Future<void> deleteRemoved(List<int> keptIds);
+
+  Future<void> updateFromDatabase(List<Gym> gyms) async {
+    final keptIds = gyms.map((e) => e.id!).toList();
+    this.deleteRemoved(keptIds);
+    this.updateAll(gyms);
+  }
 
   @Query("UPDATE Gym SET isFavorite=1 WHERE id in (:favoriteIds)")
   Future<void> updateFavorites(List<int> favoriteIds);

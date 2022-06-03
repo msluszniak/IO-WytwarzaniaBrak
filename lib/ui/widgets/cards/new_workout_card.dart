@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/models/user_workout.dart';
-import 'package:flutter_demo/models/user_workout_exercises.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
@@ -181,6 +179,8 @@ class _NewWorkoutState extends State<NewWorkoutCard> {
                           child: const Text('Submit'),
                           onPressed: () async {
                             if(nameController.text != "") {
+                              //TODO: Dodanie workoutu do local storage
+                              /*
                               List<int> ids = await dbManager
                                   .addToLocal<UserWorkout>(
                                   [UserWorkout(name: nameController.text)]);
@@ -195,7 +195,7 @@ class _NewWorkoutState extends State<NewWorkoutCard> {
                                   .addToLocal<UserWorkoutExercise>(connections);
 
                               Fluttertoast.showToast(msg: "Workout added");
-                              widget.submitCallback();
+                              widget.submitCallback();*/
                             } else
                               Fluttertoast.showToast(msg: "Unspecified workout name");
                           },
