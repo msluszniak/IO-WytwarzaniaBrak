@@ -65,7 +65,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                 final List<String> bodyParts = getWorkoutTags(exerciseList);
                                 String bodyPartsString = bodyParts.toString().replaceAll("[", "").replaceAll("]", "");
                                 return ExpansionTile(
-                                    title: Text(workout.name),
+                                    title: Text(workout.name + " " + workout.id!.toString()),
                                     subtitle: Text(bodyPartsString,
                                         style: TextStyle(color: Colors.black12.withOpacity(0.7))),
                                     children: <Widget>[

@@ -29,7 +29,14 @@ class DBManager extends ChangeNotifier {
   Future<List<int>> addToLocal<T extends BaseModel>(List<T> item) async {
     switch (T) {
       case Workout:
-        return storage.workoutDAO.addAll(item.cast<Workout>());
+        final workouts = item
+            .cast<Workout>()
+            .map((e) => new Workout(
+                name: e.name,
+                isFavorite: e.isFavorite,
+                userDefined: e.userDefined))
+            .toList();
+        return storage.workoutDAO.addAll(workouts);
       case WorkoutExercise:
         {
           final allExercises =
@@ -214,11 +221,12 @@ class DBManager extends ChangeNotifier {
       await _updateEntityWithoutFavorite<Equipment>();
 
       //Restore local exercises
-      this.addToLocal<Workout>(localWorkouts);
-      for (Workout workout in localWorkouts) {
+      final newIds = await this.addToLocal<Workout>(localWorkouts);
+      for (int i = 0; i < localWorkouts.length; i++) {
+        final workout = localWorkouts[i];
         final workoutExercises = localExercises[workout.id]!
             .map((e) =>
-                new WorkoutExercise(workoutId: workout.id!, exerciseId: e.id!))
+                new WorkoutExercise(workoutId: newIds[i], exerciseId: e.id!))
             .toList();
 
         this.addToLocal<WorkoutExercise>(workoutExercises);
