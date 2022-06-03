@@ -5,7 +5,10 @@ import '../../models/gym.dart';
 @dao
 abstract class GymDao{
   @insert
-  Future<void> add(Gym gym);
+  Future<int> add(Gym gym);
+
+  @insert
+  Future<List<int>> addAll(List<Gym> gyms);
 
   @Query("UPDATE Gym SET isFavorite=:isFavorite WHERE id=:id")
   Future<void> addFavorite(int id, bool isFavorite);

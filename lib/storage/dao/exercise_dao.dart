@@ -7,7 +7,10 @@ import '../../models/workout.dart';
 @dao
 abstract class ExerciseDao{
   @insert
-  Future<void> add(Exercise exercise);
+  Future<int> add(Exercise exercise);
+
+  @insert
+  Future<List<int>> addAll(List<Exercise> exercises);
 
   @Query("UPDATE Exercise SET isFavorite=:isFavorite WHERE id=:id")
   Future<void> addFavorite(int id, bool isFavorite);

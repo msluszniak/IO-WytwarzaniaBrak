@@ -229,8 +229,15 @@ class _$ExerciseDao extends ExerciseDao {
   }
 
   @override
-  Future<void> add(Exercise exercise) async {
-    await _exerciseInsertionAdapter.insert(exercise, OnConflictStrategy.abort);
+  Future<int> add(Exercise exercise) {
+    return _exerciseInsertionAdapter.insertAndReturnId(
+        exercise, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<List<int>> addAll(List<Exercise> exercises) {
+    return _exerciseInsertionAdapter.insertListAndReturnIds(
+        exercises, OnConflictStrategy.abort);
   }
 
   @override
@@ -322,8 +329,15 @@ class _$GymDao extends GymDao {
   }
 
   @override
-  Future<void> add(Gym gym) async {
-    await _gymInsertionAdapter.insert(gym, OnConflictStrategy.abort);
+  Future<int> add(Gym gym) {
+    return _gymInsertionAdapter.insertAndReturnId(
+        gym, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<List<int>> addAll(List<Gym> gyms) {
+    return _gymInsertionAdapter.insertListAndReturnIds(
+        gyms, OnConflictStrategy.abort);
   }
 
   @override
@@ -384,9 +398,15 @@ class _$EquipmentDao extends EquipmentDao {
   }
 
   @override
-  Future<void> add(Equipment equipment) async {
-    await _equipmentInsertionAdapter.insert(
+  Future<int> add(Equipment equipment) {
+    return _equipmentInsertionAdapter.insertAndReturnId(
         equipment, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<List<int>> addAll(List<Equipment> equipments) {
+    return _equipmentInsertionAdapter.insertListAndReturnIds(
+        equipments, OnConflictStrategy.abort);
   }
 
   @override
@@ -479,9 +499,9 @@ class _$WorkoutDao extends WorkoutDao {
   }
 
   @override
-  Future<List<Workout>> getAllWithUsers() async {
+  Future<List<Workout>> getLocal() async {
     return _queryAdapter.queryList(
-        'SELECT * FROM Workout UNION SELECT * FROM UserWorkout',
+        'SELECT * FROM Workout WHERE userDefined = 1',
         mapper: (Map<String, Object?> row) => Workout(
             id: row['id'] as int?,
             name: row['name'] as String,
@@ -490,8 +510,21 @@ class _$WorkoutDao extends WorkoutDao {
   }
 
   @override
-  Future<void> add(Workout workout) async {
-    await _workoutInsertionAdapter.insert(workout, OnConflictStrategy.abort);
+  Future<void> removeLocal() async {
+    await _queryAdapter
+        .queryNoReturn('DELETE FROM Workout WHERE userDefined = 1');
+  }
+
+  @override
+  Future<int> add(Workout workout) {
+    return _workoutInsertionAdapter.insertAndReturnId(
+        workout, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<List<int>> addAll(List<Workout> workouts) {
+    return _workoutInsertionAdapter.insertListAndReturnIds(
+        workouts, OnConflictStrategy.abort);
   }
 
   @override
@@ -534,14 +567,20 @@ class _$WorkoutExerciseDao extends WorkoutExerciseDao {
   }
 
   @override
-  Future<void> add(WorkoutExercise workout) async {
-    await _workoutExerciseInsertionAdapter.insert(
+  Future<void> removeLocal() async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM WorkoutExercise WHERE workoutId IN (SELECT id FROM Workout WHERE userDefined = 1)');
+  }
+
+  @override
+  Future<int> add(WorkoutExercise workout) {
+    return _workoutExerciseInsertionAdapter.insertAndReturnId(
         workout, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> addAll(List<WorkoutExercise> workoutExercises) async {
-    await _workoutExerciseInsertionAdapter.insertList(
+  Future<List<int>> addAll(List<WorkoutExercise> workoutExercises) {
+    return _workoutExerciseInsertionAdapter.insertListAndReturnIds(
         workoutExercises, OnConflictStrategy.abort);
   }
 }

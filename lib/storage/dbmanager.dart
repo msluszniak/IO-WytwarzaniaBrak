@@ -26,6 +26,24 @@ class DBManager extends ChangeNotifier {
     return 200;
   }
 
+  Future<List<int>> addToLocal<T extends BaseModel>(List<T> item) async {
+    switch (T) {
+      case Workout:
+        return storage.workoutDAO.addAll(item.cast<Workout>());
+      case WorkoutExercise:
+        {
+          final allExercises =
+              (await storage.exerciseDAO.getAll()).map((e) => e.id!);
+
+          List<WorkoutExercise> exercises = item.cast<WorkoutExercise>();
+          exercises.removeWhere((e) => !allExercises.contains(e.exerciseId));
+
+          return storage.workoutExerciseDAO.addAll(exercises);
+        }
+    }
+    throw Exception("Invalid type provided for the database manager");
+  }
+
   Future<List<T>> getAll<T extends BaseModel>() async {
     switch (T) {
       case Exercise:
@@ -176,6 +194,17 @@ class DBManager extends ChangeNotifier {
   }
 
   Future<int> updateAllData() async {
+    //Save local workouts
+    List<Workout> localWorkouts = await storage.workoutDAO.getLocal();
+    Map<int, List<Exercise>> localExercises = {};
+    for (Workout workout in localWorkouts) {
+      localExercises[workout.id!] =
+          await storage.workoutDAO.getJoinedExercises(workout.id!);
+    }
+
+    storage.workoutExerciseDAO.removeLocal();
+    storage.workoutDAO.removeLocal();
+
     try {
       await _updateEntityWithFavorite<Exercise>();
       await _updateEntityWithFavorite<Gym>();
@@ -183,6 +212,17 @@ class DBManager extends ChangeNotifier {
 
       await _updateEntityWithoutFavorite<WorkoutExercise>();
       await _updateEntityWithoutFavorite<Equipment>();
+
+      //Restore local exercises
+      this.addToLocal<Workout>(localWorkouts);
+      for (Workout workout in localWorkouts) {
+        final workoutExercises = localExercises[workout.id]!
+            .map((e) =>
+                new WorkoutExercise(workoutId: workout.id!, exerciseId: e.id!))
+            .toList();
+
+        this.addToLocal<WorkoutExercise>(workoutExercises);
+      }
 
       return 200;
     } on ServerException catch (e) {

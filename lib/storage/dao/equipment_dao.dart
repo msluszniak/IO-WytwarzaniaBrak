@@ -6,7 +6,10 @@ import 'package:flutter_demo/models/exercise.dart';
 @dao
 abstract class EquipmentDao{
   @insert
-  Future<void> add(Equipment equipment);
+  Future<int> add(Equipment equipment);
+
+  @insert
+  Future<List<int>> addAll(List<Equipment> equipments);
   
   @Query("SELECT * FROM Equipment")
   Future<List<Equipment>> getAll();
