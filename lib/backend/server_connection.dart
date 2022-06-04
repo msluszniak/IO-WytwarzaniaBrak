@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:flutter_demo/backend/server_exception.dart';
 import 'package:http/http.dart' as http;
 
@@ -11,7 +12,25 @@ import '../models/workout.dart';
 import '../models/workout_exercises.dart';
 
 class ServerConnection {
-  static String serverAddress = "192.168.216.167:8080";
+  static final String configFile = "assets/config/config.json";
+  static String serverAddress = "";
+
+  static getServerAddress() async {
+    if(serverAddress != "") return;
+
+    try {
+      final String response = await rootBundle.loadString(configFile);
+      final data = await json.decode(response);
+      serverAddress = data["serverAddress"];
+    } catch(error) {
+      print("Something went wrong while loading server address. Make sure that assets/config/config.json exists and contains correct IP!");
+      print(error);
+      throw error;
+    }
+
+
+    print("Server address: $serverAddress");
+  }
 
   static String _getLoadRequestPath<T extends BaseModel>(){
     switch(T){
@@ -25,6 +44,7 @@ class ServerConnection {
   }
 
   static Future<List<BaseModel>> loadFromDatabase<T extends BaseModel>() async {
+    await getServerAddress();
     String requestPath = _getLoadRequestPath<T>();
 
     late final response;
@@ -59,6 +79,7 @@ class ServerConnection {
   }
 
   static Future<void> submitToDatabase<T extends BaseModel>(T item) async {
+    await getServerAddress();
     late final response;
 
     final Map<String, Object?> params = {};
