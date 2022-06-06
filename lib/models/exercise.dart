@@ -9,6 +9,7 @@ class Exercise extends BaseIdModel {
   final int equipmentId;
   final String? bodyPart;
   final String? description;
+  final int repTime;
   final bool isFavorite;
 
   Exercise(
@@ -17,6 +18,7 @@ class Exercise extends BaseIdModel {
       required this.equipmentId,
       this.bodyPart,
       this.description,
+      required this.repTime,
       this.isFavorite = false});
 
   Exercise.fromJson(Map<String, dynamic> json)
@@ -25,5 +27,6 @@ class Exercise extends BaseIdModel {
         equipmentId = json['equipmentId'],
         bodyPart = json['bodyPart'],
         description = json['description'],
+        repTime = json['repTime'],
         isFavorite = false;
 }

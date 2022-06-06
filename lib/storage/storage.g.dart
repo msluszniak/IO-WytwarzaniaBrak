@@ -93,7 +93,7 @@ class _$Storage extends Storage {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Exercise` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `equipmentId` INTEGER NOT NULL, `bodyPart` TEXT, `description` TEXT, `isFavorite` INTEGER NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `Exercise` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `equipmentId` INTEGER NOT NULL, `bodyPart` TEXT, `description` TEXT, `repTime` INTEGER NOT NULL, `isFavorite` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Equipment` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL)');
         await database.execute(
@@ -164,6 +164,7 @@ class _$ExerciseDao extends ExerciseDao {
                   'equipmentId': item.equipmentId,
                   'bodyPart': item.bodyPart,
                   'description': item.description,
+                  'repTime': item.repTime,
                   'isFavorite': item.isFavorite ? 1 : 0
                 });
 
@@ -191,6 +192,7 @@ class _$ExerciseDao extends ExerciseDao {
             equipmentId: row['equipmentId'] as int,
             bodyPart: row['bodyPart'] as String?,
             description: row['description'] as String?,
+            repTime: row['repTime'] as int,
             isFavorite: (row['isFavorite'] as int) != 0));
   }
 
@@ -203,6 +205,7 @@ class _$ExerciseDao extends ExerciseDao {
             equipmentId: row['equipmentId'] as int,
             bodyPart: row['bodyPart'] as String?,
             description: row['description'] as String?,
+            repTime: row['repTime'] as int,
             isFavorite: (row['isFavorite'] as int) != 0));
   }
 
@@ -362,6 +365,7 @@ class _$EquipmentDao extends EquipmentDao {
             equipmentId: row['equipmentId'] as int,
             bodyPart: row['bodyPart'] as String?,
             description: row['description'] as String?,
+            repTime: row['repTime'] as int,
             isFavorite: (row['isFavorite'] as int) != 0),
         arguments: [equipmentId]);
   }
@@ -458,7 +462,7 @@ class _$WorkoutDao extends WorkoutDao {
   Future<List<Exercise>> getJoinedExercises(int workoutId) async {
     return _queryAdapter.queryList(
         'SELECT * FROM Exercise WHERE id IN (SELECT exerciseId FROM WorkoutExercise WHERE workoutId = ?1)',
-        mapper: (Map<String, Object?> row) => Exercise(id: row['id'] as int?, name: row['name'] as String, equipmentId: row['equipmentId'] as int, bodyPart: row['bodyPart'] as String?, description: row['description'] as String?, isFavorite: (row['isFavorite'] as int) != 0),
+        mapper: (Map<String, Object?> row) => Exercise(id: row['id'] as int?, name: row['name'] as String, equipmentId: row['equipmentId'] as int, bodyPart: row['bodyPart'] as String?, description: row['description'] as String?, repTime: row['repTime'] as int, isFavorite: (row['isFavorite'] as int) != 0),
         arguments: [workoutId]);
   }
 
@@ -543,7 +547,7 @@ class _$UserWorkoutDao extends UserWorkoutDao {
   Future<List<Exercise>> getJoinedExercises(int workoutId) async {
     return _queryAdapter.queryList(
         'SELECT * FROM Exercise WHERE id IN (SELECT exerciseId FROM UserWorkoutExercise WHERE workoutId = ?1)',
-        mapper: (Map<String, Object?> row) => Exercise(id: row['id'] as int?, name: row['name'] as String, equipmentId: row['equipmentId'] as int, bodyPart: row['bodyPart'] as String?, description: row['description'] as String?, isFavorite: (row['isFavorite'] as int) != 0),
+        mapper: (Map<String, Object?> row) => Exercise(id: row['id'] as int?, name: row['name'] as String, equipmentId: row['equipmentId'] as int, bodyPart: row['bodyPart'] as String?, description: row['description'] as String?, repTime: row['repTime'] as int, isFavorite: (row['isFavorite'] as int) != 0),
         arguments: [workoutId]);
   }
 
