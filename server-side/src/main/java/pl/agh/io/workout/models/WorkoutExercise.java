@@ -3,6 +3,8 @@ package pl.agh.io.workout.models;
 public class WorkoutExercise {
     private Integer workoutId;
     private Integer exerciseId;
+    private Integer series;
+    private Integer reps;
 
     public WorkoutExercise(Integer workoutId, Integer exerciseId) {
         this.workoutId = workoutId;

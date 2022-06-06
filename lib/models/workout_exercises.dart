@@ -16,10 +16,14 @@ import 'exercise.dart';
 class WorkoutExercise extends BaseJoinModel {
   final int workoutId;
   final int exerciseId;
+  final int series;
+  final int reps;
 
-  WorkoutExercise({required this.workoutId, required this.exerciseId});
+  WorkoutExercise({required this.workoutId, required this.exerciseId, required this.series, required this.reps});
 
   WorkoutExercise.fromJson(Map<String, dynamic> json)
       : workoutId = json['workoutId'],
-        exerciseId = json['exerciseId'];
+        exerciseId = json['exerciseId'],
+        series = json['series'],
+        reps = json['reps'];
 }
