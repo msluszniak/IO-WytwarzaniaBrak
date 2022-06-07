@@ -63,4 +63,8 @@ public class Exercise {
     }
 
     public Integer getRepTime() {return repTime; }
+
+    public void setRepTime(Integer repTime) {
+        this.repTime = repTime;
+    }
 }
