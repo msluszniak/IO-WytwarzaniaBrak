@@ -30,7 +30,7 @@ public class WorkoutDAO {
         List<WorkoutExercise> workoutExercises = new ArrayList<>();
         for (Workout workout : workouts) {
             workoutExercises.addAll(workout.getExercises().stream()
-                    .map(e -> new WorkoutExercise(workout.getId(), e.getId())).collect(Collectors.toList()));
+                    .map(e -> new WorkoutExercise(workout.getId(), e.getExerciseId(), e.getSeries(), e.getReps())).collect(Collectors.toList()));
         }
         return workoutExercises;
     }
