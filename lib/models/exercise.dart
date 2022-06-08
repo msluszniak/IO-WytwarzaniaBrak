@@ -9,7 +9,7 @@ class Exercise extends BaseIdModel {
   final int equipmentId;
   final String? bodyPart;
   final String? description;
-  final int repTime;
+  final int? repTime;
   final bool isFavorite;
 
   Exercise(
@@ -18,7 +18,7 @@ class Exercise extends BaseIdModel {
       required this.equipmentId,
       this.bodyPart,
       this.description,
-      required this.repTime,
+      this.repTime,
       this.isFavorite = false});
 
   Exercise.fromJson(Map<String, dynamic> json)
