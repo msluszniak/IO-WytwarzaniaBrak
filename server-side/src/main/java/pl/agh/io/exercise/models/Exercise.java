@@ -20,7 +20,7 @@ public class Exercise {
     private String description;
     private Integer repTime;
 
-    @OneToMany(mappedBy = "exercise")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "exercise")
     private Set<WorkoutExercise> workouts = new HashSet<>();
 
     public Integer getId() {

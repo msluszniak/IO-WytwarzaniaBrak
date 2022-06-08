@@ -4,23 +4,23 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class WorkoutExerciseId implements Serializable {
-    private int workoutId;
-    private int exerciseId;
+    private int workout;
+    private int exercise;
 
-    public void setExerciseId(int exerciseId) {
-        this.exerciseId = exerciseId;
+    public void setExercise(int exercise) {
+        this.exercise = exercise;
     }
 
     public void setWorkoutId(int workoutId) {
-        this.workoutId = workoutId;
+        this.workout = workoutId;
     }
 
-    public int getExerciseId() {
-        return exerciseId;
+    public int getExercise() {
+        return exercise;
     }
 
     public int getWorkoutId() {
-        return workoutId;
+        return workout;
     }
 
     @Override
@@ -28,11 +28,11 @@ public class WorkoutExerciseId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WorkoutExerciseId that = (WorkoutExerciseId) o;
-        return workoutId == that.workoutId && exerciseId == that.exerciseId;
+        return workout == that.workout && exercise == that.exercise;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(workoutId, exerciseId);
+        return Objects.hash(workout, exercise);
     }
 }

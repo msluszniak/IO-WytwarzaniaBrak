@@ -1,5 +1,6 @@
 package pl.agh.io.workout.models;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import pl.agh.io.exercise.models.Exercise;
 
 import javax.persistence.*;
@@ -7,30 +8,24 @@ import javax.persistence.*;
 @Entity
 @Table(name = "workout_exercises")
 @IdClass(WorkoutExerciseId.class)
+@JsonPropertyOrder({"workoutId", "exerciseId","series", "reps"})
 public class WorkoutExercise {
     @Id
-    private int workoutId;
-
-    @Id
-    private int exerciseId;
-
     @ManyToOne
     @PrimaryKeyJoinColumn(name="workout_id", referencedColumnName="id")
     private Workout workout;
+
+    @Id
     @ManyToOne
     @PrimaryKeyJoinColumn(name="exercise_id", referencedColumnName="id")
     private Exercise exercise;
 
-    public WorkoutExercise() {
-
+    public int getWorkoutId(){
+        return workout.getId();
     }
 
-    public Integer getWorkoutId() {
-        return workoutId;
-    }
-
-    public Integer getExerciseId() {
-        return exerciseId;
+    public int getExerciseId(){
+        return exercise.getId();
     }
 
     @Column(name="series")
@@ -46,12 +41,4 @@ public class WorkoutExercise {
     public int getReps() {
         return this.reps;
     }
-
-    public WorkoutExercise(int workoutId, int exerciseId, int series, int reps) {
-        this.workoutId = workoutId;
-        this.exerciseId = exerciseId;
-        this.series = series;
-        this.reps = reps;
-    }
-
 }
