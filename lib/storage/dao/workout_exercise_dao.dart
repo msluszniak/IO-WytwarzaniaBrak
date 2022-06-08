@@ -13,6 +13,12 @@ abstract class WorkoutExerciseDao {
   @Query("SELECT * FROM WorkoutExercise")
   Future<List<WorkoutExercise>> getAll();
 
+  @Query("SELECT * FROM WorkoutExercise WHERE workoutId = :workoutId")
+  Future<List<WorkoutExercise>> getAllWithWorkout(int workoutId);
+
+  @Query("SELECT * FROM WorkoutExercise WHERE exerciseId = :exerciseId")
+  Future<List<WorkoutExercise>> getAllWithExercise(int exerciseId);
+
   @Query("DELETE FROM WorkoutExercise")
   Future<void> clearAll();
 
