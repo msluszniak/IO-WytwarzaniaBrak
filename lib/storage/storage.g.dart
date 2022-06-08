@@ -101,7 +101,7 @@ class _$Storage extends Storage {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Workout` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFavorite` INTEGER NOT NULL, `userDefined` INTEGER NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `WorkoutExercise` (`workoutId` INTEGER NOT NULL, `exerciseId` INTEGER NOT NULL, FOREIGN KEY (`workoutId`) REFERENCES `Workout` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`exerciseId`) REFERENCES `Exercise` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`workoutId`, `exerciseId`))');
+            'CREATE TABLE IF NOT EXISTS `WorkoutExercise` (`workoutId` INTEGER NOT NULL, `exerciseId` INTEGER NOT NULL, `series` INTEGER NOT NULL, `reps` INTEGER NOT NULL, FOREIGN KEY (`workoutId`) REFERENCES `Workout` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`exerciseId`) REFERENCES `Exercise` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`workoutId`, `exerciseId`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `UserWorkout` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFavorite` INTEGER NOT NULL, `userDefined` INTEGER NOT NULL)');
         await database.execute(
@@ -400,7 +400,9 @@ class _$WorkoutDao extends WorkoutDao {
             'WorkoutExercise',
             (WorkoutExercise item) => <String, Object?>{
                   'workoutId': item.workoutId,
-                  'exerciseId': item.exerciseId
+                  'exerciseId': item.exerciseId,
+                  'series': item.series,
+                  'reps': item.reps
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -566,7 +568,9 @@ class _$WorkoutExerciseDao extends WorkoutExerciseDao {
             'WorkoutExercise',
             (WorkoutExercise item) => <String, Object?>{
                   'workoutId': item.workoutId,
-                  'exerciseId': item.exerciseId
+                  'exerciseId': item.exerciseId,
+                  'series': item.series,
+                  'reps': item.reps
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -582,7 +586,9 @@ class _$WorkoutExerciseDao extends WorkoutExerciseDao {
     return _queryAdapter.queryList('SELECT * FROM WorkoutExercise',
         mapper: (Map<String, Object?> row) => WorkoutExercise(
             workoutId: row['workoutId'] as int,
-            exerciseId: row['exerciseId'] as int));
+            exerciseId: row['exerciseId'] as int,
+            series: row['series'] as int,
+            reps: row['reps'] as int));
   }
 
   @override

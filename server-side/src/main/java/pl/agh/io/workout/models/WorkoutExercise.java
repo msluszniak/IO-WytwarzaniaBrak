@@ -21,6 +21,10 @@ public class WorkoutExercise {
     @PrimaryKeyJoinColumn(name="exercise_id", referencedColumnName="id")
     private Exercise exercise;
 
+    public WorkoutExercise() {
+
+    }
+
     public Integer getWorkoutId() {
         return workoutId;
     }

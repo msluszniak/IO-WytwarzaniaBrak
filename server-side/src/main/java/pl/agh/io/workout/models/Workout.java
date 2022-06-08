@@ -13,7 +13,7 @@ public class Workout {
     private Integer id;
     private String name;
 
-    @OneToMany(mappedBy = "workout")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "workout")
     private Set<WorkoutExercise> exercises = new HashSet<>();
 
     public Integer getId() {
