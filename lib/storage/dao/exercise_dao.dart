@@ -7,7 +7,10 @@ import '../../models/workout.dart';
 @dao
 abstract class ExerciseDao{
   @insert
-  Future<void> add(Exercise exercise);
+  Future<int> add(Exercise exercise);
+
+  @insert
+  Future<List<int>> addAll(List<Exercise> exercises);
 
   @Query("UPDATE Exercise SET isFavorite=:isFavorite WHERE id=:id")
   Future<void> addFavorite(int id, bool isFavorite);
@@ -19,7 +22,16 @@ abstract class ExerciseDao{
   Future<List<Exercise>> getFavorite();
 
   @Insert(onConflict: OnConflictStrategy.replace)
-  Future<void> updateAll(List<Exercise> person);
+  Future<void> updateAll(List<Exercise> exercises);
+
+  @Query("DELETE FROM Exercise WHERE id NOT IN (:keptIds)")
+  Future<void> deleteRemoved(List<int> keptIds);
+
+  Future<void> updateFromDatabase(List<Exercise> exercises) async {
+    final keptIds = exercises.map((e) => e.id!).toList();
+    this.deleteRemoved(keptIds);
+    this.updateAll(exercises);
+  }
 
   @Query("UPDATE Exercise SET isFavorite=1 WHERE id in (:favoriteIds)")
   Future<void> updateFavorites(List<int> favoriteIds);
