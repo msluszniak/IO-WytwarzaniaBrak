@@ -17,6 +17,7 @@ public class Exercise {
     @Column(name="equipment_id")
     private Integer equipmentId;
     private String description;
+    private Integer repTime;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "exercises")
     private Set<Workout> workouts = new HashSet<>();
@@ -59,5 +60,11 @@ public class Exercise {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getRepTime() {return repTime; }
+
+    public void setRepTime(Integer repTime) {
+        this.repTime = repTime;
     }
 }
