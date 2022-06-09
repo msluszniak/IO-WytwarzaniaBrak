@@ -5,7 +5,10 @@ import '../../models/workout_exercises.dart';
 @dao
 abstract class WorkoutExerciseDao {
   @insert
-  Future<void> add(WorkoutExercise workout);
+  Future<int> add(WorkoutExercise workout);
+
+  @insert
+  Future<List<int>> addAll(List<WorkoutExercise> workoutExercises);
 
   @Query("SELECT * FROM WorkoutExercise")
   Future<List<WorkoutExercise>> getAll();
@@ -13,11 +16,11 @@ abstract class WorkoutExerciseDao {
   @Query("DELETE FROM WorkoutExercise")
   Future<void> clearAll();
 
-  @insert
-  Future<void> addAll(List<WorkoutExercise> workoutExercises);
-
   Future<void> updateAll(List<WorkoutExercise> workoutExercises) async {
     this.clearAll();
     this.addAll(workoutExercises);
   }
+
+  @Query("DELETE FROM WorkoutExercise WHERE workoutId IN (SELECT id FROM Workout WHERE userDefined = 1)")
+  Future<void> removeLocal();
 }

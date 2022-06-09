@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/models/user_workout.dart';
-import 'package:flutter_demo/models/user_workout_exercises.dart';
+import 'package:flutter_demo/models/workout_exercises.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/exercise.dart';
+import '../../../models/workout.dart';
 import '../../../storage/dbmanager.dart';
 
 class NewWorkoutCard extends StatefulWidget {
@@ -167,8 +167,8 @@ class _NewWorkoutState extends State<NewWorkoutCard> {
                           .toList(),
                     ))),
                     //Expanded(
-                       // child:
-                        Row(
+                    // child:
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
                         ElevatedButton(
@@ -180,24 +180,28 @@ class _NewWorkoutState extends State<NewWorkoutCard> {
                         ElevatedButton(
                           child: const Text('Submit'),
                           onPressed: () async {
-                            if(nameController.text != "") {
-                              List<int> ids = await dbManager
-                                  .addToLocal<UserWorkout>(
-                                  [UserWorkout(name: nameController.text)]);
+                            if (nameController.text != "") {
+                              int workoutId = (await dbManager
+                                  .addToLocal<Workout>([
+                                Workout(
+                                    name: nameController.text,
+                                    userDefined: true)
+                              ]))[0];
 
-                              List<UserWorkoutExercise> connections =
-                              _pickedExercises
-                                  .map((e) =>
-                                  UserWorkoutExercise(
-                                      workoutId: ids[0], exerciseId: e.id!))
-                                  .toList();
+                              List<WorkoutExercise> connections =
+                                  _pickedExercises
+                                      .map((e) => WorkoutExercise(
+                                          workoutId: workoutId,
+                                          exerciseId: e.id!))
+                                      .toList();
                               await dbManager
-                                  .addToLocal<UserWorkoutExercise>(connections);
+                                  .addToLocal<WorkoutExercise>(connections);
 
                               Fluttertoast.showToast(msg: "Workout added");
                               widget.submitCallback();
                             } else
-                              Fluttertoast.showToast(msg: "Unspecified workout name");
+                              Fluttertoast.showToast(
+                                  msg: "Unspecified workout name");
                           },
                         ),
                         const SizedBox(width: 8),

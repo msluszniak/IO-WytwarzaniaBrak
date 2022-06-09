@@ -68,11 +68,7 @@ class _$Storage extends Storage {
 
   WorkoutDao? _workoutDAOInstance;
 
-  UserWorkoutDao? _userWorkoutDAOInstance;
-
   WorkoutExerciseDao? _workoutExerciseDAOInstance;
-
-  UserWorkoutExerciseDao? _userWorkoutExerciseDAOInstance;
 
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
@@ -102,10 +98,6 @@ class _$Storage extends Storage {
             'CREATE TABLE IF NOT EXISTS `Workout` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFavorite` INTEGER NOT NULL, `userDefined` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `WorkoutExercise` (`workoutId` INTEGER NOT NULL, `exerciseId` INTEGER NOT NULL, FOREIGN KEY (`workoutId`) REFERENCES `Workout` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`exerciseId`) REFERENCES `Exercise` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`workoutId`, `exerciseId`))');
-        await database.execute(
-            'CREATE TABLE IF NOT EXISTS `UserWorkout` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFavorite` INTEGER NOT NULL, `userDefined` INTEGER NOT NULL)');
-        await database.execute(
-            'CREATE TABLE IF NOT EXISTS `UserWorkoutExercise` (`workoutId` INTEGER NOT NULL, `exerciseId` INTEGER NOT NULL, FOREIGN KEY (`workoutId`) REFERENCES `UserWorkout` (`id`) ON UPDATE CASCADE ON DELETE CASCADE, FOREIGN KEY (`exerciseId`) REFERENCES `Exercise` (`id`) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (`workoutId`, `exerciseId`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -134,21 +126,9 @@ class _$Storage extends Storage {
   }
 
   @override
-  UserWorkoutDao get userWorkoutDAO {
-    return _userWorkoutDAOInstance ??=
-        _$UserWorkoutDao(database, changeListener);
-  }
-
-  @override
   WorkoutExerciseDao get workoutExerciseDAO {
     return _workoutExerciseDAOInstance ??=
         _$WorkoutExerciseDao(database, changeListener);
-  }
-
-  @override
-  UserWorkoutExerciseDao get userWorkoutExerciseDAO {
-    return _userWorkoutExerciseDAOInstance ??=
-        _$UserWorkoutExerciseDao(database, changeListener);
   }
 }
 
@@ -210,6 +190,19 @@ class _$ExerciseDao extends ExerciseDao {
   }
 
   @override
+  Future<void> deleteRemoved(List<int> keptIds) async {
+    const offset = 1;
+    final _sqliteVariablesForKeptIds =
+        Iterable<String>.generate(keptIds.length, (i) => '?${i + offset}')
+            .join(',');
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM Exercise WHERE id NOT IN (' +
+            _sqliteVariablesForKeptIds +
+            ')',
+        arguments: [...keptIds]);
+  }
+
+  @override
   Future<void> updateFavorites(List<int> favoriteIds) async {
     const offset = 1;
     final _sqliteVariablesForFavoriteIds =
@@ -239,14 +232,21 @@ class _$ExerciseDao extends ExerciseDao {
   }
 
   @override
-  Future<void> add(Exercise exercise) async {
-    await _exerciseInsertionAdapter.insert(exercise, OnConflictStrategy.abort);
+  Future<int> add(Exercise exercise) {
+    return _exerciseInsertionAdapter.insertAndReturnId(
+        exercise, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> updateAll(List<Exercise> person) async {
+  Future<List<int>> addAll(List<Exercise> exercises) {
+    return _exerciseInsertionAdapter.insertListAndReturnIds(
+        exercises, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateAll(List<Exercise> exercises) async {
     await _exerciseInsertionAdapter.insertList(
-        person, OnConflictStrategy.replace);
+        exercises, OnConflictStrategy.replace);
   }
 }
 
@@ -308,6 +308,17 @@ class _$GymDao extends GymDao {
   }
 
   @override
+  Future<void> deleteRemoved(List<int> keptIds) async {
+    const offset = 1;
+    final _sqliteVariablesForKeptIds =
+        Iterable<String>.generate(keptIds.length, (i) => '?${i + offset}')
+            .join(',');
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM Gym WHERE id NOT IN (' + _sqliteVariablesForKeptIds + ')',
+        arguments: [...keptIds]);
+  }
+
+  @override
   Future<void> updateFavorites(List<int> favoriteIds) async {
     const offset = 1;
     final _sqliteVariablesForFavoriteIds =
@@ -321,13 +332,20 @@ class _$GymDao extends GymDao {
   }
 
   @override
-  Future<void> add(Gym gym) async {
-    await _gymInsertionAdapter.insert(gym, OnConflictStrategy.abort);
+  Future<int> add(Gym gym) {
+    return _gymInsertionAdapter.insertAndReturnId(
+        gym, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> updateAll(List<Gym> person) async {
-    await _gymInsertionAdapter.insertList(person, OnConflictStrategy.replace);
+  Future<List<int>> addAll(List<Gym> gyms) {
+    return _gymInsertionAdapter.insertListAndReturnIds(
+        gyms, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateAll(List<Gym> gyms) async {
+    await _gymInsertionAdapter.insertList(gyms, OnConflictStrategy.replace);
   }
 }
 
@@ -356,6 +374,19 @@ class _$EquipmentDao extends EquipmentDao {
   }
 
   @override
+  Future<void> deleteRemoved(List<int> keptIds) async {
+    const offset = 1;
+    final _sqliteVariablesForKeptIds =
+        Iterable<String>.generate(keptIds.length, (i) => '?${i + offset}')
+            .join(',');
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM Equipment WHERE id NOT IN (' +
+            _sqliteVariablesForKeptIds +
+            ')',
+        arguments: [...keptIds]);
+  }
+
+  @override
   Future<List<Exercise>> getJoinedExercises(int equipmentId) async {
     return _queryAdapter.queryList(
         'SELECT * FROM Exercise WHERE equipmentId = ?1',
@@ -371,9 +402,15 @@ class _$EquipmentDao extends EquipmentDao {
   }
 
   @override
-  Future<void> add(Equipment equipment) async {
-    await _equipmentInsertionAdapter.insert(
+  Future<int> add(Equipment equipment) {
+    return _equipmentInsertionAdapter.insertAndReturnId(
         equipment, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<List<int>> addAll(List<Equipment> equipments) {
+    return _equipmentInsertionAdapter.insertListAndReturnIds(
+        equipments, OnConflictStrategy.abort);
   }
 
   @override
@@ -394,13 +431,6 @@ class _$WorkoutDao extends WorkoutDao {
                   'name': item.name,
                   'isFavorite': item.isFavorite ? 1 : 0,
                   'userDefined': item.userDefined ? 1 : 0
-                }),
-        _workoutExerciseInsertionAdapter = InsertionAdapter(
-            database,
-            'WorkoutExercise',
-            (WorkoutExercise item) => <String, Object?>{
-                  'workoutId': item.workoutId,
-                  'exerciseId': item.exerciseId
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -410,8 +440,6 @@ class _$WorkoutDao extends WorkoutDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<Workout> _workoutInsertionAdapter;
-
-  final InsertionAdapter<WorkoutExercise> _workoutExerciseInsertionAdapter;
 
   @override
   Future<void> addFavorite(int id, bool isFavorite) async {
@@ -441,6 +469,19 @@ class _$WorkoutDao extends WorkoutDao {
   }
 
   @override
+  Future<void> deleteRemoved(List<int> keptIds) async {
+    const offset = 1;
+    final _sqliteVariablesForKeptIds =
+        Iterable<String>.generate(keptIds.length, (i) => '?${i + offset}')
+            .join(',');
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM Workout WHERE id NOT IN (' +
+            _sqliteVariablesForKeptIds +
+            ')',
+        arguments: [...keptIds]);
+  }
+
+  @override
   Future<void> updateFavorites(List<int> favoriteIds) async {
     const offset = 1;
     final _sqliteVariablesForFavoriteIds =
@@ -454,11 +495,6 @@ class _$WorkoutDao extends WorkoutDao {
   }
 
   @override
-  Future<void> clearAllExercises() async {
-    await _queryAdapter.queryNoReturn('DELETE FROM WorkoutExercise');
-  }
-
-  @override
   Future<List<Exercise>> getJoinedExercises(int workoutId) async {
     return _queryAdapter.queryList(
         'SELECT * FROM Exercise WHERE id IN (SELECT exerciseId FROM WorkoutExercise WHERE workoutId = ?1)',
@@ -467,9 +503,9 @@ class _$WorkoutDao extends WorkoutDao {
   }
 
   @override
-  Future<List<Workout>> getAllWithUsers() async {
+  Future<List<Workout>> getLocal() async {
     return _queryAdapter.queryList(
-        'SELECT * FROM Workout UNION SELECT * FROM UserWorkout',
+        'SELECT * FROM Workout WHERE userDefined = 1',
         mapper: (Map<String, Object?> row) => Workout(
             id: row['id'] as int?,
             name: row['name'] as String,
@@ -478,83 +514,27 @@ class _$WorkoutDao extends WorkoutDao {
   }
 
   @override
-  Future<void> add(Workout workout) async {
-    await _workoutInsertionAdapter.insert(workout, OnConflictStrategy.abort);
+  Future<void> removeLocal() async {
+    await _queryAdapter
+        .queryNoReturn('DELETE FROM Workout WHERE userDefined = 1');
   }
 
   @override
-  Future<void> updateAll(List<Workout> person) async {
+  Future<int> add(Workout workout) {
+    return _workoutInsertionAdapter.insertAndReturnId(
+        workout, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<List<int>> addAll(List<Workout> workouts) {
+    return _workoutInsertionAdapter.insertListAndReturnIds(
+        workouts, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateAll(List<Workout> workouts) async {
     await _workoutInsertionAdapter.insertList(
-        person, OnConflictStrategy.replace);
-  }
-
-  @override
-  Future<void> addAllExercises(List<WorkoutExercise> workoutExercises) async {
-    await _workoutExerciseInsertionAdapter.insertList(
-        workoutExercises, OnConflictStrategy.abort);
-  }
-}
-
-class _$UserWorkoutDao extends UserWorkoutDao {
-  _$UserWorkoutDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database),
-        _userWorkoutInsertionAdapter = InsertionAdapter(
-            database,
-            'UserWorkout',
-            (UserWorkout item) => <String, Object?>{
-                  'id': item.id,
-                  'name': item.name,
-                  'isFavorite': item.isFavorite ? 1 : 0,
-                  'userDefined': item.userDefined ? 1 : 0
-                });
-
-  final sqflite.DatabaseExecutor database;
-
-  final StreamController<String> changeListener;
-
-  final QueryAdapter _queryAdapter;
-
-  final InsertionAdapter<UserWorkout> _userWorkoutInsertionAdapter;
-
-  @override
-  Future<void> addFavorite(int id, bool isFavorite) async {
-    await _queryAdapter.queryNoReturn(
-        'UPDATE UserWorkout SET isFavorite=?2 WHERE id=?1',
-        arguments: [id, isFavorite ? 1 : 0]);
-  }
-
-  @override
-  Future<List<UserWorkout>> getAll() async {
-    return _queryAdapter.queryList('SELECT * FROM UserWorkout',
-        mapper: (Map<String, Object?> row) => UserWorkout(
-            id: row['id'] as int?,
-            name: row['name'] as String,
-            isFavorite: (row['isFavorite'] as int) != 0,
-            userDefined: (row['userDefined'] as int) != 0));
-  }
-
-  @override
-  Future<List<UserWorkout>> getFavorite() async {
-    return _queryAdapter.queryList('SELECT * FROM UserWorkout WHERE isFavorite',
-        mapper: (Map<String, Object?> row) => UserWorkout(
-            id: row['id'] as int?,
-            name: row['name'] as String,
-            isFavorite: (row['isFavorite'] as int) != 0,
-            userDefined: (row['userDefined'] as int) != 0));
-  }
-
-  @override
-  Future<List<Exercise>> getJoinedExercises(int workoutId) async {
-    return _queryAdapter.queryList(
-        'SELECT * FROM Exercise WHERE id IN (SELECT exerciseId FROM UserWorkoutExercise WHERE workoutId = ?1)',
-        mapper: (Map<String, Object?> row) => Exercise(id: row['id'] as int?, name: row['name'] as String, equipmentId: row['equipmentId'] as int, bodyPart: row['bodyPart'] as String?, description: row['description'] as String?, repTime: row['repTime'] as int?, isFavorite: (row['isFavorite'] as int) != 0),
-        arguments: [workoutId]);
-  }
-
-  @override
-  Future<List<int>> add(List<UserWorkout> userWorkout) {
-    return _userWorkoutInsertionAdapter.insertListAndReturnIds(
-        userWorkout, OnConflictStrategy.abort);
+        workouts, OnConflictStrategy.replace);
   }
 }
 
@@ -591,49 +571,20 @@ class _$WorkoutExerciseDao extends WorkoutExerciseDao {
   }
 
   @override
-  Future<void> add(WorkoutExercise workout) async {
-    await _workoutExerciseInsertionAdapter.insert(
+  Future<void> removeLocal() async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM WorkoutExercise WHERE workoutId IN (SELECT id FROM Workout WHERE userDefined = 1)');
+  }
+
+  @override
+  Future<int> add(WorkoutExercise workout) {
+    return _workoutExerciseInsertionAdapter.insertAndReturnId(
         workout, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> addAll(List<WorkoutExercise> workoutExercises) async {
-    await _workoutExerciseInsertionAdapter.insertList(
+  Future<List<int>> addAll(List<WorkoutExercise> workoutExercises) {
+    return _workoutExerciseInsertionAdapter.insertListAndReturnIds(
         workoutExercises, OnConflictStrategy.abort);
-  }
-}
-
-class _$UserWorkoutExerciseDao extends UserWorkoutExerciseDao {
-  _$UserWorkoutExerciseDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database),
-        _userWorkoutExerciseInsertionAdapter = InsertionAdapter(
-            database,
-            'UserWorkoutExercise',
-            (UserWorkoutExercise item) => <String, Object?>{
-                  'workoutId': item.workoutId,
-                  'exerciseId': item.exerciseId
-                });
-
-  final sqflite.DatabaseExecutor database;
-
-  final StreamController<String> changeListener;
-
-  final QueryAdapter _queryAdapter;
-
-  final InsertionAdapter<UserWorkoutExercise>
-      _userWorkoutExerciseInsertionAdapter;
-
-  @override
-  Future<List<UserWorkoutExercise>> getAll() async {
-    return _queryAdapter.queryList('SELECT * FROM UserWorkoutExercise',
-        mapper: (Map<String, Object?> row) => UserWorkoutExercise(
-            workoutId: row['workoutId'] as int,
-            exerciseId: row['exerciseId'] as int));
-  }
-
-  @override
-  Future<List<int>> add(List<UserWorkoutExercise> workout) {
-    return _userWorkoutExerciseInsertionAdapter.insertListAndReturnIds(
-        workout, OnConflictStrategy.abort);
   }
 }

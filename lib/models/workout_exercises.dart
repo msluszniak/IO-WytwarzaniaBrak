@@ -9,9 +9,9 @@ import 'exercise.dart';
   'exerciseId'
 ], foreignKeys: [
   ForeignKey(
-      childColumns: ['workoutId'], parentColumns: ['id'], entity: Workout),
+      childColumns: ['workoutId'], parentColumns: ['id'], entity: Workout, onDelete: ForeignKeyAction.noAction, onUpdate: ForeignKeyAction.noAction),
   ForeignKey(
-      childColumns: ['exerciseId'], parentColumns: ['id'], entity: Exercise)
+      childColumns: ['exerciseId'], parentColumns: ['id'], entity: Exercise, onDelete: ForeignKeyAction.noAction, onUpdate: ForeignKeyAction.noAction)
 ])
 class WorkoutExercise extends BaseJoinModel {
   final int workoutId;
