@@ -12,12 +12,9 @@ import java.util.Optional;
 
 @Component
 public class ExerciseDAO {
-    private final ExerciseRepository exerciseRepository;
-
     @Autowired
-    public ExerciseDAO(ExerciseRepository exerciseRepository) {
-        this.exerciseRepository = exerciseRepository;
-    }
+    private ExerciseRepository exerciseRepository;
+
 
     public List<Exercise> getAllExercises() {
         List<Exercise> exercises = new ArrayList<>();
