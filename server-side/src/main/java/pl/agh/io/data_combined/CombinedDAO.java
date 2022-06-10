@@ -1,6 +1,5 @@
 package pl.agh.io.data_combined;
 
-import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.agh.io.equipment.dbaccess.EquipmentDAO;
@@ -28,13 +27,8 @@ public class CombinedDAO {
         List<Gym> gyms = gymDAO.getAllGyms();
         Map<Integer, Set<Integer>> mapGymEqs = new HashMap<>();
 
-        List<Equipment> equipments = new ArrayList<>();
-        for(Integer id : exerciseIds)
-            try {
-                equipments.add(equipmentDAO.getEquipmentById(exerciseDAO.getExerciseById(id).getEquipmentId()));
-            } catch(ObjectNotFoundException e) {
-                System.out.println(e.getLocalizedMessage());
-            }
+        List<Integer> equipmentIds = exerciseDAO.getExerciseByIds(exerciseIds).stream().map(Exercise::getEquipmentId).collect(Collectors.toList());
+        List<Equipment> equipments = equipmentDAO.getEquipmentByIds(equipmentIds);
 
         for(Gym gym : gyms) {
             Set<Integer> gymEquipmentIds = gym.getEquipment().stream().map(Equipment::getId).collect(Collectors.toSet());
@@ -52,15 +46,8 @@ public class CombinedDAO {
 
     public Map<Integer, Integer> getMapExerciseEquipment(List<Integer> exerciseIds) {
         Map<Integer, Integer> mapExEq = new HashMap<>();
-        Exercise exercise;
-        for(Integer id : exerciseIds) {
-            try {
-                exercise = exerciseDAO.getExerciseById(id);
-                mapExEq.put(exercise.getId(), exercise.getEquipmentId());
-            } catch(ObjectNotFoundException e) {
-                System.out.println(e.getLocalizedMessage());
-            }
-        }
+        exerciseDAO.getExerciseByIds(exerciseIds).forEach(exercise -> mapExEq.put(exercise.getId(), exercise.getEquipmentId()));
         return mapExEq;
     }
 }
+

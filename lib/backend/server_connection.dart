@@ -8,12 +8,13 @@ import '../models/abstract/base_model.dart';
 import '../models/equipment.dart';
 import '../models/exercise.dart';
 import '../models/gym.dart';
+import '../models/planned_workout.dart';
 import '../models/workout.dart';
 import '../models/workout_exercises.dart';
 
 class ServerConnection {
   static final String configFile = "assets/config/config.json";
-  static String serverAddress = "";
+  static String serverAddress = "192.168.8.125:8080";
 
   static getServerAddress() async {
     if(serverAddress != "") return;
@@ -107,6 +108,34 @@ class ServerConnection {
 
     if (response.statusCode == 200) return;
 
+    throw ServerException(responseCode: response.statusCode);
+  }
+
+  static Future<PlannedWorkout> getPlannedWorkout(List<int> exerciseIds) async {
+    await getServerAddress();
+    late final response;
+
+    final Map<String, Object?> params = {};
+    params['exercisesIds'] = exerciseIds.toString().replaceAll("[", "").replaceAll("]", "");
+
+    try {
+      response = await http.post(Uri.http(serverAddress, "/combined/findPath", params)).timeout(const Duration(seconds: 14));
+    } on TimeoutException catch (_) {
+      throw ServerException(responseCode: 408); // Timed out
+    }
+
+    if(response.statusCode == 200) {
+      final parsedGyms = jsonDecode(response.body)["gymsToVisit"].cast<Map<String, dynamic>>();
+      List<Gym> gyms = parsedGyms.map<Gym>((json) => Gym.fromJson(json)).toList();
+
+      List<List<Exercise>> exercises = <List<Exercise>>[];
+      final allExercises = jsonDecode(response.body)["exercisesOnGyms"];
+      for(int i=0; i<allExercises.length; i++) {
+        final parsedExercises = allExercises[i].cast<Map<String, dynamic>>();
+        exercises.add(parsedExercises.map<Exercise>((json) => Exercise.fromJson(json)).toList());
+      }
+      return PlannedWorkout(gymsToVisit: gyms, exercisesOnGyms: exercises);
+    }
     throw ServerException(responseCode: response.statusCode);
   }
 }

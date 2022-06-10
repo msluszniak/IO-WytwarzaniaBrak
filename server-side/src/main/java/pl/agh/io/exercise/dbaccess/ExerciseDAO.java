@@ -29,4 +29,10 @@ public class ExerciseDAO {
         else
             throw new ObjectNotFoundException(id, "Exercise");
     }
+
+    public List<Exercise> getExerciseByIds(List<Integer> ids) {
+        List<Exercise> exercises = new ArrayList<>();
+        exerciseRepository.findAllById(ids).forEach(exercises::add);
+        return exercises;
+    }
 }
