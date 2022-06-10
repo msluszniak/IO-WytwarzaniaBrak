@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../backend/server_connection.dart';
 import '../../models/abstract/base_id_model.dart';
 import '../../models/exercise.dart';
+import '../../models/planned_workout.dart';
 import '../../models/workout.dart';
 import '../../storage/dbmanager.dart';
 import '../widgets/cards/new_workout_card.dart';
@@ -79,7 +81,8 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                               ListTile(
                                                 title: Text(
                                                     exerciseList[index].name),
-                                              ))
+                                              )),
+                                      _planWorkoutButton(exerciseList)
                                     ]);
                               }
                             });
@@ -122,6 +125,20 @@ class _WorkoutsState extends State<WorkoutsPage> {
           ),
         ],
       ),
+    );
+  }
+
+  ElevatedButton _planWorkoutButton(List<Exercise> workoutExercises) {
+    return ElevatedButton.icon(
+      onPressed: () async {
+        List<int> exerciseIds = workoutExercises.map((e) => e.id!).toList();
+        PlannedWorkout plannedWorkout = await ServerConnection.getPlannedWorkout(exerciseIds);
+      },
+      icon: Icon(
+        Icons.arrow_circle_right,
+        size: 24.0,
+      ),
+      label: Text('Plan workout'),
     );
   }
 }
