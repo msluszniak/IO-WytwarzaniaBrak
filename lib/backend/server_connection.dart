@@ -14,7 +14,7 @@ import '../models/workout_exercises.dart';
 
 class ServerConnection {
   static final String configFile = "assets/config/config.json";
-  static String serverAddress = "";
+  static String serverAddress = "192.168.8.125:8080";
 
   static getServerAddress() async {
     if(serverAddress != "") return;
@@ -119,7 +119,7 @@ class ServerConnection {
     params['exercisesIds'] = exerciseIds.toString().replaceAll("[", "").replaceAll("]", "");
 
     try {
-      response = await http.post(Uri.http(serverAddress, "/combined/findPath", params)).timeout(const Duration(seconds: 7));
+      response = await http.post(Uri.http(serverAddress, "/combined/findPath", params)).timeout(const Duration(seconds: 14));
     } on TimeoutException catch (_) {
       throw ServerException(responseCode: 408); // Timed out
     }
