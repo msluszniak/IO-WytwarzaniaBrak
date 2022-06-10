@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../../backend/server_connection.dart';
@@ -133,6 +134,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
       onPressed: () async {
         List<int> exerciseIds = workoutExercises.map((e) => e.id!).toList();
         PlannedWorkout plannedWorkout = await ServerConnection.getPlannedWorkout(exerciseIds);
+        Fluttertoast.showToast(msg: plannedWorkout.toString());
       },
       icon: Icon(
         Icons.arrow_circle_right,
