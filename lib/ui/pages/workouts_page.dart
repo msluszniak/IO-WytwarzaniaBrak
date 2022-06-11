@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/ui/widgets/cards/gyms_for_workout.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
+import '../../backend/server_connection.dart';
 import '../../models/abstract/base_id_model.dart';
+import '../../models/abstract/base_model.dart';
 import '../../models/exercise.dart';
+import '../../models/planned_workout.dart';
 import '../../models/workout.dart';
+import '../../models/workout_exercises.dart';
 import '../../storage/dbmanager.dart';
 import '../widgets/cards/new_workout_card.dart';
 
@@ -114,7 +120,8 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                                 ),
                                               ),
                                             );
-                                          })
+                                          }),
+                                      _planWorkoutButton(exerciseList, workout)
                                     ]);
                               }
                             });
@@ -160,12 +167,21 @@ class _WorkoutsState extends State<WorkoutsPage> {
     );
   }
 
-  ElevatedButton _planWorkoutButton(List<Exercise> workoutExercises) {
+  ElevatedButton _planWorkoutButton(List<Exercise> workoutExercises, Workout workout1) {
     return ElevatedButton.icon(
       onPressed: () async {
         List<int> exerciseIds = workoutExercises.map((e) => e.id!).toList();
-        PlannedWorkout plannedWorkout = await ServerConnection.getPlannedWorkout(exerciseIds);
-        Fluttertoast.showToast(msg: plannedWorkout.toString());
+        PlannedWorkout plannedWorkout1 = await ServerConnection.getPlannedWorkout(exerciseIds);
+        Fluttertoast.showToast(msg: plannedWorkout1.toString());
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return new GymsForWorkout(plannedWorkout: plannedWorkout1, workout: workout1);
+            },
+            fullscreenDialog: true,
+          ),
+        );
       },
       icon: Icon(
         Icons.arrow_circle_right,
