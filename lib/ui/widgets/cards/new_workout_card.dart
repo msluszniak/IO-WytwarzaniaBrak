@@ -193,8 +193,8 @@ class _NewWorkoutState extends State<NewWorkoutCard> {
                                       .map((e) => WorkoutExercise(
                                           workoutId: workoutId,
                                           exerciseId: e.id!,
-                                          series: 1,
-                                          reps: 1))   //TODO: Zamienić na możliwe do dodania
+                                          series: 3,
+                                          reps: 8))   //TODO: Zamienić na możliwe do dodania
                                       .toList();
                               await dbManager
                                   .addToLocal<WorkoutExercise>(connections);
