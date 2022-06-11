@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:flutter_demo/backend/server_exception.dart';
 import 'package:http/http.dart' as http;
 
@@ -7,11 +8,30 @@ import '../models/abstract/base_model.dart';
 import '../models/equipment.dart';
 import '../models/exercise.dart';
 import '../models/gym.dart';
+import '../models/planned_workout.dart';
 import '../models/workout.dart';
 import '../models/workout_exercises.dart';
 
 class ServerConnection {
-  static String serverAddress = "192.168.1.20:8080";
+  static final String configFile = "assets/config/config.json";
+  static String serverAddress = "192.168.8.125:8080";
+
+  static getServerAddress() async {
+    if(serverAddress != "") return;
+
+    try {
+      final String response = await rootBundle.loadString(configFile);
+      final data = await json.decode(response);
+      serverAddress = data["serverAddress"];
+    } catch(error) {
+      print("Something went wrong while loading server address. Make sure that assets/config/config.json exists and contains correct IP!");
+      print(error);
+      throw error;
+    }
+
+
+    print("Server address: $serverAddress");
+  }
 
   static String _getLoadRequestPath<T extends BaseModel>(){
     switch(T){
@@ -25,6 +45,7 @@ class ServerConnection {
   }
 
   static Future<List<BaseModel>> loadFromDatabase<T extends BaseModel>() async {
+    await getServerAddress();
     String requestPath = _getLoadRequestPath<T>();
 
     late final response;
@@ -59,6 +80,7 @@ class ServerConnection {
   }
 
   static Future<void> submitToDatabase<T extends BaseModel>(T item) async {
+    await getServerAddress();
     late final response;
 
     final Map<String, Object?> params = {};
@@ -86,6 +108,34 @@ class ServerConnection {
 
     if (response.statusCode == 200) return;
 
+    throw ServerException(responseCode: response.statusCode);
+  }
+
+  static Future<PlannedWorkout> getPlannedWorkout(List<int> exerciseIds) async {
+    await getServerAddress();
+    late final response;
+
+    final Map<String, Object?> params = {};
+    params['exercisesIds'] = exerciseIds.toString().replaceAll("[", "").replaceAll("]", "");
+
+    try {
+      response = await http.post(Uri.http(serverAddress, "/combined/findPath", params)).timeout(const Duration(seconds: 14));
+    } on TimeoutException catch (_) {
+      throw ServerException(responseCode: 408); // Timed out
+    }
+
+    if(response.statusCode == 200) {
+      final parsedGyms = jsonDecode(response.body)["gymsToVisit"].cast<Map<String, dynamic>>();
+      List<Gym> gyms = parsedGyms.map<Gym>((json) => Gym.fromJson(json)).toList();
+
+      List<List<Exercise>> exercises = <List<Exercise>>[];
+      final allExercises = jsonDecode(response.body)["exercisesOnGyms"];
+      for(int i=0; i<allExercises.length; i++) {
+        final parsedExercises = allExercises[i].cast<Map<String, dynamic>>();
+        exercises.add(parsedExercises.map<Exercise>((json) => Exercise.fromJson(json)).toList());
+      }
+      return PlannedWorkout(gymsToVisit: gyms, exercisesOnGyms: exercises);
+    }
     throw ServerException(responseCode: response.statusCode);
   }
 }

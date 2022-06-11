@@ -1,6 +1,5 @@
 package pl.agh.io.data_combined;
 
-import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.agh.io.equipment.dbaccess.EquipmentDAO;
@@ -24,43 +23,31 @@ public class CombinedDAO {
     @Autowired
     private EquipmentDAO equipmentDAO;
 
-    public Map<Gym, Set<Equipment>> getMapGymSetOfEquipment(List<Integer> exerciseIds) {
+    public Map<Integer, Set<Integer>> getMapGymSetOfEquipment(List<Integer> exerciseIds) {
         List<Gym> gyms = gymDAO.getAllGyms();
-        Map<Gym, Set<Equipment>> mapGymEqs = new HashMap<>();
+        Map<Integer, Set<Integer>> mapGymEqs = new HashMap<>();
 
-        List<Equipment> equipments = new ArrayList<>();
-        for(Integer id : exerciseIds)
-            try {
-                equipments.add(equipmentDAO.getEquipmentById(exerciseDAO.getExerciseById(id).getEquipmentId()));
-            } catch(ObjectNotFoundException e) {
-                System.out.println(e.getLocalizedMessage());
-            }
+        List<Integer> equipmentIds = exerciseDAO.getExerciseByIds(exerciseIds).stream().map(Exercise::getEquipmentId).collect(Collectors.toList());
+        List<Equipment> equipments = equipmentDAO.getEquipmentByIds(equipmentIds);
 
         for(Gym gym : gyms) {
             Set<Integer> gymEquipmentIds = gym.getEquipment().stream().map(Equipment::getId).collect(Collectors.toSet());
-            Set<Equipment> equipmentForSearch = new HashSet<>();
+            Set<Integer> equipmentForSearch = new HashSet<>();
 
             for(Equipment equipment : equipments)
                 if(gymEquipmentIds.contains(equipment.getId()))
-                    equipmentForSearch.add(equipment);
+                    equipmentForSearch.add(equipment.getId());
 
             if(!equipmentForSearch.isEmpty())
-                mapGymEqs.put(gym, equipmentForSearch);
+                mapGymEqs.put(gym.getId(), equipmentForSearch);
         }
         return mapGymEqs;
     }
 
-    public Map<Exercise, Equipment> getMapExerciseEquipment(List<Integer> exerciseIds) {
-        Map<Exercise, Equipment> mapExEq = new HashMap<>();
-        Exercise exercise;
-        for(Integer id : exerciseIds) {
-            try {
-                exercise = exerciseDAO.getExerciseById(id);
-                mapExEq.put(exercise, equipmentDAO.getEquipmentById(exercise.getEquipmentId()));
-            } catch(ObjectNotFoundException e) {
-                System.out.println(e.getLocalizedMessage());
-            }
-        }
+    public Map<Integer, Integer> getMapExerciseEquipment(List<Integer> exerciseIds) {
+        Map<Integer, Integer> mapExEq = new HashMap<>();
+        exerciseDAO.getExerciseByIds(exerciseIds).forEach(exercise -> mapExEq.put(exercise.getId(), exercise.getEquipmentId()));
         return mapExEq;
     }
 }
+

@@ -3,6 +3,7 @@ package pl.agh.io.equipment.dbaccess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.agh.io.equipment.models.Equipment;
+import pl.agh.io.exercise.models.Exercise;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,5 +29,11 @@ public class EquipmentDAO {
             return equipment.get();
         else
             throw new IllegalArgumentException("No equipment with this id exists");
+    }
+
+    public List<Equipment> getEquipmentByIds(List<Integer> ids) {
+        List<Equipment> equipments = new ArrayList<>();
+        equipmentRepository.findAllById(ids).forEach(equipments::add);
+        return equipments;
     }
 }

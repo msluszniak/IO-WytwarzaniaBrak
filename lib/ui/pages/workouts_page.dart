@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
+import '../../backend/server_connection.dart';
 import '../../models/abstract/base_id_model.dart';
 import '../../models/abstract/base_model.dart';
 import '../../models/exercise.dart';
+import '../../models/planned_workout.dart';
 import '../../models/workout.dart';
 import '../../models/workout_exercises.dart';
 import '../../storage/dbmanager.dart';
@@ -27,6 +30,8 @@ class _WorkoutsState extends State<WorkoutsPage> {
   void initState() {
     super.initState();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +119,12 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                               ),
                                             );
                                           })
+                                          itemBuilder: (context, index) =>
+                                              ListTile(
+                                                title: Text(
+                                                    exerciseList[index].name),
+                                              )),
+                                      _planWorkoutButton(exerciseList)
                                     ]);
                               }
                             });
@@ -156,6 +167,21 @@ class _WorkoutsState extends State<WorkoutsPage> {
           ),
         ],
       ),
+    );
+  }
+
+  ElevatedButton _planWorkoutButton(List<Exercise> workoutExercises) {
+    return ElevatedButton.icon(
+      onPressed: () async {
+        List<int> exerciseIds = workoutExercises.map((e) => e.id!).toList();
+        PlannedWorkout plannedWorkout = await ServerConnection.getPlannedWorkout(exerciseIds);
+        Fluttertoast.showToast(msg: plannedWorkout.toString());
+      },
+      icon: Icon(
+        Icons.arrow_circle_right,
+        size: 24.0,
+      ),
+      label: Text('Plan workout'),
     );
   }
 }

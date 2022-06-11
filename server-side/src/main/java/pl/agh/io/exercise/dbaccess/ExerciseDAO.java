@@ -12,12 +12,9 @@ import java.util.Optional;
 
 @Component
 public class ExerciseDAO {
-    private final ExerciseRepository exerciseRepository;
-
     @Autowired
-    public ExerciseDAO(ExerciseRepository exerciseRepository) {
-        this.exerciseRepository = exerciseRepository;
-    }
+    private ExerciseRepository exerciseRepository;
+
 
     public List<Exercise> getAllExercises() {
         List<Exercise> exercises = new ArrayList<>();
@@ -31,5 +28,11 @@ public class ExerciseDAO {
             return maybeGym.get();
         else
             throw new ObjectNotFoundException(id, "Exercise");
+    }
+
+    public List<Exercise> getExerciseByIds(List<Integer> ids) {
+        List<Exercise> exercises = new ArrayList<>();
+        exerciseRepository.findAllById(ids).forEach(exercises::add);
+        return exercises;
     }
 }
