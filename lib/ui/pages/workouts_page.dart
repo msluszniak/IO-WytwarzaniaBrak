@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
-import '../../backend/server_connection.dart';
 import '../../models/abstract/base_id_model.dart';
 import '../../models/exercise.dart';
-import '../../models/planned_workout.dart';
 import '../../models/workout.dart';
 import '../../storage/dbmanager.dart';
 import '../widgets/cards/new_workout_card.dart';
@@ -57,33 +54,67 @@ class _WorkoutsState extends State<WorkoutsPage> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       itemBuilder: (context, index) {
                         final workout = workoutList[index];
-                        return FutureBuilder<List<BaseIdModel>>(
-                            future: dbManager.getJoined<Workout, Exercise>(workout.id!),
-                            builder: (context, snapshot) {
+                        return FutureBuilder(
+                            future: Future.wait([
+                              dbManager.getJoined<Workout, Exercise>(workout.id!),
+                              dbManager.getJoined<Workout, WorkoutExercise>(workout.id!),
+                            ]),
+                            builder: (context, AsyncSnapshot<List<List<BaseModel>>> snapshot) {
                               if (!snapshot.hasData) {
                                 return CircularProgressIndicator();
                               } else {
-                                final List<Exercise> exerciseList =
-                                    snapshot.data!.cast<Exercise>();
+                                final List<Exercise> exerciseList = snapshot.data![0].cast<Exercise>();
+                                final List<WorkoutExercise> workoutExerciseList =
+                                    snapshot.data![1].cast<WorkoutExercise>();
+
                                 final List<String> bodyParts = getWorkoutTags(exerciseList);
                                 String bodyPartsString = bodyParts.toString().replaceAll("[", "").replaceAll("]", "");
                                 return ExpansionTile(
                                     title: Text(workout.name),
-                                    subtitle: Text(bodyPartsString,
-                                        style: TextStyle(color: Colors.black12.withOpacity(0.7))),
+                                    subtitle:
+                                        Text(bodyPartsString, style: TextStyle(color: Colors.black12.withOpacity(0.7))),
                                     children: <Widget>[
                                       ListView.builder(
                                           shrinkWrap: true,
-                                          physics:
-                                              NeverScrollableScrollPhysics(),
+                                          physics: NeverScrollableScrollPhysics(),
                                           scrollDirection: Axis.vertical,
                                           itemCount: exerciseList.length,
-                                          itemBuilder: (context, index) =>
-                                              ListTile(
-                                                title: Text(
-                                                    exerciseList[index].name),
-                                              )),
-                                      _planWorkoutButton(exerciseList)
+                                          itemBuilder: (context, index) {
+                                            final exercise = exerciseList[index];
+                                            final workoutExercise =
+                                                workoutExerciseList.firstWhere((e) => e.exerciseId == exercise.id);
+
+                                            return ListTile(
+                                              title: SingleChildScrollView(
+                                                scrollDirection: Axis.horizontal,
+                                                child: Row(
+                                                  children: [
+                                                    Text(exercise.name),
+                                                    SizedBox(width: 10),
+                                                    Chip(
+                                                      labelPadding: EdgeInsets.all(2.0),
+                                                      label: Text(
+                                                        "Series: " + workoutExercise.series.toString(),
+                                                      ),
+                                                      backgroundColor: Colors.white10,
+                                                      elevation: 6.0,
+                                                      shadowColor: Colors.grey[60],
+                                                    ),
+                                                    SizedBox(width: 10),
+                                                    Chip(
+                                                      labelPadding: EdgeInsets.all(2.0),
+                                                      label: Text(
+                                                          "Reps: " + workoutExercise.reps.toString()
+                                                      ),
+                                                      backgroundColor: Colors.white10,
+                                                      elevation: 6.0,
+                                                      shadowColor: Colors.grey[60],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          })
                                     ]);
                               }
                             });

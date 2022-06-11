@@ -1,6 +1,7 @@
 package pl.agh.io.exercise.models;
 
 import pl.agh.io.workout.models.Workout;
+import pl.agh.io.workout.models.WorkoutExercise;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -19,8 +20,8 @@ public class Exercise {
     private String description;
     private Integer repTime;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "exercises")
-    private Set<Workout> workouts = new HashSet<>();
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "exercise")
+    private Set<WorkoutExercise> workouts = new HashSet<>();
 
     public Integer getId() {
         return id;
