@@ -44,9 +44,9 @@ class GymsForWorkout extends StatelessWidget {
                       return CircularProgressIndicator();
                     } else {
                       final List<WorkoutExercise> workoutExerciseList =
-                      snapshot.data![1].cast<WorkoutExercise>();
+                      snapshot.data![0].cast<WorkoutExercise>();
                       return ExpansionTile(
-                        title: Text(gym.name),
+                        title: Text(gym.name + "(" + gym.address.toString() + ")"),
                           subtitle:
                           Text(exercisesOnGym.length.toString(), style: TextStyle(color: Colors.black12.withOpacity(0.7))),
                               children: <Widget>[
@@ -59,6 +59,7 @@ class GymsForWorkout extends StatelessWidget {
                                             final exercise = exercisesOnGym[index];
                                             final workoutExercise =
                                             workoutExerciseList.firstWhere((e) => e.exerciseId == exercise.id);
+                                            final repTime = exercise.repTime;
                                             return ListTile(
                                               title: SingleChildScrollView(
                                                 scrollDirection: Axis.horizontal,
