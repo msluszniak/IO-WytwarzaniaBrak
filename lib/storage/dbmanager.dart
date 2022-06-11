@@ -104,8 +104,7 @@ class DBManager extends ChangeNotifier {
     throw Exception("Invalid type provided for the database manager");
   }
 
-  Future<List<R>> getJoined<L extends BaseIdModel, R extends BaseIdModel>(
-      int id) {
+  Future<List<R>> getJoined<L extends BaseModel, R extends BaseModel>(int id) {
     if (L == Workout && R == Exercise) {
       return storage.workoutDAO
           .getJoinedExercises(id)
@@ -121,6 +120,10 @@ class DBManager extends ChangeNotifier {
     } else if (R == Exercise && L == Equipment) {
       return storage.equipmentDAO
           .getJoinedExercises(id)
+          .then((values) => values.cast<R>());
+    } else if (L == Workout && R == WorkoutExercise) {
+      return storage.workoutExerciseDAO
+          .getAllWithWorkout(id)
           .then((values) => values.cast<R>());
     }
     throw Exception("Invalid types provided for the database manager");
@@ -203,10 +206,10 @@ class DBManager extends ChangeNotifier {
   Future<int> updateAllData() async {
     //Save local workouts
     List<Workout> localWorkouts = await storage.workoutDAO.getLocal();
-    Map<int, List<Exercise>> localExercises = {};
+    Map<int, List<WorkoutExercise>> localExercises = {};
     for (Workout workout in localWorkouts) {
       localExercises[workout.id!] =
-          await storage.workoutDAO.getJoinedExercises(workout.id!);
+          await storage.workoutExerciseDAO.getAllWithWorkout(workout.id!);
     }
 
     storage.workoutExerciseDAO.removeLocal();
@@ -220,14 +223,23 @@ class DBManager extends ChangeNotifier {
       await _updateEntityWithoutFavorite<WorkoutExercise>();
       await _updateEntityWithoutFavorite<Equipment>();
 
-      //Restore local exercises
+      //Restore local workouts
+      final exerciseIds =
+          await storage.exerciseDAO.getAll().then((v) => v.map((e) => e.id));
+
       final newIds = await this.addToLocal<Workout>(localWorkouts);
       for (int i = 0; i < localWorkouts.length; i++) {
         final workout = localWorkouts[i];
         final workoutExercises = localExercises[workout.id]!
-            .map((e) =>
-                new WorkoutExercise(workoutId: newIds[i], exerciseId: e.id!))
+            .map((e) => new WorkoutExercise(
+                workoutId: newIds[i],
+                exerciseId: e.exerciseId,
+                series: e.series,
+                reps: e.reps))
             .toList();
+
+        workoutExercises
+            .removeWhere((e) => !exerciseIds.contains(e.exerciseId));
 
         this.addToLocal<WorkoutExercise>(workoutExercises);
       }
