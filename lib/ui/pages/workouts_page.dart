@@ -3,7 +3,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../../backend/server_connection.dart';
-import '../../models/abstract/base_id_model.dart';
 import '../../models/abstract/base_model.dart';
 import '../../models/exercise.dart';
 import '../../models/planned_workout.dart';
@@ -118,12 +117,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                                 ),
                                               ),
                                             );
-                                          })
-                                          itemBuilder: (context, index) =>
-                                              ListTile(
-                                                title: Text(
-                                                    exerciseList[index].name),
-                                              )),
+                                          }),
                                       _planWorkoutButton(exerciseList)
                                     ]);
                               }
