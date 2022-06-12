@@ -46,9 +46,9 @@ class GymsForWorkout extends StatelessWidget {
                       final List<WorkoutExercise> workoutExerciseList =
                       snapshot.data![0].cast<WorkoutExercise>();
                       return ExpansionTile(
-                        title: Text(gym.name + "(" + gym.address.toString() + ")"),
+                        title: Text(gym.name + " (" + gym.address.toString() + ")"),
                           subtitle:
-                          Text(exercisesOnGym.length.toString(), style: TextStyle(color: Colors.black12.withOpacity(0.7))),
+                          Text("Number of exercises to do: " + exercisesOnGym.length.toString(), style: TextStyle(color: Colors.black12.withOpacity(0.7))),
                               children: <Widget>[
                                 ListView.builder(
                                   shrinkWrap: true,
