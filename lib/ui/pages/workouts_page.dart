@@ -50,8 +50,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
                 if (!snapshot.hasData) {
                   return CircularProgressIndicator();
                 } else {
-                  final List<Workout> workoutList =
-                      snapshot.data!;
+                  final List<Workout> workoutList = snapshot.data!;
 
                   return ListView.builder(
                       itemCount: workoutList.length,
