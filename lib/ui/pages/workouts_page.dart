@@ -94,7 +94,6 @@ class _WorkoutsState extends State<WorkoutsPage> {
               appBar: AppBar(
                 title: const Text('Workouts'),
                 actions: [
-                  Spacer(),
                   TextButton.icon(
                     style: TextButton.styleFrom(primary: Colors.white),
                     icon: const Icon(Icons.filter_alt),

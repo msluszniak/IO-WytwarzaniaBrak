@@ -21,7 +21,6 @@ class _ExercisesPageState extends State<ExercisesPage> {
 
   List<Exercise> selectedExercises = [];
   List<String> selectedBodyParts = [];
-  bool alreadySelected = false;
 
   void toggleFavourite() {
     setState(() {
@@ -39,6 +38,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
               .contains(element.bodyPart)
       ).toList();
     }
+    this.selectedExercises.sort((a, b) => a.name.compareTo(b.name));
   }
 
   @override
@@ -60,46 +60,38 @@ class _ExercisesPageState extends State<ExercisesPage> {
             final appBar = AppBar(
               title: const Text('Exercises'),
               actions: [
-                Spacer(),
-                Expanded(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        TextButton.icon(
-                          style: TextButton.styleFrom(primary: Colors.white),
-                          onPressed: toggleFavourite,
-                          icon: isFavouriteEnabled
-                              ? const Icon(Icons.favorite)
-                              : const Icon(Icons.favorite_border),
-                          label: const Text('Favorites'),
-                        ),
-                        TextButton.icon(
-                          style: TextButton.styleFrom(primary: Colors.white),
-                          icon: const Icon(Icons.filter_alt),
-                          label: const Text('Body parts'),
-                          onPressed: () async {
-                            await showDialog(
-                              context: context,
-                              builder: (ctx) {
-                                return  MultiSelectDialog(
-                                  initialValue: this.selectedBodyParts,
-                                  items: allBodyParts.map((e) => MultiSelectItem(e, e)).toList(),
-                                  listType: MultiSelectListType.CHIP,
-                                  title: Text("Body parts"),
-                                  onConfirm: (values) {
-                                    this.alreadySelected = true;
-                                    this.selectedBodyParts = values.map((e) => e.toString()).toList();
-                                    this.setState(() {
-                                      this.applyBodyPartFilter(favouritesList);
-                                    });
-                                  },
-                                );
-                              },
-                            );
+                TextButton.icon(
+                  style: TextButton.styleFrom(primary: Colors.white),
+                  onPressed: toggleFavourite,
+                  icon: isFavouriteEnabled
+                      ? const Icon(Icons.favorite)
+                      : const Icon(Icons.favorite_border),
+                  label: const Text('Favorites'),
+                ),
+                TextButton.icon(
+                  style: TextButton.styleFrom(primary: Colors.white),
+                  icon: const Icon(Icons.filter_alt),
+                  label: const Text('Body parts'),
+                  onPressed: () async {
+                    await showDialog(
+                      context: context,
+                      builder: (ctx) {
+                        return  MultiSelectDialog(
+                          initialValue: this.selectedBodyParts,
+                          items: allBodyParts.map((e) => MultiSelectItem(e, e)).toList(),
+                          listType: MultiSelectListType.CHIP,
+                          title: Text("Body parts"),
+                          onConfirm: (values) {
+                            this.selectedBodyParts = values.map((e) => e.toString()).toList();
+                            this.setState(() {
+                              this.applyBodyPartFilter(favouritesList);
+                            });
                           },
-                        ),
-                      ],
-                    )),
+                        );
+                      },
+                    );
+                  },
+                ),
               ],
             );
 
