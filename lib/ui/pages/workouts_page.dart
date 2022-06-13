@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/ui/widgets/cards/gyms_for_workout.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 import '../../backend/server_connection.dart';
@@ -170,7 +171,8 @@ class _WorkoutsState extends State<WorkoutsPage> {
     return ElevatedButton.icon(
       onPressed: () async {
         List<int> exerciseIds = workoutExercises.map((e) => e.id!).toList();
-        PlannedWorkout plannedWorkout1 = await ServerConnection.getPlannedWorkout(exerciseIds);
+        //TODO: Get current location
+        PlannedWorkout plannedWorkout1 = await ServerConnection.getPlannedWorkout(LatLng(50.07085, 19.92222), exerciseIds);
         Fluttertoast.showToast(msg: plannedWorkout1.toString());
         Navigator.push(
           context,

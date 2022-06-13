@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/backend/server_exception.dart';
 import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
 
 import '../models/abstract/base_model.dart';
 import '../models/equipment.dart';
@@ -11,6 +12,7 @@ import '../models/gym.dart';
 import '../models/planned_workout.dart';
 import '../models/workout.dart';
 import '../models/workout_exercises.dart';
+import '../utils/route.dart' as Route;
 
 class ServerConnection {
   static final String configFile = "assets/config/config.json";
@@ -111,7 +113,7 @@ class ServerConnection {
     throw ServerException(responseCode: response.statusCode);
   }
 
-  static Future<PlannedWorkout> getPlannedWorkout(List<int> exerciseIds) async {
+  static Future<PlannedWorkout> getPlannedWorkout(LatLng startingPosition, List<int> exerciseIds) async {
     await getServerAddress();
     late final response;
 
@@ -134,7 +136,10 @@ class ServerConnection {
         final parsedExercises = allExercises[i].cast<Map<String, dynamic>>();
         exercises.add(parsedExercises.map<Exercise>((json) => Exercise.fromJson(json)).toList());
       }
-      return PlannedWorkout(gymsToVisit: gyms, exercisesOnGyms: exercises);
+
+      final route = await Route.Route.routeFromGyms(startingPosition, gyms);
+
+      return PlannedWorkout(gymsToVisit: gyms, exercisesOnGyms: exercises, route: route!);
     }
     throw ServerException(responseCode: response.statusCode);
   }

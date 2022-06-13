@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter_demo/models/gym.dart';
 import 'package:flutter_demo/ui/widgets/cards/gym_card.dart';
@@ -12,8 +11,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_map_tappable_polyline/flutter_map_tappable_polyline.dart';
-import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
+import '../../utils/route.dart' as Route;
 
 import '../../storage/dbmanager.dart';
 import '../widgets/cards/new_gym_card.dart';
@@ -245,31 +244,10 @@ class _MapState extends State<MapPage> {
 
   }
 
-  Future<List<LatLng>> _getRoutePoints(LatLng startingPoint, LatLng endingPoint, List<LatLng> middlePoints) async {
-    StringBuffer cords = new StringBuffer("");
-    cords.write(startingPoint.longitude.toString() + "," + startingPoint.latitude.toString() + ";");
-    middlePoints.forEach((element) {cords.write(element.longitude.toString() + "," + element.latitude.toString() + ";");});
-    cords.write(endingPoint.longitude.toString() + "," + endingPoint.latitude.toString());
-
-    http.Response response = await http.get(Uri.parse('http://router.project-osrm.org/route/v1/foot/' + cords.toString() + "?steps=true&geometries=geojson"));
-
-    if(response.statusCode == 200) {
-      final List cords = jsonDecode(response.body)['routes'][0]['geometry']['coordinates'];
-
-      List<LatLng> routingPoints = [];
-
-      cords.forEach((element) {
-        routingPoints.add(LatLng(element[1], element[0]));
-      });
-
-      return routingPoints;
-    } else
-      throw Exception('Failed to calculate route');
-  }
-
   void _drawRoute(LatLng startingPoint, LatLng endingPoint, [List<LatLng> middlePoints = const []]) async {
     try {
-      routingPointsToDraw = await _getRoutePoints(startingPoint, endingPoint, middlePoints).timeout(Duration(seconds: 5));
+      final route = await Route.Route.createRoute(startingPoint, endingPoint, middlePoints).timeout(Duration(seconds: 5));
+      routingPointsToDraw = route.getRoutingPoints();
     } on TimeoutException catch(_) {
       Fluttertoast.showToast(msg: "Route obtaining timeout reached");
     } on Exception catch(_) {
