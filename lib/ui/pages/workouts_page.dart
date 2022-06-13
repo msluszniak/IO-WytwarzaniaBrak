@@ -4,7 +4,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../../backend/server_connection.dart';
-import '../../models/abstract/base_id_model.dart';
 import '../../models/abstract/base_model.dart';
 import '../../models/exercise.dart';
 import '../../models/planned_workout.dart';
@@ -38,21 +37,21 @@ class _WorkoutsState extends State<WorkoutsPage> {
   Widget build(BuildContext context) {
     final dbManager = context.watch<DBManager>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Workouts'),
-      ),
-      body: Stack(
-        children: [
-          FutureBuilder<List<Workout>>(
-              future: dbManager.getAll<Workout>(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return CircularProgressIndicator();
-                } else {
-                  final List<Workout> workoutList = snapshot.data!;
+    return FutureBuilder<List<Workout>>(
+        future: dbManager.getAll<Workout>(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return CircularProgressIndicator();
+          } else {
+            final List<Workout> workoutList = snapshot.data!;
 
-                  return ListView.builder(
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Workouts'),
+              ),
+              body: Stack(
+                children: [
+                  ListView.builder(
                       itemCount: workoutList.length,
                       cacheExtent: 20.0,
                       controller: ScrollController(),
@@ -70,14 +69,14 @@ class _WorkoutsState extends State<WorkoutsPage> {
                               } else {
                                 final List<Exercise> exerciseList = snapshot.data![0].cast<Exercise>();
                                 final List<WorkoutExercise> workoutExerciseList =
-                                    snapshot.data![1].cast<WorkoutExercise>();
+                                snapshot.data![1].cast<WorkoutExercise>();
 
                                 final List<String> bodyParts = getWorkoutTags(exerciseList);
                                 String bodyPartsString = bodyParts.toString().replaceAll("[", "").replaceAll("]", "");
                                 return ExpansionTile(
                                     title: Text(workout.name),
                                     subtitle:
-                                        Text(bodyPartsString, style: TextStyle(color: Colors.black12.withOpacity(0.7))),
+                                    Text(bodyPartsString, style: TextStyle(color: Colors.black12.withOpacity(0.7))),
                                     children: <Widget>[
                                       ListView.builder(
                                           shrinkWrap: true,
@@ -87,7 +86,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                           itemBuilder: (context, index) {
                                             final exercise = exerciseList[index];
                                             final workoutExercise =
-                                                workoutExerciseList.firstWhere((e) => e.exerciseId == exercise.id);
+                                            workoutExerciseList.firstWhere((e) => e.exerciseId == exercise.id);
 
                                             return ListTile(
                                               title: SingleChildScrollView(
@@ -124,46 +123,48 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                     ]);
                               }
                             });
-                      });
-                }
-              }),
-          Container(
-              child: Visibility(
-            child: NewWorkoutCard(
-              cancelCallback: () {
-                setState(() {
-                  _formVisible = !_formVisible;
-                });
-              },
-              submitCallback: () {
-                setState(() {
-                  _formVisible = !_formVisible;
-                });
-              },
-            ),
-            visible: this._formVisible,
-          )),
-          Positioned(
-            right: 20,
-            bottom: 20,
-            child: Visibility(
-              child: FloatingActionButton(
-                onPressed: () {
-                  setState(() {
-                    _formVisible = !_formVisible;
-                  });
-                },
-                child: const Icon(
-                  Icons.add,
-                  color: Colors.blue,
-                ),
+                      }),
+                  Container(
+                      child: Visibility(
+                        child: NewWorkoutCard(
+                          cancelCallback: () {
+                            setState(() {
+                              _formVisible = !_formVisible;
+                            });
+                          },
+                          submitCallback: () {
+                            setState(() {
+                              _formVisible = !_formVisible;
+                            });
+                          },
+                        ),
+                        visible: this._formVisible,
+                      )),
+                  Positioned(
+                    right: 20,
+                    bottom: 20,
+                    child: Visibility(
+                      child: FloatingActionButton(
+                        onPressed: () {
+                          setState(() {
+                            _formVisible = !_formVisible;
+                          });
+                        },
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      visible: !this._formVisible,
+                    ),
+                  ),
+                ],
               ),
-              visible: !this._formVisible,
-            ),
-          ),
-        ],
-      ),
-    );
+            );
+          }
+        });
+
+
   }
 
   ElevatedButton _planWorkoutButton(List<Exercise> workoutExercises, Workout workout1) {
