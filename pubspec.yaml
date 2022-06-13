@@ -45,6 +45,8 @@ dependencies:
   fluttertoast: ^8.0.9
   flutter_map_tappable_polyline: any
   searchfield: ^0.6.4
+  multi_select_flutter: ^4.1.2
+  quiver: ^3.1.0
 
 dev_dependencies:
   flutter_test:

@@ -14,15 +14,17 @@ import 'package:flutter_map_tappable_polyline/flutter_map_tappable_polyline.dart
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../utils/route.dart' as Route;
 
+import '../../models/planned_workout.dart';
 import '../../storage/dbmanager.dart';
 import '../widgets/cards/new_gym_card.dart';
 
-enum MapMode { NOT_ESTABLISHED, NONE, SCAN }
+enum MapMode { NOT_ESTABLISHED, NONE, SCAN, TRAINING }
 
 class MapPage extends StatefulWidget {
   static const routeName = '/map';
+  final PlannedWorkout? plannedWorkout;
 
-  const MapPage({Key? key}) : super(key: key);
+  const MapPage({Key? key, this.plannedWorkout}) : super(key: key);
 
   @override
   _MapState createState() => _MapState();
@@ -78,11 +80,8 @@ class _MapState extends State<MapPage> {
   Widget build(BuildContext context) {
 
     var arg = ModalRoute.of(context)!.settings.arguments;
-    print("Argument $arg");
-    print("Mode before $mode");
     if(this.mode == MapMode.NOT_ESTABLISHED && arg != null)
     this.mode = ModalRoute.of(context)!.settings.arguments as MapMode;
-    print("Mode after $mode");
 
     final dbManager = context.watch<DBManager>();
     if(gymList.isEmpty) dbManager.getAll<Gym>().then((value) => gymList = value.cast());
@@ -102,6 +101,9 @@ class _MapState extends State<MapPage> {
                     this.controller = c;
                     if (this.mode == MapMode.SCAN && !scanned) {
                       _startScan();
+                    }
+                    else if (this.mode == MapMode.TRAINING) {
+                      _showRoute();
                     }
                   },
                   onPositionChanged: (MapPosition position, bool hasGesture) {
@@ -207,11 +209,13 @@ class _MapState extends State<MapPage> {
                     bottom: 20,
                     child: _buildAddButton(),
                   ),
+                  /*
                   Positioned(
                     right: 20,
                     bottom: 100,
                     child: _buildRouteButton(),
                   ),
+                  */
                   Positioned(
                       left: 20,
                       bottom: 100,
@@ -244,6 +248,46 @@ class _MapState extends State<MapPage> {
 
   }
 
+  Future<List<LatLng>> _getRoutePoints(LatLng startingPoint, LatLng endingPoint, List<LatLng> middlePoints) async {
+    StringBuffer cords = new StringBuffer("");
+    cords.write(startingPoint.longitude.toString() + "," + startingPoint.latitude.toString() + ";");
+    middlePoints.forEach((element) {cords.write(element.longitude.toString() + "," + element.latitude.toString() + ";");});
+    cords.write(endingPoint.longitude.toString() + "," + endingPoint.latitude.toString());
+
+    http.Response response = await http.get(Uri.parse('http://router.project-osrm.org/route/v1/foot/' + cords.toString() + "?steps=true&geometries=geojson"));
+
+    if(response.statusCode == 200) {
+      final List cords = jsonDecode(response.body)['routes'][0]['geometry']['coordinates'];
+
+      List<LatLng> routingPoints = [];
+
+      cords.forEach((element) {
+        routingPoints.add(LatLng(element[1], element[0]));
+      });
+
+      return routingPoints;
+    } else
+      throw Exception('Failed to calculate route');
+  }
+
+  void _showRoute() async {
+    if(routingPointsToDraw.isEmpty) {
+      PlannedWorkout? workout = widget.plannedWorkout;
+      if (workout != null) {
+        LatLng start, finish;
+        List<LatLng> middle;
+
+        start = await _getPosition();
+        finish = workout.gymsToVisit.removeLast().getLatLng();
+        //middle = workout.gymsToVisit.map((element) {element.getLatLng();}).fold([], (list,e){e ?? list.add(e) : list;});
+        middle = [for (Gym gym in workout.gymsToVisit) gym.getLatLng(),];
+        _drawRoute(start,
+          finish,
+          middle,);
+      }
+    }
+  }
+
   void _drawRoute(LatLng startingPoint, LatLng endingPoint, [List<LatLng> middlePoints = const []]) async {
     try {
       final route = await Route.Route.createRoute(startingPoint, endingPoint, middlePoints).timeout(Duration(seconds: 5));
@@ -256,10 +300,13 @@ class _MapState extends State<MapPage> {
     setState(() {});
   }
 
+  //Zostawiam dla odniesienia
+  /*
   void _clearRoute() {
     routingPointsToDraw = [];
     setState(() {});
   }
+   */
 
   // Also prints debug info
   Future<void> _checkPermission() async {
@@ -336,12 +383,14 @@ class _MapState extends State<MapPage> {
     );
   }
 
+  //Zostawiam dla odniesienia
+  /*
   FloatingActionButton _buildRouteButton() {
     return FloatingActionButton(
       heroTag: "route",
       onPressed: () {
         if(routingPointsToDraw.isEmpty)
-          _drawRoute(LatLng(50.07085, 19.92222), LatLng(50.06041, 19.95807), [LatLng(50.08269,19.95518), LatLng(50.0703, 19.98305)]);
+          _showRoute();
         else
           _clearRoute();
       },
@@ -351,6 +400,7 @@ class _MapState extends State<MapPage> {
       ),
     );
   }
+  */
 
   FloatingActionButton _buildCancelButton() {
     return FloatingActionButton(
