@@ -34,7 +34,7 @@ class DBManager extends ChangeNotifier {
     for (WorkoutExercise workoutExercise in workoutExercises){
       Exercise exercise = exercises.firstWhere((e) => e.id == workoutExercise.exerciseId);
 
-      duration += exercise.repTime! * workoutExercise.reps * workoutExercise.series;
+      duration += (exercise.repTime! * workoutExercise.reps * workoutExercise.series / 60).ceil();
     }
 
     return duration;
