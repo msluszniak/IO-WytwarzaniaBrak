@@ -13,6 +13,7 @@ import '../../models/workout.dart';
 import '../../models/workout_exercises.dart';
 import '../../storage/dbmanager.dart';
 import '../widgets/cards/new_workout_card.dart';
+import 'map_page.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 class WorkoutsPage extends StatefulWidget {
@@ -190,7 +191,13 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                               ),
                                             );
                                           }),
-                                      _planWorkoutButton(exerciseList, workout)
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          _planWorkoutButton(exerciseList, workout),
+                                          _showWorkoutRoute(exerciseList),
+                                        ],
+                                      )
                                     ]);
                               }
                             });
@@ -259,6 +266,33 @@ class _WorkoutsState extends State<WorkoutsPage> {
         size: 24.0,
       ),
       label: Text('Plan workout'),
+    );
+  }
+
+  ElevatedButton _showWorkoutRoute(List<Exercise> workoutExercises) {
+    return ElevatedButton.icon(
+      onPressed: () async {
+        List<int> exerciseIds = workoutExercises.map((e) => e.id!).toList();
+        PlannedWorkout plannedWorkout1 = await ServerConnection.getPlannedWorkout(exerciseIds);
+        Fluttertoast.showToast(msg: plannedWorkout1.toString());
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return new MapPage(plannedWorkout: plannedWorkout1);
+            },
+            fullscreenDialog: true,
+            settings: RouteSettings(
+                arguments: MapMode.TRAINING,
+            ),
+          ),
+        );
+      },
+      icon: Icon(
+        Icons.map,
+        size: 24.0,
+      ),
+      label: Text('Show route'),
     );
   }
 }
