@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_demo/backend/server_connection.dart';
 import 'package:flutter_demo/backend/server_exception.dart';
 import 'package:flutter_demo/models/abstract/base_id_model.dart';
+import 'package:flutter_demo/models/planned_workout.dart';
 import 'package:flutter_demo/models/workout_exercises.dart';
 import 'package:flutter_demo/storage/storage.dart';
 
@@ -26,15 +27,16 @@ class DBManager extends ChangeNotifier {
     return 200;
   }
 
-  Future<int> getWorkoutDuration(int workoutId) async {
+  Future<int> getPlannedWorkoutDuration(int workoutId, PlannedWorkout plannedWorkout) async {
     List<WorkoutExercise> workoutExercises = await getJoined<Workout, WorkoutExercise>(workoutId);
-    List<Exercise> exercises = await getJoined<Workout, Exercise>(workoutId);
 
     int duration = 0;
-    for (WorkoutExercise workoutExercise in workoutExercises){
-      Exercise exercise = exercises.firstWhere((e) => e.id == workoutExercise.exerciseId);
+    for (List<Exercise> exercisesPart in plannedWorkout.exercisesOnGyms){
+      for (Exercise exercise in exercisesPart){
+        WorkoutExercise workoutExercise = workoutExercises.firstWhere((e) => e.exerciseId == exercise.id);
 
-      duration += (exercise.repTime! * workoutExercise.reps * workoutExercise.series / 60).ceil();
+        duration += (exercise.repTime! * workoutExercise.reps * workoutExercise.series / 60).ceil();
+      }
     }
 
     return duration;

@@ -64,9 +64,9 @@ class GymsForWorkout extends StatelessWidget {
                               final workoutExercise =
                                   workoutExerciseList.firstWhere((e) => e.exerciseId == exercise.id);
 
-                              duration += exercise.repTime! * workoutExercise.series * workoutExercise.reps;
+                              duration +=
+                                  (exercise.repTime! * workoutExercise.series * workoutExercise.reps / 60).ceil();
                             }
-                            duration = (duration / 60).ceil();
 
                             return ExpansionTile(
                               leading: Icon(Icons.fitness_center),
@@ -126,7 +126,7 @@ class GymsForWorkout extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(20),
               child: FutureBuilder(
-                  future: dbManager.getWorkoutDuration(workout.id!),
+                  future: dbManager.getPlannedWorkoutDuration(workout.id!, plannedWorkout),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
                       return CircularProgressIndicator();
@@ -139,7 +139,7 @@ class GymsForWorkout extends StatelessWidget {
                       return Chip(
                         labelPadding: EdgeInsets.all(10.0),
                         label: Text("Łączny czas: " + duration.toString() + " min",
-                            style: TextStyle(fontSize: 18, color: Colors.white)),
+                            style: TextStyle(fontSize: 20, color: Colors.white)),
                         backgroundColor: Colors.indigo,
                       );
                     }
