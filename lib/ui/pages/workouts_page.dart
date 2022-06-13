@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/ui/widgets/cards/gyms_for_workout.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:multi_select_flutter/dialog/mult_select_dialog.dart';
 import 'package:provider/provider.dart';
+import 'package:quiver/iterables.dart';
 
 import '../../backend/server_connection.dart';
 import '../../models/abstract/base_model.dart';
@@ -11,6 +13,7 @@ import '../../models/workout.dart';
 import '../../models/workout_exercises.dart';
 import '../../storage/dbmanager.dart';
 import '../widgets/cards/new_workout_card.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 class WorkoutsPage extends StatefulWidget {
   static const routeName = '/workouts';
@@ -45,9 +48,26 @@ class _WorkoutsState extends State<WorkoutsPage> {
 
   bool _formVisible = false;
 
+  List<String> selectedBodyParts = [];
+  List<Workout> selectedWorkouts = [];
+
   @override
   void initState() {
     super.initState();
+  }
+
+  void applyBodyPartFilter(List<Workout> allWorkouts, List<List<String>> workoutsBodyParts) {
+    if (this.selectedBodyParts.isEmpty) {
+      this.selectedWorkouts = allWorkouts;
+    } else {
+      this.selectedWorkouts = zip([allWorkouts, workoutsBodyParts])
+          .where((pair) {
+            final bodyParts = (pair[1] as List<String>);
+            return this.selectedBodyParts.every((element) => bodyParts.contains(element));
+          }).map(
+              (e) => e[0] as Workout
+      ).toList();
+    }
   }
 
 
@@ -68,19 +88,48 @@ class _WorkoutsState extends State<WorkoutsPage> {
             final workoutsBodyParts = data.bodyParts;
             final allBodyParts = workoutsBodyParts.expand((element) => element).toSet().toList();
 
+            this.applyBodyPartFilter(workoutList, workoutsBodyParts);
+
             return Scaffold(
               appBar: AppBar(
                 title: const Text('Workouts'),
+                actions: [
+                  Spacer(),
+                  TextButton.icon(
+                    style: TextButton.styleFrom(primary: Colors.white),
+                    icon: const Icon(Icons.filter_alt),
+                    label: const Text('Body parts'),
+                    onPressed: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (ctx) {
+                          return  MultiSelectDialog(
+                            initialValue: this.selectedBodyParts,
+                            items: allBodyParts.map((e) => MultiSelectItem(e, e)).toList(),
+                            listType: MultiSelectListType.CHIP,
+                            title: Text("Body parts"),
+                            onConfirm: (values) {
+                              this.selectedBodyParts = values.map((e) => e.toString()).toList();
+                              this.setState(() {
+                                this.applyBodyPartFilter(workoutList, workoutsBodyParts);
+                              });
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
               body: Stack(
                 children: [
                   ListView.builder(
-                      itemCount: workoutList.length,
+                      itemCount: this.selectedWorkouts.length,
                       cacheExtent: 20.0,
                       controller: ScrollController(),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       itemBuilder: (context, index) {
-                        final workout = workoutList[index];
+                        final workout = this.selectedWorkouts[index];
                         return FutureBuilder(
                             future: Future.wait([
                               dbManager.getJoined<Workout, Exercise>(workout.id!),
