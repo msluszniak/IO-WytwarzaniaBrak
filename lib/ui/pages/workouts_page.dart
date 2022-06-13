@@ -21,6 +21,25 @@ class WorkoutsPage extends StatefulWidget {
   _WorkoutsState createState() => _WorkoutsState();
 }
 
+class LoadedData {
+  final List<Workout> workoutList;
+  final List<List<String>> bodyParts;
+
+  LoadedData({
+    required this.workoutList,
+    required this.bodyParts
+  });
+
+  static Future<LoadedData> load(DBManager dbManager) async {
+    final workouts = await dbManager.getAll<Workout>();
+    final bodyParts = await Future.wait(workouts.map((e) => getWorkoutTagsViaManager(e, dbManager)));
+
+    return LoadedData(workoutList: workouts, bodyParts: bodyParts);
+  }
+}
+
+
+
 class _WorkoutsState extends State<WorkoutsPage> {
   late final List<Workout> workoutList = [];
 
@@ -37,13 +56,17 @@ class _WorkoutsState extends State<WorkoutsPage> {
   Widget build(BuildContext context) {
     final dbManager = context.watch<DBManager>();
 
-    return FutureBuilder<List<Workout>>(
-        future: dbManager.getAll<Workout>(),
+    return FutureBuilder<LoadedData>(
+        future: LoadedData.load(dbManager),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return CircularProgressIndicator();
           } else {
-            final List<Workout> workoutList = snapshot.data!;
+            final LoadedData data = snapshot.data!;
+
+            final workoutList = data.workoutList;
+            final workoutsBodyParts = data.bodyParts;
+            final allBodyParts = workoutsBodyParts.expand((element) => element).toSet().toList();
 
             return Scaffold(
               appBar: AppBar(
