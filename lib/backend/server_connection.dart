@@ -14,7 +14,7 @@ import '../models/workout_exercises.dart';
 
 class ServerConnection {
   static final String configFile = "assets/config/config.json";
-  static String serverAddress = "192.168.8.125:8080";
+  static String serverAddress = "";
 
   static getServerAddress() async {
     if(serverAddress != "") return;
