@@ -29,11 +29,21 @@ class _ExercisesPageState extends State<ExercisesPage> {
     });
   }
 
+  void applyBodyPartFilter(List<Exercise> allExercises) {
+    if (this.selectedBodyParts.isEmpty) {
+      this.selectedExercises = allExercises;
+    } else {
+      this.selectedExercises = allExercises
+          .where(
+              (element) => this.selectedBodyParts
+              .contains(element.bodyPart)
+      ).toList();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final dbManager = context.watch<DBManager>();
-
-
 
     return FutureBuilder<List<Exercise>>(
         future: isFavouriteEnabled
@@ -44,9 +54,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
             return CircularProgressIndicator();
           } else {
             final List<Exercise> favouritesList = snapshot.data!;
-            if(!this.alreadySelected) {
-                this.selectedExercises = favouritesList;
-            }
+            this.applyBodyPartFilter(favouritesList);
             final List<String> allBodyParts = favouritesList.map((e) => e.bodyPart!).toSet().toList();
 
             final appBar = AppBar(
@@ -82,15 +90,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
                                     this.alreadySelected = true;
                                     this.selectedBodyParts = values.map((e) => e.toString()).toList();
                                     this.setState(() {
-                                      if (this.selectedBodyParts.isEmpty) {
-                                        this.selectedExercises = favouritesList;
-                                      } else {
-                                        this.selectedExercises = favouritesList
-                                            .where(
-                                                (element) => this.selectedBodyParts
-                                                    .contains(element.bodyPart)
-                                            ).toList();
-                                      }
+                                      this.applyBodyPartFilter(favouritesList);
                                     });
                                   },
                                 );
