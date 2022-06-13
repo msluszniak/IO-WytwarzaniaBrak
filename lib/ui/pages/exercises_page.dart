@@ -4,6 +4,7 @@ import 'package:flutter_demo/models/exercise.dart';
 import 'package:flutter_demo/storage/dbmanager.dart';
 import 'package:flutter_demo/ui/widgets/cards/exercise_card.dart';
 import 'package:provider/provider.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 import '../../models/equipment.dart';
 
@@ -17,6 +18,7 @@ class ExercisesPage extends StatefulWidget {
 
 class _ExercisesPageState extends State<ExercisesPage> {
   bool isFavouriteEnabled = false;
+  List<String> selected = [];
 
   void toggleFavourite() {
     setState(() {
@@ -44,6 +46,38 @@ class _ExercisesPageState extends State<ExercisesPage> {
                   : const Icon(Icons.favorite_border),
               label: const Text('Favorites'),
             ),
+            TextButton.icon(
+              style: TextButton.styleFrom(primary: Colors.white),
+              icon: const Icon(Icons.filter_alt),
+              label: const Text('Body parts'),
+              onPressed: () async {
+                await showDialog(
+                    context: context,
+                    builder: (ctx) {
+                  return  MultiSelectDialog(
+                    initialValue: selected,
+                    items: ["Aaa", "Bbb", "Ccc"].map((e) => MultiSelectItem(e, e)).toList(),
+                      // items: ["Aaa", "Bbb", "Ccc"].map((e) => MultiSelectItem(e, e.name)).toList(),
+                    listType: MultiSelectListType.CHIP,
+                    title: Text("Body parts"),
+                    onConfirm: (values) {
+                      this.selected = values.map((e) => e.toString()).toList();
+                    },
+                  );
+                },
+                );
+              },
+            ),
+            // MultiSelectDialogField(
+            //   items: ["Aaa", "Bbb", "Ccc"].map((e) => MultiSelectItem(e, e)).toList(),
+            //   // items: ["Aaa", "Bbb", "Ccc"].map((e) => MultiSelectItem(e, e.name)).toList(),
+            //   listType: MultiSelectListType.CHIP,
+            //   buttonText: Text("Body parts"),
+            //   title: Text("Body parts"),
+            //   onConfirm: (values) {
+            //     this.selected = values.map((e) => e.toString()).toList();
+            //   },
+            // ),
           ],
         )),
       ],
