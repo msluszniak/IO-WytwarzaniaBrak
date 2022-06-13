@@ -121,25 +121,31 @@ class GymsForWorkout extends StatelessWidget {
                   ],
                 );
               }),
-          FutureBuilder(
-              future: dbManager.getWorkoutDuration(workout.id!),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return CircularProgressIndicator();
-                } else {
-                  int duration = snapshot.data! as int;
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: FutureBuilder(
+                  future: dbManager.getWorkoutDuration(workout.id!),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return CircularProgressIndicator();
+                    } else {
+                      int duration = snapshot.data! as int;
 
-                  for (RouteStep step in plannedWorkout.route.routeSteps) {
-                    duration += step.duration;
-                  }
-                  return Chip(
-                    labelPadding: EdgeInsets.all(18.0),
-                    label: Text("Łączny czas: " + duration.toString() + " min",
-                        style: TextStyle(fontSize: 18, color: Colors.white)),
-                    backgroundColor: Colors.indigo,
-                  );
-                }
-              }),
+                      for (RouteStep step in plannedWorkout.route.routeSteps) {
+                        duration += step.duration;
+                      }
+                      return Chip(
+                        labelPadding: EdgeInsets.all(10.0),
+                        label: Text("Łączny czas: " + duration.toString() + " min",
+                            style: TextStyle(fontSize: 18, color: Colors.white)),
+                        backgroundColor: Colors.indigo,
+                      );
+                    }
+                  }),
+            ),
+          ),
         ]));
   }
 }
