@@ -113,8 +113,9 @@ class ServerConnection {
     throw ServerException(responseCode: response.statusCode);
   }
 
-  static Future<PlannedWorkout> getPlannedWorkout(LatLng startingPosition, List<int> exerciseIds) async {
+  static Future<PlannedWorkout> getPlannedWorkout(Future<LatLng> startPosition, List<int> exerciseIds) async {
     await getServerAddress();
+    final startingPosition = await startPosition;
     late final response;
 
     final Map<String, Object?> params = {};

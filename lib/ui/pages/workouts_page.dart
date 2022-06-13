@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/ui/widgets/cards/gyms_for_workout.dart';
+import 'package:flutter_demo/utils/geolocator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -32,8 +33,6 @@ class _WorkoutsState extends State<WorkoutsPage> {
   void initState() {
     super.initState();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -109,9 +108,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                                     SizedBox(width: 10),
                                                     Chip(
                                                       labelPadding: EdgeInsets.all(2.0),
-                                                      label: Text(
-                                                          "Reps: " + workoutExercise.reps.toString()
-                                                      ),
+                                                      label: Text("Reps: " + workoutExercise.reps.toString()),
                                                       backgroundColor: Colors.white10,
                                                       elevation: 6.0,
                                                       shadowColor: Colors.grey[60],
@@ -171,8 +168,11 @@ class _WorkoutsState extends State<WorkoutsPage> {
     return ElevatedButton.icon(
       onPressed: () async {
         List<int> exerciseIds = workoutExercises.map((e) => e.id!).toList();
-        //TODO: Get current location
-        PlannedWorkout plannedWorkout1 = await ServerConnection.getPlannedWorkout(LatLng(50.07085, 19.92222), exerciseIds);
+
+        final currLocation =
+            GeolocatorUtil.determinePosition().then((value) => LatLng(value.latitude, value.longitude));
+
+        PlannedWorkout plannedWorkout1 = await ServerConnection.getPlannedWorkout(currLocation, exerciseIds);
         Fluttertoast.showToast(msg: plannedWorkout1.toString());
         Navigator.push(
           context,
