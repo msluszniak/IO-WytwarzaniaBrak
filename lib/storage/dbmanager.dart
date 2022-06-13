@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_demo/backend/server_connection.dart';
 import 'package:flutter_demo/backend/server_exception.dart';
 import 'package:flutter_demo/models/abstract/base_id_model.dart';
+import 'package:flutter_demo/models/planned_workout.dart';
 import 'package:flutter_demo/models/workout_exercises.dart';
 import 'package:flutter_demo/storage/storage.dart';
 
@@ -24,6 +25,21 @@ class DBManager extends ChangeNotifier {
       return e.responseCode;
     }
     return 200;
+  }
+
+  Future<int> getPlannedWorkoutDuration(int workoutId, PlannedWorkout plannedWorkout) async {
+    List<WorkoutExercise> workoutExercises = await getJoined<Workout, WorkoutExercise>(workoutId);
+
+    int duration = 0;
+    for (List<Exercise> exercisesPart in plannedWorkout.exercisesOnGyms){
+      for (Exercise exercise in exercisesPart){
+        WorkoutExercise workoutExercise = workoutExercises.firstWhere((e) => e.exerciseId == exercise.id);
+
+        duration += (exercise.repTime! * workoutExercise.reps * workoutExercise.series / 60).ceil();
+      }
+    }
+
+    return duration;
   }
 
   Future<List<int>> addToLocal<T extends BaseModel>(List<T> item) async {

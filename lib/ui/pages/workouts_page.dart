@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/ui/widgets/cards/gyms_for_workout.dart';
+
+import 'package:flutter_demo/utils/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:multi_select_flutter/dialog/mult_select_dialog.dart';
 import 'package:provider/provider.dart';
@@ -70,8 +73,6 @@ class _WorkoutsState extends State<WorkoutsPage> {
       ).toList();
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -179,9 +180,7 @@ class _WorkoutsState extends State<WorkoutsPage> {
                                                     SizedBox(width: 10),
                                                     Chip(
                                                       labelPadding: EdgeInsets.all(2.0),
-                                                      label: Text(
-                                                          "Reps: " + workoutExercise.reps.toString()
-                                                      ),
+                                                      label: Text("Reps: " + workoutExercise.reps.toString()),
                                                       backgroundColor: Colors.white10,
                                                       elevation: 6.0,
                                                       shadowColor: Colors.grey[60],
@@ -249,8 +248,11 @@ class _WorkoutsState extends State<WorkoutsPage> {
     return ElevatedButton.icon(
       onPressed: () async {
         List<int> exerciseIds = workoutExercises.map((e) => e.id!).toList();
-        PlannedWorkout plannedWorkout1 = await ServerConnection.getPlannedWorkout(exerciseIds);
-        Fluttertoast.showToast(msg: plannedWorkout1.toString());
+
+        final currLocation =
+            GeolocatorUtil.determinePosition().then((value) => LatLng(value.latitude, value.longitude));
+
+        PlannedWorkout plannedWorkout1 = await ServerConnection.getPlannedWorkout(currLocation, exerciseIds);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -273,7 +275,8 @@ class _WorkoutsState extends State<WorkoutsPage> {
     return ElevatedButton.icon(
       onPressed: () async {
         List<int> exerciseIds = workoutExercises.map((e) => e.id!).toList();
-        PlannedWorkout plannedWorkout1 = await ServerConnection.getPlannedWorkout(exerciseIds);
+        PlannedWorkout plannedWorkout1 =
+          await ServerConnection.getPlannedWorkout(GeolocatorUtil.determinePosition().then((value) => LatLng(value.latitude, value.longitude)), exerciseIds);
         Fluttertoast.showToast(msg: plannedWorkout1.toString());
         Navigator.push(
           context,

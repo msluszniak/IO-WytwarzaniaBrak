@@ -3,17 +3,19 @@ import 'dart:convert';
 
 import 'package:flutter_demo/models/gym.dart';
 import 'package:flutter_demo/ui/widgets/cards/gym_card.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart' as Geo;
 
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:http/http.dart' as http;
+
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_map_tappable_polyline/flutter_map_tappable_polyline.dart';
-import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
+import '../../utils/route.dart' as Route;
 
 import '../../models/planned_workout.dart';
 import '../../storage/dbmanager.dart';
@@ -291,7 +293,8 @@ class _MapState extends State<MapPage> {
 
   void _drawRoute(LatLng startingPoint, LatLng endingPoint, [List<LatLng> middlePoints = const []]) async {
     try {
-      routingPointsToDraw = await _getRoutePoints(startingPoint, endingPoint, middlePoints).timeout(Duration(seconds: 5));
+      final route = await Route.Route.createRoute(startingPoint, endingPoint, middlePoints).timeout(Duration(seconds: 5));
+      routingPointsToDraw = route.getRoutingPoints();
     } on TimeoutException catch(_) {
       Fluttertoast.showToast(msg: "Route obtaining timeout reached");
     } on Exception catch(_) {
