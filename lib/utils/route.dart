@@ -6,6 +6,8 @@ import 'package:latlong2/latlong.dart';
 import '../models/gym.dart';
 
 class Route {
+  static final _HUMAN_SPEED = 1.42; // m / s
+
   final List<RouteStep> routeSteps = [];
 
   static Future<Route?> routeFromGyms(LatLng startingPoint, List<Gym> gyms) async {
@@ -45,9 +47,11 @@ class Route {
             points.add(LatLng(element[1], element[0]));
           });
         }
+        final distance = (leg['distance'] / 10).ceil() * 10;
+        final duration = (leg['distance'] / _HUMAN_SPEED / 60).ceil();
 
         newRoute.routeSteps.add(
-            RouteStep(points: points, gym: null, duration: leg['duration'], distance: leg['distance'])
+            RouteStep(points: points, duration: duration, distance: distance)
         );
       }
 
@@ -69,9 +73,8 @@ class Route {
 
 class RouteStep {
   final List<LatLng> points;
-  final Gym? gym;
-  final double duration;
-  final double distance;
+  final int duration;
+  final int distance;
 
-  RouteStep({required this.points, required this.gym, required this.duration, required this.distance});
+  RouteStep({required this.points, required this.duration, required this.distance});
 }

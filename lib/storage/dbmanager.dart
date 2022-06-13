@@ -26,6 +26,20 @@ class DBManager extends ChangeNotifier {
     return 200;
   }
 
+  Future<int> getWorkoutDuration(int workoutId) async {
+    List<WorkoutExercise> workoutExercises = await getJoined<Workout, WorkoutExercise>(workoutId);
+    List<Exercise> exercises = await getJoined<Workout, Exercise>(workoutId);
+
+    int duration = 0;
+    for (WorkoutExercise workoutExercise in workoutExercises){
+      Exercise exercise = exercises.firstWhere((e) => e.id == workoutExercise.exerciseId);
+
+      duration += exercise.repTime! * workoutExercise.reps * workoutExercise.series;
+    }
+
+    return duration;
+  }
+
   Future<List<int>> addToLocal<T extends BaseModel>(List<T> item) async {
     switch (T) {
       case Workout:
