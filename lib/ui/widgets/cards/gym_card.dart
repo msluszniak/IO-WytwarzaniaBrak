@@ -38,30 +38,6 @@ class GymCard extends StatelessWidget {
             ],
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            ElevatedButton(
-              child: const Text('RATE'),
-              onPressed: () {
-                /* ... */
-              },
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton(
-              child: const Text('CHECK DISTANCE'),
-              onPressed: () {
-                selectedGym
-                    .getDistance()
-                    .then((distance) => print(
-                    '[DEBUG] Distance to selected gym: ' +
-                        distance.toString() +
-                        "meters"));
-              },
-            ),
-            const SizedBox(width: 8),
-          ],
-        ),
       ],
     );
   }
@@ -89,25 +65,6 @@ class GymCardDraggable extends StatelessWidget {
               subtitle: selectedGym.description == null
                   ? null
                   : Text(selectedGym.description!),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                ElevatedButton(
-                  child: const Text('RATE'),
-                  onPressed: () {
-                    /* ... */
-                  },
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  child: const Text('CHECK DISTANCE'),
-                  onPressed: () {
-                    /* ... */
-                  },
-                ),
-                const SizedBox(width: 8),
-              ],
             ),
           ],
         ),
