@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/backend/server_exception.dart';
+import 'package:flutter_demo/models/GymEquipments.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
@@ -42,6 +43,7 @@ class ServerConnection {
       case Exercise : return "exercise/all";
       case Equipment : return "equipment/all";
       case WorkoutExercise : return "workout/all_exercises";
+      case GymEquipment : return "gym/all_equipments";
     }
     return "";
   }
@@ -74,6 +76,8 @@ class ServerConnection {
           return parsed.map<T>((json) => Workout.fromJson(json)).toList();
         case WorkoutExercise:
           return parsed.map<T>((json) => WorkoutExercise.fromJson(json)).toList();
+        case GymEquipment:
+          return parsed.map<T>((json) => GymEquipment.fromJson(json)).toList();
       }
 
       throw ServerException(responseCode: 400);
