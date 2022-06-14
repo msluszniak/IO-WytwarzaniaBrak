@@ -5,6 +5,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import pl.agh.io.gym.models.Gym;
+import pl.agh.io.gym.models.GymEquipment;
+import pl.agh.io.workout.models.WorkoutExercise;
 
 import java.util.List;
 
@@ -70,5 +72,11 @@ public class GymDBAccessController {
     @GetMapping(path="/all/{name}")
     public @ResponseBody List<Gym> getAllGymsByName(@PathVariable String name) {
         return gymDAO.getAllGymsByName(name);
+    }
+
+    @GetMapping(path = "/all_equipments")
+    public @ResponseBody
+    List<GymEquipment> getAllWorkoutExercises() {
+        return gymDAO.getAllGymEquipments();
     }
 }

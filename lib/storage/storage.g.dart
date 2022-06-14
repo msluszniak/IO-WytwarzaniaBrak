@@ -70,6 +70,8 @@ class _$Storage extends Storage {
 
   WorkoutExerciseDao? _workoutExerciseDAOInstance;
 
+  GymEquipmentDao? _gymEquipmentDAOInstance;
+
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
@@ -98,6 +100,8 @@ class _$Storage extends Storage {
             'CREATE TABLE IF NOT EXISTS `Workout` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `isFavorite` INTEGER NOT NULL, `userDefined` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `WorkoutExercise` (`workoutId` INTEGER NOT NULL, `exerciseId` INTEGER NOT NULL, `series` INTEGER NOT NULL, `reps` INTEGER NOT NULL, FOREIGN KEY (`workoutId`) REFERENCES `Workout` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`exerciseId`) REFERENCES `Exercise` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`workoutId`, `exerciseId`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `GymEquipment` (`gymId` INTEGER NOT NULL, `equipmentId` INTEGER NOT NULL, FOREIGN KEY (`gymId`) REFERENCES `Gym` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY (`equipmentId`) REFERENCES `Equipment` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`gymId`, `equipmentId`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -129,6 +133,12 @@ class _$Storage extends Storage {
   WorkoutExerciseDao get workoutExerciseDAO {
     return _workoutExerciseDAOInstance ??=
         _$WorkoutExerciseDao(database, changeListener);
+  }
+
+  @override
+  GymEquipmentDao get gymEquipmentDAO {
+    return _gymEquipmentDAOInstance ??=
+        _$GymEquipmentDao(database, changeListener);
   }
 }
 
@@ -329,6 +339,14 @@ class _$GymDao extends GymDao {
             _sqliteVariablesForFavoriteIds +
             ')',
         arguments: [...favoriteIds]);
+  }
+
+  @override
+  Future<List<Equipment>> getJoinedEquipments(int gymId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM Equipment WHERE id IN (SELECT equipmentId FROM GymEquipment WHERE gymId = ?1)',
+        mapper: (Map<String, Object?> row) => Equipment(id: row['id'] as int?, name: row['name'] as String),
+        arguments: [gymId]);
   }
 
   @override
@@ -614,5 +632,68 @@ class _$WorkoutExerciseDao extends WorkoutExerciseDao {
   Future<List<int>> addAll(List<WorkoutExercise> workoutExercises) {
     return _workoutExerciseInsertionAdapter.insertListAndReturnIds(
         workoutExercises, OnConflictStrategy.abort);
+  }
+}
+
+class _$GymEquipmentDao extends GymEquipmentDao {
+  _$GymEquipmentDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database),
+        _gymEquipmentInsertionAdapter = InsertionAdapter(
+            database,
+            'GymEquipment',
+            (GymEquipment item) => <String, Object?>{
+                  'gymId': item.gymId,
+                  'equipmentId': item.equipmentId
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<GymEquipment> _gymEquipmentInsertionAdapter;
+
+  @override
+  Future<List<GymEquipment>> getAll() async {
+    return _queryAdapter.queryList('SELECT * FROM GymEquipment',
+        mapper: (Map<String, Object?> row) => GymEquipment(
+            gymId: row['gymId'] as int,
+            equipmentId: row['equipmentId'] as int));
+  }
+
+  @override
+  Future<List<GymEquipment>> getAllWithGym(int gymId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM GymEquipment WHERE gymId = ?1',
+        mapper: (Map<String, Object?> row) => GymEquipment(
+            gymId: row['gymId'] as int, equipmentId: row['equipmentId'] as int),
+        arguments: [gymId]);
+  }
+
+  @override
+  Future<List<GymEquipment>> getAllWithEquipment(int equipmentId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM GymEquipment WHERE equipmentId = ?1',
+        mapper: (Map<String, Object?> row) => GymEquipment(
+            gymId: row['gymId'] as int, equipmentId: row['equipmentId'] as int),
+        arguments: [equipmentId]);
+  }
+
+  @override
+  Future<void> clearAll() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM GymEquipment');
+  }
+
+  @override
+  Future<int> add(GymEquipment gymEquipment) {
+    return _gymEquipmentInsertionAdapter.insertAndReturnId(
+        gymEquipment, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<List<int>> addAll(List<GymEquipment> gymEquipments) {
+    return _gymEquipmentInsertionAdapter.insertListAndReturnIds(
+        gymEquipments, OnConflictStrategy.abort);
   }
 }

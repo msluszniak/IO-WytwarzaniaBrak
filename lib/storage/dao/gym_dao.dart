@@ -1,5 +1,6 @@
 import 'package:floor/floor.dart';
 
+import '../../models/equipment.dart';
 import '../../models/gym.dart';
 
 @dao
@@ -33,4 +34,7 @@ abstract class GymDao{
 
   @Query("UPDATE Gym SET isFavorite=1 WHERE id in (:favoriteIds)")
   Future<void> updateFavorites(List<int> favoriteIds);
+
+  @Query("SELECT * FROM Equipment WHERE id IN (SELECT equipmentId FROM GymEquipment WHERE gymId = :gymId)")
+  Future<List<Equipment>> getJoinedEquipments(int gymId);
 }

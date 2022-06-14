@@ -2,7 +2,11 @@ package pl.agh.io.gym.dbaccess;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pl.agh.io.equipment.models.Equipment;
 import pl.agh.io.gym.models.Gym;
+import pl.agh.io.gym.models.GymEquipment;
+import pl.agh.io.workout.models.Workout;
+import pl.agh.io.workout.models.WorkoutExercise;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,5 +68,19 @@ public class GymDAO {
                 gyms.add(gym);
         });
         return gyms;
+    }
+
+    public List<GymEquipment> getAllGymEquipments() {
+        List<Gym> gyms = new ArrayList<>();
+        gymRepository.findAll().forEach(gyms::add);
+
+        List<GymEquipment> gymEquipments = new ArrayList<>();
+        for (Gym gym : gyms) {
+            for (Equipment equipment : gym.getEquipment()){
+                gymEquipments.add(new GymEquipment(gym.getId(), equipment.getId()));
+            }
+        }
+
+        return gymEquipments;
     }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_demo/backend/server_connection.dart';
 import 'package:flutter_demo/backend/server_exception.dart';
+import 'package:flutter_demo/models/GymEquipments.dart';
 import 'package:flutter_demo/models/abstract/base_id_model.dart';
 import 'package:flutter_demo/models/planned_workout.dart';
 import 'package:flutter_demo/models/workout_exercises.dart';
@@ -31,8 +32,8 @@ class DBManager extends ChangeNotifier {
     List<WorkoutExercise> workoutExercises = await getJoined<Workout, WorkoutExercise>(workoutId);
 
     int duration = 0;
-    for (List<Exercise> exercisesPart in plannedWorkout.exercisesOnGyms){
-      for (Exercise exercise in exercisesPart){
+    for (List<Exercise> exercisesPart in plannedWorkout.exercisesOnGyms) {
+      for (Exercise exercise in exercisesPart) {
         WorkoutExercise workoutExercise = workoutExercises.firstWhere((e) => e.exerciseId == exercise.id);
 
         duration += (exercise.repTime! * workoutExercise.reps * workoutExercise.series / 60).ceil();
@@ -47,16 +48,12 @@ class DBManager extends ChangeNotifier {
       case Workout:
         final workouts = item
             .cast<Workout>()
-            .map((e) => new Workout(
-                name: e.name,
-                isFavorite: e.isFavorite,
-                userDefined: e.userDefined))
+            .map((e) => new Workout(name: e.name, isFavorite: e.isFavorite, userDefined: e.userDefined))
             .toList();
         return storage.workoutDAO.addAll(workouts);
       case WorkoutExercise:
         {
-          final allExercises =
-              (await storage.exerciseDAO.getAll()).map((e) => e.id!);
+          final allExercises = (await storage.exerciseDAO.getAll()).map((e) => e.id!);
 
           List<WorkoutExercise> exercises = item.cast<WorkoutExercise>();
           exercises.removeWhere((e) => !allExercises.contains(e.exerciseId));
@@ -78,9 +75,9 @@ class DBManager extends ChangeNotifier {
       case Workout:
         return storage.workoutDAO.getAll().then((values) => values.cast<T>());
       case WorkoutExercise:
-        return storage.workoutExerciseDAO
-            .getAll()
-            .then((values) => values.cast<T>());
+        return storage.workoutExerciseDAO.getAll().then((values) => values.cast<T>());
+      case GymEquipment:
+        return storage.gymEquipmentDAO.getAll().then((values) => values.cast<T>());
     }
     throw Exception("Invalid type provided for the database manager");
   }
@@ -89,15 +86,11 @@ class DBManager extends ChangeNotifier {
   Future<List<T>> getFavorites<T extends BaseIdModel>() async {
     switch (T) {
       case Exercise:
-        return storage.exerciseDAO
-            .getFavorite()
-            .then((values) => values.cast<T>());
+        return storage.exerciseDAO.getFavorite().then((values) => values.cast<T>());
       case Gym:
         return storage.gymDAO.getFavorite().then((values) => values.cast<T>());
       case Workout:
-        return storage.workoutDAO
-            .getFavorite()
-            .then((values) => values.cast<T>());
+        return storage.workoutDAO.getFavorite().then((values) => values.cast<T>());
     }
     throw Exception("Invalid type provided for the database manager");
   }
@@ -122,26 +115,19 @@ class DBManager extends ChangeNotifier {
 
   Future<List<R>> getJoined<L extends BaseModel, R extends BaseModel>(int id) {
     if (L == Workout && R == Exercise) {
-      return storage.workoutDAO
-          .getJoinedExercises(id)
-          .then((values) => values.cast<R>());
+      return storage.workoutDAO.getJoinedExercises(id).then((values) => values.cast<R>());
     } else if (R == Workout && L == Exercise) {
-      return storage.exerciseDAO
-          .getJoinedWorkouts(id)
-          .then((values) => values.cast<R>());
+      return storage.exerciseDAO.getJoinedWorkouts(id).then((values) => values.cast<R>());
     } else if (L == Exercise && R == Equipment) {
-      return storage.exerciseDAO
-          .getJoinedEquipments(id)
-          .then((values) => values.cast<R>());
+      return storage.exerciseDAO.getJoinedEquipments(id).then((values) => values.cast<R>());
     } else if (R == Exercise && L == Equipment) {
-      return storage.equipmentDAO
-          .getJoinedExercises(id)
-          .then((values) => values.cast<R>());
+      return storage.equipmentDAO.getJoinedExercises(id).then((values) => values.cast<R>());
     } else if (L == Workout && R == WorkoutExercise) {
-      return storage.workoutExerciseDAO
-          .getAllWithWorkout(id)
-          .then((values) => values.cast<R>());
+      return storage.workoutExerciseDAO.getAllWithWorkout(id).then((values) => values.cast<R>());
+    } else if (L == Gym && R == Equipment) {
+      return storage.gymDAO.getJoinedEquipments(id).then((values) => values.cast<R>());
     }
+
     throw Exception("Invalid types provided for the database manager");
   }
 
@@ -164,8 +150,7 @@ class DBManager extends ChangeNotifier {
       throw e;
     }
 
-    List<int> favoriteIds = await getFavorites<T>()
-        .then((items) => items.map((e) => e.id!).toList());
+    List<int> favoriteIds = await getFavorites<T>().then((items) => items.map((e) => e.id!).toList());
 
     switch (T) {
       case Exercise:
@@ -204,9 +189,14 @@ class DBManager extends ChangeNotifier {
     switch (T) {
       case WorkoutExercise:
         {
-          List<WorkoutExercise> workoutExercises =
-              items.cast<WorkoutExercise>();
+          List<WorkoutExercise> workoutExercises = items.cast<WorkoutExercise>();
           storage.workoutExerciseDAO.updateAll(workoutExercises);
+          return;
+        }
+      case GymEquipment:
+        {
+          List<GymEquipment> gymEquipments = items.cast<GymEquipment>();
+          storage.gymEquipmentDAO.updateAll(gymEquipments);
           return;
         }
       case Equipment:
@@ -224,8 +214,7 @@ class DBManager extends ChangeNotifier {
     List<Workout> localWorkouts = await storage.workoutDAO.getLocal();
     Map<int, List<WorkoutExercise>> localExercises = {};
     for (Workout workout in localWorkouts) {
-      localExercises[workout.id!] =
-          await storage.workoutExerciseDAO.getAllWithWorkout(workout.id!);
+      localExercises[workout.id!] = await storage.workoutExerciseDAO.getAllWithWorkout(workout.id!);
     }
 
     storage.workoutExerciseDAO.removeLocal();
@@ -237,25 +226,21 @@ class DBManager extends ChangeNotifier {
       await _updateEntityWithFavorite<Workout>();
 
       await _updateEntityWithoutFavorite<WorkoutExercise>();
+      await _updateEntityWithoutFavorite<GymEquipment>();
       await _updateEntityWithoutFavorite<Equipment>();
 
       //Restore local workouts
-      final exerciseIds =
-          await storage.exerciseDAO.getAll().then((v) => v.map((e) => e.id));
+      final exerciseIds = await storage.exerciseDAO.getAll().then((v) => v.map((e) => e.id));
 
       final newIds = await this.addToLocal<Workout>(localWorkouts);
       for (int i = 0; i < localWorkouts.length; i++) {
         final workout = localWorkouts[i];
         final workoutExercises = localExercises[workout.id]!
-            .map((e) => new WorkoutExercise(
-                workoutId: newIds[i],
-                exerciseId: e.exerciseId,
-                series: e.series,
-                reps: e.reps))
+            .map((e) =>
+                new WorkoutExercise(workoutId: newIds[i], exerciseId: e.exerciseId, series: e.series, reps: e.reps))
             .toList();
 
-        workoutExercises
-            .removeWhere((e) => !exerciseIds.contains(e.exerciseId));
+        workoutExercises.removeWhere((e) => !exerciseIds.contains(e.exerciseId));
 
         this.addToLocal<WorkoutExercise>(workoutExercises);
       }

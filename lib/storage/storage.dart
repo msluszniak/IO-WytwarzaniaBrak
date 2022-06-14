@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:flutter_demo/storage/dao/gym_equipment_dao.dart';
 import 'package:flutter_demo/storage/dao/workout_exercise_dao.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
 import 'package:floor/floor.dart';
 import 'package:flutter_demo/storage/dao/exercise_dao.dart';
+import '../models/GymEquipments.dart';
 import '../models/exercise.dart';
 
 import '../models/gym.dart';
@@ -18,7 +20,7 @@ import 'dao/workout_dao.dart';
 
 part 'storage.g.dart'; // the generated code will be there
 
-@Database(version: 1, entities: [Exercise, Equipment, Gym, Workout, WorkoutExercise])
+@Database(version: 1, entities: [Exercise, Equipment, Gym, Workout, WorkoutExercise, GymEquipment])
 abstract class Storage extends FloorDatabase {
   //entities
   ExerciseDao get exerciseDAO;
@@ -31,4 +33,6 @@ abstract class Storage extends FloorDatabase {
 
   //join entities
   WorkoutExerciseDao get workoutExerciseDAO;
+
+  GymEquipmentDao get gymEquipmentDAO;
 }

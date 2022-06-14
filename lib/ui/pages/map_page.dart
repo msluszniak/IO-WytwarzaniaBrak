@@ -176,8 +176,9 @@ class _MapState extends State<MapPage> {
                                       top: Radius.circular(20),
                                     ),
                                   ),
+                                  //TODO: Load tags
                                   builder: (BuildContext context) => GymCard(
-                                    selectedGym: gymList[index],
+                                    selectedGym: gymList[index], tags: [],
                                   ),
                                 );
                               },

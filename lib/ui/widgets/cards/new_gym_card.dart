@@ -192,9 +192,9 @@ class _NewGymState extends State<NewGymCard> {
 
                     final equipments = (await dbManager.getAll<Equipment>());
                     equipments.removeWhere((e) => !_items.contains(e.name));
-                    final List<int> equipmentIds = equipments.map((e) => e.id!).toList();
+                    final String equipmentIds = equipments.map((e) => e.id!).toString();
 
-                    int result = await dbManager.submitToDatabase(newGym, equipmentIds);
+                    int result = await dbManager.submitToDatabase(newGym);
                     await dbManager.updateAllData();
 
                     Navigator.pop(context);
