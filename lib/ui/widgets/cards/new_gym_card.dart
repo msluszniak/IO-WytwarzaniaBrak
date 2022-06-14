@@ -211,6 +211,7 @@ class _NewGymState extends State<NewGymCard> {
                         address: addressStr);
 
                     int result = await dbManager.submitToDatabase(newGym);
+                    await dbManager.updateAllData();
 
                     Navigator.pop(context);
 

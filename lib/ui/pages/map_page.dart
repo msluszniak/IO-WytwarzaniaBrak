@@ -239,6 +239,7 @@ class _MapState extends State<MapPage> {
                           setState(() {
                             this.inCreatingMode = false;
                             this.inAddingMode = false;
+                            dbManager.getAll<Gym>().then((value) => gymList = value.cast());
                           });
                         },
                       ),
