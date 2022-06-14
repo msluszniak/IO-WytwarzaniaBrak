@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/models/equipment.dart';
 import 'package:flutter_demo/models/gym.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_tags/flutter_tags.dart';
@@ -24,15 +25,6 @@ class _NewGymState extends State<NewGymCard> {
   final nameController = TextEditingController();
   final descController = TextEditingController();
 
-  static const List<String> tags = [
-    "pull-up bar",
-    "bench",
-    "dumbells",
-    "jumping rope",
-    "squat rack",
-    "treadmill",
-    "leg press"
-  ];
   List _items = [];
   double _fontSize = 14;
 
@@ -59,8 +51,7 @@ class _NewGymState extends State<NewGymCard> {
     // ),
     final dbManager = context.watch<DBManager>();
 
-    final latLng = LatLng(widget.mapController.center.latitude,
-        widget.mapController.center.longitude);
+    final latLng = LatLng(widget.mapController.center.latitude, widget.mapController.center.longitude);
     Future<String> address = Gym.getAddressFromLatLng(latLng);
 
     String? addressStr;
@@ -80,64 +71,59 @@ class _NewGymState extends State<NewGymCard> {
               ),
             ),
             Divider(height: 20, thickness: 1, indent: 5, endIndent: 5, color: Colors.grey),
-            Tags(
-              key: _tagStateKey,
-              //symmetry: true,
-              //horizontalScroll: true,
-              textDirection: TextDirection.rtl,
-              //direction: Axis.vertical,
-              textField: TagsTextField(
-                autofocus: true,
-                // inputDecoration: InputDecoration(
-                //   border: InputBorder(),
-                //   labelText: 'Tags',
-                // ),
-                textStyle: TextStyle(fontSize: _fontSize),
-                constraintSuggestion: true,
-                suggestions: _NewGymState.tags,
-                //width: double.infinity, padding: EdgeInsets.symmetric(horizontal: 10),
-                onSubmitted: (String str) {
-                  // Add item to the data source.
-                  setState(() {
-                    // required
-                    _items.add(str);
-                  });
-                },
-              ),
-              itemCount: _items.length,
-              // required
-              itemBuilder: (int index) {
-                final item = _items[index];
+            FutureBuilder<List<Equipment>>(
+                future: dbManager.getAll<Equipment>(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgressIndicator();
+                  } else {
+                    final suggestions = snapshot.data!.map((e) => e.name).toList();
 
-                return ItemTags(
-                  // Each ItemTags must contain a Key. Keys allow Flutter to
-                  // uniquely identify widgets.
-                  key: Key(index.toString()),
-                  index: index,
-                  pressEnabled: false,
-                  // required
-                  title: item,
-                  textStyle: TextStyle(
-                    fontSize: _fontSize,
-                  ),
-                  combine: ItemTagsCombine.withTextBefore,
-                  removeButton: ItemTagsRemoveButton(
-                    onRemoved: () {
-                      // Remove the item from the data source.
-                      setState(() {
-                        // required
-                        _items.removeAt(index);
-                      });
-                      //required
-                      return true;
-                    },
-                  ),
-                  // OR null,
-                  onPressed: (item) => print(item),
-                  onLongPressed: (item) => print(item),
-                );
-              },
-            ),
+                    return Tags(
+                      key: _tagStateKey,
+                      textDirection: TextDirection.rtl,
+                      textField: TagsTextField(
+                        autofocus: true,
+                        textStyle: TextStyle(fontSize: _fontSize),
+                        constraintSuggestion: true,
+                        suggestions: suggestions,
+                        onSubmitted: (String str) {
+                          setState(() {
+                            print(str);
+                            _items.add(str);
+                          });
+                        },
+                      ),
+                      itemCount: _items.length,
+                      itemBuilder: (int index) {
+                        final item = _items[index];
+
+                        return ItemTags(
+                          key: Key(index.toString()),
+                          index: index,
+                          pressEnabled: false,
+                          title: item,
+                          textStyle: TextStyle(
+                            fontSize: _fontSize,
+                          ),
+                          combine: ItemTagsCombine.withTextBefore,
+                          removeButton: ItemTagsRemoveButton(
+                            onRemoved: () {
+                              setState(() {
+                                _items.removeAt(index);
+                              });
+                              //required
+                              return true;
+                            },
+                          ),
+                          // OR null,
+                          // onPressed: (item) => print(item),
+                          // onLongPressed: (item) => print(item),
+                        );
+                      },
+                    );
+                  }
+                }),
             // Expanded(
             //   child: ListView(
             //     padding: const EdgeInsets.all(8),
@@ -146,12 +132,7 @@ class _NewGymState extends State<NewGymCard> {
             //     ],
             //   ),
             // ),
-            Divider(
-                height: 20,
-                thickness: 1,
-                indent: 5,
-                endIndent: 5,
-                color: Colors.grey),
+            Divider(height: 20, thickness: 1, indent: 5, endIndent: 5, color: Colors.grey),
             TextField(
               controller: descController,
               decoration: InputDecoration(
@@ -173,8 +154,7 @@ class _NewGymState extends State<NewGymCard> {
                             Center(
                               heightFactor: 1,
                               widthFactor: 1,
-                              child: const SizedBox.square(
-                                  child: CircularProgressIndicator()),
+                              child: const SizedBox.square(child: CircularProgressIndicator()),
                             ),
                           ],
                         );
@@ -210,7 +190,11 @@ class _NewGymState extends State<NewGymCard> {
                         description: descController.text,
                         address: addressStr);
 
-                    int result = await dbManager.submitToDatabase(newGym);
+                    final equipments = (await dbManager.getAll<Equipment>());
+                    equipments.removeWhere((e) => !_items.contains(e.name));
+                    final List<int> equipmentIds = equipments.map((e) => e.id!).toList();
+
+                    int result = await dbManager.submitToDatabase(newGym, equipmentIds);
                     await dbManager.updateAllData();
 
                     Navigator.pop(context);
@@ -246,8 +230,7 @@ class _NewGymState extends State<NewGymCard> {
       content: new Row(
         children: [
           CircularProgressIndicator(),
-          Container(
-              margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+          Container(margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
         ],
       ),
     );
