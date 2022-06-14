@@ -1,6 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/ui/pages/workouts_page.dart';
-import 'package:flutter_demo/ui/pages/favorites.dart';
 import 'package:flutter_demo/ui/pages/exercises_page.dart';
 import 'package:flutter_demo/ui/pages/map_page.dart';
 import 'package:provider/provider.dart';
@@ -49,13 +50,8 @@ class NavBar extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, ExercisesPage.routeName),
           ),
           ListTile(
-            leading: Icon(Icons.favorite),
-            title: Text('Favorites'),
-            onTap: () => Navigator.pushNamed(context, FavoritesPage.routeName),
-          ),
-          ListTile(
             leading: Icon(Icons.list),
-            title: Text('Gyms'),
+            title: Text('Workouts'),
             onTap: () => Navigator.pushNamed(context, WorkoutsPage.routeName),
           ),
           Divider(),
@@ -79,16 +75,11 @@ class NavBar extends StatelessWidget {
               );
             },
           ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            onTap: () => null,
-          ),
           Divider(),
           ListTile(
             title: Text('Exit'),
             leading: Icon(Icons.exit_to_app),
-            onTap: () => null,
+            onTap: () => exit(0),
           ),
         ],
       ),
